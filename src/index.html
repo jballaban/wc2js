@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<script>
+			var elvtr = elvtr || {};
+			elvtr.loadJS = function(arr){
+				var L = arr.length, C = 0;
+				var addscr = function(){
+					var scrTag = document.createElement('script'), path = arr[C];
+					scrTag.type = 'text/javascript';
+					C++;
+					(C<L) ? scrTag.onload = addscr :0;
+					scrTag.src = path; 
+					document.head.appendChild(scrTag);
+				};
+				addscr();
+			};
+		</script>
+		<link rel="shortcut icon" href="asset/favicon.gif">
+		<style>
+			html, body { margin:0; background-color:black; cursor: none; }
+			canvas { z-index: 1; }
+			video { position:absolute; z-index: 2; }
+		</style>
+	</head>
+	<body>
+		<canvas id="canvas"></canvas>
+		<script>
+			describe = function() {}; // placeholder for tests
+			elvtr.loadJS([
+				'lib/ref/FPSMeter.js',
+				'lib/Framework/Framework.js',
+				'lib/Framework/Runtime.js',
+				'lib/Framework/Util/Util.js',
+				'lib/Framework/Util/Val.js',
+				'lib/Framework/Util/Timer.js',
+				'lib/Framework/Util/Colour.js',
+				'lib/Framework/Util/Animate.js',
+				'lib/Framework/Util/Math.js',
+				'lib/Framework/UI/UI.js',
+				'lib/Framework/UI/Cursor.js',
+				'lib/Framework/UI/iDrawable.js',
+				'lib/Framework/UI/Rectangle.js',
+				'lib/Framework/UI/Image.js',
+				'lib/Framework/UI/Element.js',
+				'lib/Framework/UI/Text.js',
+				'lib/Framework/UI/Button.js',
+				'lib/Framework/UI/Menu.js',
+				'lib/Framework/UI/Checkbox.js',
+				'lib/Framework/UI/Screen.js',
+				'lib/Framework/IO/IO.js',
+				'lib/Framework/IO/Mouse.js',
+				'lib/Framework/IO/MouseHandler.js',
+				'lib/Framework/IO/Video.js',
+				'lib/Framework/Effect/Effect.js',
+				'lib/Game/Game.js',
+				'lib/Game/Screen/Screen.js',
+				'lib/Game/Screen/Load.js',
+				'lib/Game/Screen/Intro.js',
+				'lib/Game/Screen/MainMenu.js',
+				'start.js'
+			]);
+		</script>
+	</body>
+</html>
