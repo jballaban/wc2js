@@ -21,7 +21,6 @@ Framework.UI.Screen = class extends Framework.UI.Element {
 		this._originalWidth = width;
 		this._originalHeight = height;
 		super.resize();
-		console.log(this.width, width)
 	}
 
 	/**

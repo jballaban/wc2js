@@ -29,6 +29,8 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 		this.show = _options.item('show').is(Boolean).val(true);
 		this._vAlign = _options.item('vAlign').is(String).in('absolute','relative','centered').val('relative');
 		this._hAlign = _options.item('hAlign').is(String).in('absolute','relative','centered').val('relative');
+		this._width = 0;
+		this._height = 0;
 		this._originalWidth = _options.item('width').val('0');
 		this._originalHeight = _options.item('height').val('0');
 		this._elements = [];
@@ -335,7 +337,6 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 
 	_setWidth(val) {
 		this._width = this._calcLength(val, 'width');
-		console.log('set ', val, ' = ', this._width)
 		if (this._isParentWidthDynamic())
 			this._parent.calculateLengths();
 	}
@@ -349,102 +350,7 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 
 describe('Framework.UI.Element', function() {
 
-	var lengthTest = class {
-		constructor(width, offset) {
-			this._offset = offset == undefined ? 0 : offset;
-			this._originalWidth = width;
-			this.children = [];
-			this.parent = null;
-			this.calculateLengths();
-		}
-
-		get offset() {
-			return this._offset;
-		}
-
-		add(t) {
-			this.children.push(t);
-			t.parent = this;
-			t.calculateLengths();
-		}
-
-		get width() {
-			return this._width;
-		}
-
-		_isParentWidthDynamic() {
-			return this.parent != null && this.parent._originalWidth.toString().startsWith('%');
-		}
-
-		_getPoint(dimension) {
-			return dimension == 'width' ? this.offset : 0;
-		}
-
-		_calcLength(val, dimension) {
-			var pad = 0;
-			if (val.toString().indexOf('+') > -1) {
-				pad = parseInt(val.split('+')[1]);
-				val = val.split('+')[0];
-			}
-			if (val.toString().indexOf('%') > -1) {
-				if (val.indexOf('%') == 0) {
-					val = this._largestChild(dimension);
-				} else if (this.parent == null) {
-					val = 0;
-				} else {
-					var percent = parseInt(val.substring(0, val.indexOf('%'))) / 100;
-					val = parseInt(percent * this.parent[dimension]);
-				}
-			}
-			return parseInt(val) + pad;
-		}
-
-		_largestChild(dimension) {
-			var val = 0;
-			for (var i=0; i<this.children.length; i++)
-				val = Math.max(val, this.children[i][dimension]+this.children[i]._getPoint(dimension));
-			return val;
-		}
-
-		_setWidth(val) {
-			this._width = this._calcLength(val, 'width');
-			if (this._isParentWidthDynamic())
-				this.parent.calculateLengths();
-		}
-
-		calculateLengths() {
-			this._setWidth(this._originalWidth);
-		}
-	}
-
-	it('#lengthTest', function() {
-		var t = new lengthTest(100);
-		var t2 = new lengthTest('50%+5');
-		var t3 = new lengthTest('30');
-		var t4 = new lengthTest('%');
-		var t5 = new lengthTest('%+2');
-		var t6 = new lengthTest('43',2);
-		var t7 = new lengthTest('47');
-		var t8 = new lengthTest('48',2);
-		var t9 = new lengthTest('50%');
-		t.add(t2);
-		t.add(t3);
-		t.add(t4);
-		t.add(t5);
-		t5.add(t6);
-		t5.add(t7);
-		t5.add(t8);
-		t8.add(t9);
-		assert.equal(t.width, 100);
-		assert.equal(t2.width, 55);
-		assert.equal(t3.width, 30);
-		assert.equal(t4.width, 0);
-		assert.equal(t5.width, 52);
-		assert.equal(t6.width, 43);
-		assert.equal(t9.width, 24);
-	});
-
-	it('#constructor', function() {
+	it('#tructor', function() {
 		var el = new Framework.UI.Element(runtime);
 		var el2 = new Framework.UI.Element(runtime, {
 			alpha: 0.5,

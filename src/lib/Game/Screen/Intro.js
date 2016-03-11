@@ -6,28 +6,16 @@ Game.Screen.Intro = class extends Framework.UI.Screen {
 			callback: function() { 
 				console.log('done');
 			}.bind(this),
-			autoplay: false
+			autoplay: true
 		});
-		this._playing = false;
 	}
 
-	update() {
-		if (!this._playing) {
-			this._playing = true;
-			this._video.play();
+	resize(width, height) {
+		super.resize(width, height);
+		if (this._video != null) {
+			this._video.width = this.width;
+			this._video.height = this.height;
 		}
-		super.update();
 	}
 
-	set width(val) {
-		super.width = val;
-		if (this._video != null)
-			this._video.width = val;
-	}
-
-	set height(val) {
-		super.height = val;
-		if (this._video != null)
-			this._video.height = val;
-	}
 }

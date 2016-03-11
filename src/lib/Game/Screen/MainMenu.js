@@ -16,7 +16,6 @@ Game.Screen.MainMenu = class extends Framework.UI.Screen {
 		menu.addListener('hover', Game.trigger.button.hoverBackground(menu));
 		this.addElement(menu);
 		menu.addMenu('vertical', this.createMenu('Watch Intro', function() {
-			console.log('s');
 			runtime.setScreen(new Game.Screen.Intro());
 		}));
 		menu.addMenu('vertical', this.createMenu('Play Now'));
