@@ -9,7 +9,7 @@
 		"default": {
 			"outputSourceFiles" : true
 		},
-		"applicationName": "Warcraft 2",
+		"applicationName": "WC2JS",
 		"disqus": "",
 		"googleAnalytics": "",
 		"openGraph": {
