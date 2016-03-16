@@ -7,7 +7,7 @@ before_install: npm install -g grunt-cli
 install: npm install
 before_script: grunt build
 deploy:
-    provider: s3
+    - provider: s3
     access_key_id: $AWS_ACCESS_KEY # declared in Travis repo settings
     secret_access_key: $AWS_SECRET_KEY
     bucket: play.wc2js.com
@@ -17,10 +17,19 @@ deploy:
     local_dir: build
     on:
         branch: master
+    - provider: s3
+    access_key_id: $AWS_ACCESS_KEY # declared in Travis repo settings
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: doc.wc2js.com
+    acl: public_read
+    skip_cleanup: true
+    detect_encoding: true
+    local_dir: doc
+    on:
+        branch: master
 notifications:
     email:
         on_failure: always
         on_success: change
         recipients: 
         - jballaban@gmail.com
-    

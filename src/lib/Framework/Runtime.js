@@ -40,6 +40,8 @@ Framework.Runtime = class {
 		screen.resize(this._width, this._height);
 		Framework.IO.MouseHandler.setMaxX(screen.width);
 		Framework.IO.MouseHandler.setMaxY(screen.height);
+		if (this._screen != null)
+			this._screen.destroy();
 		this._screen = new Framework.Util.Val(screen).is(Framework.UI.Screen).req().val();
 	}
 

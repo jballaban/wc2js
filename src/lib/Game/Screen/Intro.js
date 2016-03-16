@@ -3,8 +3,8 @@ Game.Screen.Intro = class extends Framework.UI.Screen {
 	constructor () {
 		super(runtime.canvas);
 		this._video = new Framework.IO.Video('asset/intro.mp4', 0, 0, 0, 0, { 
-			callback: function() { 
-				console.log('done');
+			callback: function() {
+				runtime.setScreen(new Game.Screen.MainMenu());
 			}.bind(this),
 			autoplay: true
 		});
@@ -18,4 +18,7 @@ Game.Screen.Intro = class extends Framework.UI.Screen {
 		}
 	}
 
+	destroy() {
+		this._video.destroy();
+	}
 }

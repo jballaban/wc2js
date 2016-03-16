@@ -23,6 +23,10 @@ Framework.UI.Screen = class extends Framework.UI.Element {
 		super.resize();
 	}
 
+	destroy() {
+		// abstract method for you to clean up your shit!
+	}
+
 	/**
 	Clears the entire screen and draws all child elements
 	@param {number} a - Alpha setting
