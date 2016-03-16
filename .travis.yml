@@ -23,3 +23,4 @@ notifications:
         on_success: change
         recipients: 
         - jballaban@gmail.com
+    
