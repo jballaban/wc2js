@@ -23,4 +23,3 @@ notifications:
         on_success: change
         recipients: 
         - jballaban@gmail.com
-        - 6476679391@vm.ca
