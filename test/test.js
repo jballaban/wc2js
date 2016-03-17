@@ -119,6 +119,7 @@ require('../src/lib/Framework/Util/Querystring.js');
 require('../src/lib/Framework/Util/Timer.js');
 require('../src/lib/Framework/Util/Colour.js');
 require('../src/lib/Framework/Util/Animate.js');
+require('../src/lib/Framework/Util/DOM.js');
 require('../src/lib/Framework/UI/UI.js');
 require('../src/lib/Framework/UI/iDrawable.js');
 require('../src/lib/Framework/UI/Text.js');
@@ -126,13 +127,13 @@ require('../src/lib/Framework/UI/Rectangle.js');
 require('../src/lib/Framework/UI/Image.js');
 require('../src/lib/Framework/UI/Element.js');
 require('../src/lib/Framework/UI/Cursor.js');
+require('../src/lib/Framework/UI/Video.js');
 require('../src/lib/Framework/IO/IO.js');
 require('../src/lib/Framework/IO/Mouse.js');
 require('../src/lib/Framework/IO/MouseHandler.js');
 Framework.UI.Cursor.init(runtime.canvas); // seed cursors based on our context
 Framework.IO.MouseHandler.init(100, 100); // seed cursors based on our context
 require('../src/lib/Framework/IO/Audio.js');
-require('../src/lib/Framework/IO/Video.js');
 require('../src/lib/Framework/UI/Button.js');
 require('../src/lib/Framework/UI/Checkbox.js');
 require('../src/lib/Framework/UI/Modal.js');

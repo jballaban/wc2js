@@ -37,17 +37,13 @@ Framework.UI.Video = class {
 
 describe('Framework.UI.Video', function() {
 	it('#constructor,loop,autoplay,destroy', function() {
-		var el = new Framework.IO.Video('asset/noise.mpg', 0, 0, 100, 100);
-		var el2 = new Framework.IO.Video('asset/noise.mpg', 0, 0, 100, 100, { loop: true, autoplay: true });
-		assert.equal(el._loop, false);
-		assert.equal(el._autoplay, false);
-		assert.equal(el2._loop, true);
-		assert.equal(el2._autoplay, true);
+		var el = new Framework.UI.Video('asset/noise.mpg', 0, 0, 100, 100);
+		var el2 = new Framework.UI.Video('asset/noise.mpg', 0, 0, 100, 100, { loop: true, autoplay: true });
 		el.destroy();
 	});
 
 	it('#play,stop', function() {
-		var el = new Framework.IO.Video('asset/noise.mpg', 0, 0, 100, 100);
+		var el = new Framework.UI.Video('asset/noise.mpg', 0, 0, 100, 100);
 		el.play();
 		el.stop();
 	});
