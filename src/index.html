@@ -21,22 +21,46 @@
 			html, body { margin:0; background-color:black; cursor: none; }
 			canvas { z-index: 1; }
 			video { position:absolute; z-index: 2; }
+			div.loading {
+				z-index: 2;
+				position:absolute;
+				height:100%;
+				width:100%;
+			 	background-image: url(asset/loading.gif);
+			  	background-size: 100% 100%;
+			  	top: 0;
+			  	left: 0;
+			}
+			a#user {
+				position: absolute;
+				right: 0px;
+				background-color: white;
+				padding: 5px
+			}
 		</style>
 	</head>
 	<body>
+		<a id="user" href="#" onclick="Framework.Auth.User.signOut(); location.reload(); return false;"></a>
 		<canvas id="canvas"></canvas>
 		<script>
 			describe = function() {}; // placeholder for tests
 			elvtr.loadJS([
 				'lib/ref/FPSMeter.js',
 				'lib/Framework/Framework.js',
+				'lib/Framework/Storage/Storage.js',
+				'lib/Framework/Storage/Local.js',
+				'lib/Framework/Auth/Auth.js',
+				'lib/Framework/Auth/User.js',
+				'lib/Framework/Auth/Google.js',
 				'lib/Framework/Runtime.js',
 				'lib/Framework/Util/Util.js',
 				'lib/Framework/Util/Val.js',
+				'lib/Framework/Util/DOM.js',
 				'lib/Framework/Util/Timer.js',
 				'lib/Framework/Util/Colour.js',
 				'lib/Framework/Util/Animate.js',
 				'lib/Framework/Util/Math.js',
+				'lib/Framework/Util/Querystring.js',
 				'lib/Framework/UI/UI.js',
 				'lib/Framework/UI/Cursor.js',
 				'lib/Framework/UI/iDrawable.js',
@@ -48,16 +72,18 @@
 				'lib/Framework/UI/Menu.js',
 				'lib/Framework/UI/Checkbox.js',
 				'lib/Framework/UI/Screen.js',
+				'lib/Framework/UI/Video.js',
 				'lib/Framework/IO/IO.js',
 				'lib/Framework/IO/Mouse.js',
 				'lib/Framework/IO/MouseHandler.js',
-				'lib/Framework/IO/Video.js',
 				'lib/Framework/Effect/Effect.js',
 				'lib/Game/Game.js',
 				'lib/Game/Screen/Screen.js',
+				'lib/Game/Screen/Auth.js',
 				'lib/Game/Screen/Load.js',
 				'lib/Game/Screen/Intro.js',
 				'lib/Game/Screen/MainMenu.js',
+				'https://apis.google.com/js/client.js',
 				'start.js'
 			]);
 		</script>

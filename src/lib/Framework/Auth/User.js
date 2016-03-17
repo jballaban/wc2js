@@ -6,6 +6,7 @@ Framework.Auth.User = {
 	Token: null,
 	Id: null,
 	Photo: null,
+	Name: null,
 	init: function(storage) {
 		this._storage = storage == null ? Framework.Storage.Local : storage;
 	},
@@ -21,18 +22,21 @@ Framework.Auth.User = {
 		this.Token = null;
 		this.Id = null;
 		this.Photo = null;
+		this.Name = null;
 		this.save();
 	},
 	_fromJSON: function(json) {
 		Framework.Auth.User.Token = json.token;
 		Framework.Auth.User.Id = json.id;
 		Framework.Auth.User.Photo = json.photo;
+		Framework.Auth.User.Name = json.name;
 	},
 	_toJSON: function() {
 		return {
 			token: this.Token,
 			id: this.Id,
-			photo: this.Photo
+			photo: this.Photo,
+			name: this.Name
 		}
 	}
 }
