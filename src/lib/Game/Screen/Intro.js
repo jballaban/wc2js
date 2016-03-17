@@ -2,12 +2,6 @@
 Game.Screen.Intro = class extends Framework.UI.Screen {
 	constructor () {
 		super(runtime.canvas);
-		this._video = new Framework.UI.Video('asset/intro.mp4', 0, 0, 0, 0, { 
-			callback: function() {
-				runtime.setScreen(new Game.Screen.MainMenu());
-			}.bind(this),
-			autoplay: true
-		});
 	}
 
 	resize(width, height) {
@@ -18,7 +12,19 @@ Game.Screen.Intro = class extends Framework.UI.Screen {
 		}
 	}
 
+	attach() {
+		this._video = new Framework.UI.Video('asset/intro.mp4', 0, 0, 0, 0, { 
+			callback: function() {
+				Game.transition.screen(new Game.Screen.MainMenu())
+			}.bind(this),
+			autoplay: true
+		});
+		this.resize(this.width, this.height);
+		super.attach();
+	}
+
 	destroy() {
 		this._video.destroy();
+		super.destroy();
 	}
 }

@@ -18,17 +18,17 @@ Framework.Util.Animate = class {
 		return animate._object == this._object && animate._field == this._field;
 	}
 
-	get _completed() {
+	get completed() {
 		return this._tick == this._ticks;
 	}
 
 	update() {
-		if (this._completed) return;
+		if (this.completed) return;
 		this._tick++;
-		if (this._completed)
+		if (this.completed)
 			this._object[this._field] = this._endvalue;
 		else
-			this._step();	
+			this._step();
 	}
 
 	_step() {

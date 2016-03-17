@@ -7,16 +7,17 @@ Framework.Auth.User.init();
 Framework.Auth.User.load();
 
 if (Framework.Auth.User.Id != null) {
-	user(Framework.Auth.User.Name);
+	login(Framework.Auth.User);
 } else {
 	setTimeout(function() {
 		Framework.Auth.Google.auth(function() {
-	  		 user(Framework.Auth.User.Name);
+	  		 login(Framework.Auth.User);
 	  	});
 	}, 1000);
 }
 
-function user(name) {
-	document.getElementById('user').innerHTML = name;
-	runtime.setScreen(new Game.Screen.MainMenu());
+function login(user) {
+	document.getElementById('user_photo').src = user.Photo;
+	document.getElementById('user_name').innerHTML = user.Name;
+	runtime.screen.loaded();
 }

@@ -31,16 +31,25 @@
 			  	top: 0;
 			  	left: 0;
 			}
-			a#user {
+			#user {
 				position: absolute;
 				right: 0px;
 				background-color: white;
-				padding: 5px
+				padding: 5px;
+				font-size:14px;
+				text-decoration: none;
+			}
+			#user_photo {
+				height: 18px;
+				width: 18px;
 			}
 		</style>
 	</head>
 	<body>
-		<a id="user" href="#" onclick="Framework.Auth.User.signOut(); location.reload(); return false;"></a>
+		<a id="user" href="#" onclick="Framework.Auth.User.signOut(); location.reload(); return false;">
+			<img id="user_photo">
+			<span id="user_name" ></span>
+		</a>
 		<canvas id="canvas"></canvas>
 		<script>
 			describe = function() {}; // placeholder for tests

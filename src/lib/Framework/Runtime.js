@@ -21,6 +21,10 @@ Framework.Runtime = class {
 		window.onresize = this._resize.bind(this);
 	}
 
+	get screen() {
+		return this._screen;
+	}
+
 	get canvas() {
 		return this._canvas;
 	}
@@ -43,6 +47,7 @@ Framework.Runtime = class {
 		if (this._screen != null)
 			this._screen.destroy();
 		this._screen = new Framework.Util.Val(screen).is(Framework.UI.Screen).req().val();
+		this._screen.attach();
 	}
 
 	/**

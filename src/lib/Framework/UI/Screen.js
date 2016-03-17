@@ -23,6 +23,10 @@ Framework.UI.Screen = class extends Framework.UI.Element {
 		super.resize();
 	}
 
+	attach() {
+		// abstract method when screen is activated
+	}
+
 	destroy() {
 		// abstract method for you to clean up your shit!
 	}

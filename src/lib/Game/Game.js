@@ -1,5 +1,15 @@
 "use strict";
 var Game = {
+	transition: {
+		screen: function(dest) {
+			Framework.Effect.fade(runtime.screen, runtime.screen, 'alpha', 0, 1000, function() {
+				runtime.setScreen(dest);
+			});
+		},
+		appear: function() {
+			Framework.Effect.fade(runtime.screen, runtime.screen, 'alpha', 1, 1000);
+		}
+	},
 	trigger: {
 		button: {
 			hoverBackground: function(el) {
