@@ -4,19 +4,17 @@ Defines a button for sceen output and interaction
 @extends Framework.UI.Element
 @todo move colour out of options into mandatory
 @todo update Sprite param to reference an interface
-@requires Framework/UI/UI.js
-@requires Framework/UI/Element.js
 **/
 Framework.UI.Button = class extends Framework.UI.Element {
 	/**
 	@param {object} canvas - The canvas to draw too
 	@param {?object} [options] - Set and override default values
-	@param {decimal} [options.alpha=1] - Override base aLpha setting
+	@param {decimal} [options.alpha=1] - Override base alpha setting
 	@param {?Framework.UI.Text} [options.text] - Text sprite to display
-	@param {Framework.Sprite} [options.sprite={@link Framework.UI.Rectangle}] - The sprite to use for the button
+	@param {Framework.Sprite} [options.sprite={@link Framework.UI.Rectangle}] - The sprite to use for the button.  Defaults to rectangle
 	@param {?Framework.Sprite} [options.hoversprite] - If set on hover this sprite will be displayed
 	@param {?Framework.Sprite} [options.icon] - Icon to display with the button
-	@param {?callback} [options.click] - Callback if element is clicked
+	@param {?function} [options.click] - Callback if element is clicked
 	**/
 	constructor(canvas, options) {
 		var _options = new Framework.Util.Val(options).is(Object);
@@ -35,7 +33,7 @@ Framework.UI.Button = class extends Framework.UI.Element {
 	}
 
 	/**
-	Updates sprite to hovered state and then calls base
+	Updates sprite to hovered state.
 	@type {boolean}
 	**/
 	get hovered() {
@@ -49,7 +47,7 @@ Framework.UI.Button = class extends Framework.UI.Element {
 	}
 
 	/**
-	The buttons icon
+	Returns the button's icon
 	@type {Framework.UI.iDrawable}
 	**/
 	get icon() {
@@ -66,7 +64,7 @@ Framework.UI.Button = class extends Framework.UI.Element {
 	}
 
 	/**
-	Calls base and then if we have an icon (see constructor options.icon) draws that, and if we have text (see constructor options.text) draws that too
+	Draws button, icon and text if set
 	@param {number} a - The alpha setting to apply
 	**/
 	draw(a) {

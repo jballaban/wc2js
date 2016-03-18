@@ -1,17 +1,25 @@
 "use strict";
 /**
-Data persistance management.  Currently all works off browser localStorage
+Data persistance management to AWS DynamoDB
 @namespace
 **/
 Framework.Storage.DynamoDB = {
+	/**
+	Connects the storage to AWS client
+	**/
 	init: function() {
 		this._aws = apigClientFactory.newClient();
 	},
+
 	_tables: ['map'],
+
 	/**
 	Saves an object at field name
-	@param {string} field - The storage key
+	@param {string} table - The table name
+	@param {string} id - The unique row ID
 	@param {object} object - The data to store (will be serialized)
+	@param {object} [options] - Optional parameters
+	@param {function} [options.callback] - Callback method once save has completed
 	**/
 	save: function(table, id, object, options) {
 		new Framework.Util.Val(table).is(String).in(this._tables).req();
@@ -39,8 +47,10 @@ Framework.Storage.DynamoDB = {
 	},
 
 	/**
-	Loads data at a specified key
-	@param {string} field - The key to query
+	Loads data from the database
+	@param {string} table - The table to query
+	@param {string} id - The row ID
+	@param {function} callback - The function to return data with (will take the Item as parameter)
 	**/
 	load: function(table, id, callback) {
 		new Framework.Util.Val(table).is(String).in(this._tables).req();
@@ -65,8 +75,11 @@ Framework.Storage.DynamoDB = {
 	},
 
 	/**
-	Removes a specific key and data from storage
-	@param {string} field - The key to remove
+	Deletes a row
+	@param {string} table - The table top query
+	@param {string} id - The unique row id
+	@param {options} [options] - Optional parameters
+	@param {function} [options.callback] - Callback function on completion (regardless of failure)
 	**/
 	remove: function(table, id, options) {
 		new Framework.Util.Val(table).is(String).in(this._tables).req();

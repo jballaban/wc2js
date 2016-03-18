@@ -2,13 +2,13 @@
 /**
 Defines a checkbox for sceen output and interaction
 @extends Framework.UI.Button
-@requires Framework/UI/Button.js
 **/
 Framework.UI.Checkbox = class extends Framework.UI.Button {
 	/**
 	@param {object} canvas - The canvas to draw too
-	@param {object} options - Options to pass to base constructor.  See {@link Framework.Button} for details
-	@param {boolean} [options.checked=false] - If the checkbox should be selected
+	@param {object} options - Options to pass to base constructor.  See {@link Framework.UI.Button} for details
+	@param {Framework.UI.Image} [options.icon=Framework.UI.Image] - The checkbox icon itself.  First frame is off, second frame is on.  By default will use checkmark.
+	@param {boolean} [options.checked=false] - If the checkbox should be selected to start
 	**/
 	constructor(canvas, options) {
 		options = options || {};
@@ -18,7 +18,10 @@ Framework.UI.Checkbox = class extends Framework.UI.Button {
 		this.checked = _options.item('checked').is(Boolean).val(false);
 	}
 
-	/** If the checkbox is selected or not.  Updates the icon to reflect **/
+	/** 
+	If the checkbox is selected or not.  Updates the icon to reflect 
+	@type {boolean}
+	**/
 	get checked() {
 		return this._checked;
 	}

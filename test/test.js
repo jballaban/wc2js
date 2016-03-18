@@ -128,12 +128,12 @@ require('../src/lib/Framework/UI/Image.js');
 require('../src/lib/Framework/UI/Element.js');
 require('../src/lib/Framework/UI/Cursor.js');
 require('../src/lib/Framework/UI/Video.js');
+require('../src/lib/Framework/UI/Audio.js');
 require('../src/lib/Framework/IO/IO.js');
 require('../src/lib/Framework/IO/Mouse.js');
 require('../src/lib/Framework/IO/MouseHandler.js');
 Framework.UI.Cursor.init(runtime.canvas); // seed cursors based on our context
 Framework.IO.MouseHandler.init(100, 100); // seed cursors based on our context
-require('../src/lib/Framework/IO/Audio.js');
 require('../src/lib/Framework/UI/Button.js');
 require('../src/lib/Framework/UI/Checkbox.js');
 require('../src/lib/Framework/UI/Modal.js');

@@ -1,8 +1,14 @@
 "use strict";
 /**
-@namespace
+Generic animation handler
 **/
 Framework.Util.Animate = class {
+	/**
+	@param {object} object - The object to update
+	@param {string} field - The object's attribute to target
+	@param {object} endvalue - The final value of the animation
+	@param {number} ticks - The number of update ticks (not time!) to complete
+	**/
 	constructor(object, field, endvalue, ticks) {
 		this._object = object;
 		this._field = field;
@@ -14,14 +20,25 @@ Framework.Util.Animate = class {
 		this._current = this._hex ? Framework.Util.Colour.split(object[field]) : object[field];
 	}
 
+	/**
+	Tests if this animation conflicts with the provided (updates same field or not)
+	@param {Framework.Util.Animate} animate - The comparable animation
+	**/
 	conflict(animate) {
 		return animate._object == this._object && animate._field == this._field;
 	}
 
+	/**
+	True once number of ticks has passed
+	@type {bool}
+	**/
 	get completed() {
 		return this._tick == this._ticks;
 	}
 
+	/**
+	Pushes the animation forward a single tick
+	**/
 	update() {
 		if (this.completed) return;
 		this._tick++;

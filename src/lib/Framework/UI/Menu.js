@@ -1,11 +1,16 @@
 "use strict";
 /**
 Defines an interactive menu area (really a container for buttons)
-@extends Framework.Element
+@extends Framework.UI.Element
 **/
 Framework.UI.Menu = class extends Framework.UI.Element {
 	/**
+	@param {object} canvas - The canvas to draw too
 	@param {?object} [options] - Set of default options to apply.  See {@link Framework.Element} for details.  options.mouse and options.sprite are automatically added to options before calling base.
+	@param {Framework.UI.iDrawable} [options.sprite=Framework.UI.Rectangle] - The background sprite to apply
+	@param {number} [options.width=dynamic to children] - Menu width
+	@param {number} [options.height=dynamic to children] - Menu Height
+	@param {number} [options.padding] - Padding to apply around menu
 	**/
 	constructor(canvas, options) {
 		options = options || {};
@@ -23,6 +28,11 @@ Framework.UI.Menu = class extends Framework.UI.Element {
 		this._xIndex = this._yIndex = this._padding = padding;
 	}
 
+	/**
+	Adds a menu item with some logic
+	@param {string} direction - vertical or horizontal
+	@param {Framework.UI.iDrawable} - The item to add
+	**/
 	addMenu(direction, el) {
 		el.y = this._yIndex;
 		el.x = this._xIndex;

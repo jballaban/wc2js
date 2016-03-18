@@ -6,6 +6,7 @@ var rectangle = new Framework.Sprite.Rectangle({ colour: '#F00', alpha: 0.5, fil
 rectangle.draw(Runtime.canvas, 100, 100, 10, 10, 1); // draw at point (100,100) with a sisze of (10,10) at 100% of original 50% alpha
 rectangle.radius = 0; // reset corner to sharp
 rectangle.draw(Runtime.canvas, 100, 100, 10, 10, 0.1); // re-draw again but this time with sharp corners and only 10% of the original 50% alpha
+@extends Framework.UI.iDrawable
 **/
 Framework.UI.Rectangle = class extends Framework.UI.iDrawable {
 	/**

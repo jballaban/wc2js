@@ -1,16 +1,14 @@
 "use strict";
 /**
-Defines a screen element
-@requires Sprite/Sprite.js
-@requires Mouse.js
-@requires Framework/UI/UI.js
+Defines a screen interactive element
+@extends Framework.UI.iDrawable
 **/
 Framework.UI.Element = class extends Framework.UI.iDrawable {
 	/**
 	@param {object} canvas - The canvas to draw too
 	@param {Object} [options] - Override default values
 	@param {boolean} [options.alpha=1] - Alpha setting: 0 = transparent, 1 = opaque
-	@param {Framework.Element[]} [options.elements] - list of sub-elements if any
+	@param {Framework.UI.Element[]} [options.elements] - list of sub-elements if any
 	@param {boolean} [options.active=true] - True if it should respond to update calls
 	@param {boolean} [options.show=true] - True if is drawable
 	@param {number} [options.x=0] - Object left coordinate (see position for relativeness)
@@ -19,8 +17,8 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 	@param {string} [options.height=0] - Object height (can be fixed or percentage of parent)
 	@param {string} [options.hAlign=absolute] - X coord relativeness to parent: absolute, centered or relative
 	@param {string} [options.vAlign=absolute] - Y coord relativeness to parent: absolute, centered or relative
-	@param {?Object} options.sprite - Sprite to attach to this element if any
-	@param {?Framework.Mouse.Mouse} [options.mouse] - Mouse to attach to this element if any
+	@param {?Framework.UI.iDrawable} options.sprite - Sprite to attach to this element if any
+	@param {?Framework.IO.Mouse} [options.mouse] - Mouse to attach to this element if any
 	**/
 	constructor (canvas, options) {
 		var _options = new Framework.Util.Val(options);
@@ -46,18 +44,33 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 			'hover': []
 		};
 		this._hovered = false;
-		this.calculateLengths();
+		this._calculateLengths();
 	}
 
+	/**
+	Add a listener for this element to a specific event
+	@param {string} ev - The event name to listen for
+	@param {function} fn - The callback to trigger
+	**/
 	addListener(ev, fn) {
 		this._listeners[ev].push(fn);
 	}
 
+	/**
+	Triggers an event with a payload against the element
+	@param {string} ev - Event name
+	@param {object} data - Payload
+	**/
 	fireEvent(ev, data) {
 		for (var i=0; i<this._listeners[ev].length; i++)
 			this._listeners[ev][i](this, data);
 	}
 
+	/**
+	Adds an animation to the element that will get run through uppdate.
+	@param {Framework.Util.Animation} animation - The animation to run
+	@param {function} callback - The callback to fire once animation is completed
+	**/
 	addAnimation(animation, callback) {
 		callback = new Framework.Util.Val(callback).is(Function).val(null);
 		new Framework.Util.Val(animation).is(Framework.Util.Animate).req();
@@ -73,14 +86,14 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 
 	/**
 	Attaches a new child to this element
-	@param {Framework.Element} element - The child element to attach
+	@param {Framework.UI.Element} element - The child element to attach
 	**/
 	addElement(element) {
 		new Framework.Util.Val(element).is(Framework.UI.Element).req();
 		this._elements.push(element);
 		element._parent = this; // double link
 		element._dirtyX = element._dirtyY = element._dirtyMouse = true;
-		element.calculateLengths();
+		element._calculateLengths();
 	}
 
 	/** 
@@ -121,17 +134,25 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 			this._elements[i]._dirtyY = true;
 	}
 
+	/**
+	Element calculated width
+	@type {number}
+	**/
 	get width() {
 		return this._width;
 	}
 
+	/**
+	Element calculated height
+	@type {number}
+	**/
 	get height() {
 		return this._height;
 	}
 
 	/** 
 	Element calculed mouse (if null uses parent)
-	@type {?Framework.Mouse}
+	@type {?Framework.IO.Mouse}
 	**/
 	get mouse() {
 		if (this._dirtyMouse) { this.mouse = this._originalMouse; }
@@ -199,7 +220,9 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 
 	/**
 	Searches for an element at given position.  Will find the "lowest" element possible. 
-	@returns {?Framework.Element} - Found element, null if no element found.
+	@param {number} x - X position
+	@param {number} y - Y position
+	@returns {?Framework.UI.Element} - Found element, null if no element found.
 	**/
 	elementAt(x, y) { // return top element at coords or null if none
 		new Framework.Util.Val(x).is(Number).req();
@@ -227,16 +250,19 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 		this.fireEvent('hover', val);
 	}
 
+	/**
+	A reference to the current sprite object
+	@type {?Framework.UI.iDrawable}
+	**/
 	get sprite() {
 		return this._sprite;
 	}
-
 	set sprite(sprite) {
 		this._sprite = sprite;
 	}
 
 	/**
-	Triggered when the mouse blurs from this element.  See {@link Framework.Mouse.MouseHandler#update}
+	Triggered when the mouse blurs from this element.  See {@link Framework.IO.MouseHandler#update}
 	**/
 	mouseOut() { // triggered when mouse leaves this element
 		this.hovered = false;
@@ -245,7 +271,7 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 	}
 	
 	/**
-	Triggered when the mouse focuses on this element.  See {@link Framework.Mouse.MouseHandler#update}
+	Triggered when the mouse focuses on this element.  See {@link Framework.IO.MouseHandler#update}
 	**/
 	mouseOver() { // when mouse is hovering over this element
 		this.hovered = true;
@@ -258,19 +284,22 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 	**/
 	mouseClick() {} // when mouseup releases on this element
 
-	calculateLengths() {
-		this._setWidth(this._originalWidth);
-		this._setHeight(this._originalHeight);
-	}
-
+	/**
+	Recalculated height/width/x/y positions
+	**/
 	resize() {
-		this.calculateLengths();
+		this._calculateLengths();
 		this._dirtyX = this._dirtyY = true;
 		for (var i=0; i<this._elements.length; i++)
 			this._elements[i].resize();
 	}
 
 	/************************************************************************************/
+
+	_calculateLengths() {
+		this._setWidth(this._originalWidth);
+		this._setHeight(this._originalHeight);
+	}
 
 	_calcPoint(aspect) {
 		var axis = aspect=='x' ? '_hAlign' : '_vAlign';
@@ -338,13 +367,13 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 	_setWidth(val) {
 		this._width = this._calcLength(val, 'width');
 		if (this._isParentWidthDynamic())
-			this._parent.calculateLengths();
+			this._parent._calculateLengths();
 	}
 
 	_setHeight(val) {
 		this._height = this._calcLength(val, 'height');
 		if (this._isParentHeightDynamic())
-			this._parent.calculateLengths();
+			this._parent._calculateLengths();
 	}
 }
 

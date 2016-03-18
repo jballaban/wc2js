@@ -1,17 +1,31 @@
 "use strict";
-/** Validation functions **/
+/** 
+Validation functions 
+**/
 Framework.Util.Val = class {
-
+	/**
+	@param {object} obj - The object to validate
+	@param {string} ?fieldname - Optionally can scope to a specific field within that object
+	**/
 	constructor(obj, fieldname) {
 		if (obj == undefined) obj = null;
 		this._object = obj;
 		this._fieldname = fieldname;
 	}
 
+	/**
+	Returns a new validation instance based on a field of the current object
+	@returns {Framework.Util.Val}
+	**/
 	item (fieldname) {
 		return new Framework.Util.Val(this._object, fieldname);
 	}
 
+	/**
+	Returns the value of the current object, if null uses default
+	@param {object} def - The default if null
+	@returns {object} 
+	**/
 	val (def) {
 		var result = this._object;
 		if (result != null && this._fieldname != null)
@@ -21,6 +35,11 @@ Framework.Util.Val = class {
 		return result;
 	}
 
+	/**
+	Ensures the current value is within a list of values
+	@param @ - List all values as parameters
+	@returns {boolean}
+	**/
 	in () {
 		if (!this._run()) // only validate in dev mode
 			return this;
@@ -32,6 +51,12 @@ Framework.Util.Val = class {
 		throw new Error(this.val() + ' is not part of predefined list');
 	}
 
+	/**
+	Ensures value is within given range
+	@param {object} a - Start value
+	@param {object} b - End value
+	@returns {boolean}
+	**/
 	between(a, b) {
 		if (!this._run()) // only validate in dev mode
 			return this;
@@ -43,6 +68,11 @@ Framework.Util.Val = class {
 		return this;
 	}
 
+	/**
+	Ensures value is of given type or null
+	@param {type} type - The type itself (not the string representation)
+	@returns {boolean}
+	**/
 	is (type) {
 		if (!this._run()) // only validate in dev mode
 			return this;
@@ -58,6 +88,10 @@ Framework.Util.Val = class {
 		}
 	}
 
+	/**
+	Ensures that the value is not null
+	@returns {boolean}
+	**/
 	req () {
 		if (!this._run()) // only validate in dev mode
 			return this;
@@ -70,6 +104,11 @@ Framework.Util.Val = class {
 		}
 	}
 
+	/**
+	Ensures that the value matches regex expression
+	@param {string} expr - The expression to match (in expression format)
+	@returns {boolean}
+	**/
 	regex (expr) {
 		if (!this._run()) // only validate in dev mode
 			return this;

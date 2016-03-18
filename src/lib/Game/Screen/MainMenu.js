@@ -1,4 +1,8 @@
 "use strict";
+/**
+Main game screen
+@extends Framework.UI.Screen
+**/
 Game.Screen.MainMenu = class extends Framework.UI.Screen {
 	constructor() {
 		super(runtime.canvas, {
@@ -23,6 +27,10 @@ Game.Screen.MainMenu = class extends Framework.UI.Screen {
 		menu.addMenu('vertical', this._createMenu('Settings'));
 	}
 
+	/**
+	Fades screen in
+	@overrides
+	**/
 	attach() {
 		Game.transition.appear();
 	}

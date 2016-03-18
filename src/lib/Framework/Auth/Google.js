@@ -1,8 +1,13 @@
 "use strict";
 /**
-@static
+Google Authentication
+@namespace
 **/
 Framework.Auth.Google = {
+	/**
+	Authenticates the user against google and then calls complete function
+	@param {function} ready - Called once authentication is complete
+	**/
 	auth: function(ready) {
 		Framework.Auth.User.load();
 		if (Framework.Auth.User.Token != null) {
@@ -21,6 +26,7 @@ Framework.Auth.Google = {
 			}
 		}
 	},
+
 	_getProfile: function (success, failure) {
 		gapi.auth.setToken(Framework.Auth.User.Token);
 		gapi.client.load('plus', 'v1').then(function() {

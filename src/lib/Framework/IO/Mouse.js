@@ -1,16 +1,11 @@
 "use strict";
 /**
 Object that represents the mouse position and interactions
-@requires Element.js
 @todo make all of the members private
-@example
-var el = new Framework.Element({ sprite: Framework.Mouse.Cursors.Pointer });
-var mouse = new Framework.Mouse.Mouse(el);
-mouse.draw(); // will draw the mouse at (0,0) since it never got hooked up to a mouse handler
 **/
 Framework.IO.Mouse = class {
 	/**
-	@param {Framework.Element} element - The cursor element to attach this mouse instance too
+	@param {Framework.UI.Element} element - The cursor element to attach this mouse instance too
 	**/
 	constructor(element){
 		this.x = 0;
@@ -21,6 +16,7 @@ Framework.IO.Mouse = class {
 
 	/**
 	Stub to be called when the left mouse button is no longer pressed.  Updates current state to not pressed and calls mouseClick on the currently focused element 
+	@param {Framework.UI.Element} focus - The element pressed
 	**/
 	up(focus) {
 		this.leftButtonPressed = false;
@@ -46,7 +42,7 @@ Framework.IO.Mouse = class {
 	}
 	
 	/**
-	Draws the mouse element at full alpha.  See {@link Framework.Element#draw}
+	Draws the mouse element at full alpha.
 	**/
 	draw() {
 		this.element.draw(1);

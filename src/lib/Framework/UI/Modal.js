@@ -1,11 +1,13 @@
 "use strict";
 /**
 Modal overlay
-@extends Framework.Element
+@extends Framework.UI.Element
 **/
 Framework.UI.Modal = class extends Framework.UI.Element {
 	/**
+	@param {object} canvas - The canvas to draw too
 	@params {?options} [options] - Override details.  See {@link Framework.Element} for details.  Automatically adds a semi-transparent gray rectangle to options.sprite before passing to base.
+	@param {Framework.UI.iDrawable} [options.sprite=Framework.UI.Rectangle] - The sprite to apply, defaults to 80% black
 	**/
 	constructor(canvas, options) {
 		options = options || {};
@@ -15,7 +17,7 @@ Framework.UI.Modal = class extends Framework.UI.Element {
 	}
 
 	/**
-	On click anywhere on the modal (i.e. not handled higher up) will close itself down.  Still passes event through to {@link Framework.Element#mouseCLick}
+	On click anywhere on the modal (i.e. not handled higher up) will close itself down.  Still passes event through to {@link Framework.UI.Element#mouseCLick}
 	**/
 	mouseClick() {
 		this.active = false;

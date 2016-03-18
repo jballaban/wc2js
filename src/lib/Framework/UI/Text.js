@@ -2,8 +2,9 @@
 /**
 Defines text for sceen output
 @example
-var text = new Framework.Text(Runtime.canvas, '14pt Calibri', { label: 'Hello World', halign: 'centered' });
+var text = new Framework.UI.Text(Runtime.canvas, '14pt Calibri', { label: 'Hello World', halign: 'centered' });
 text.draw(0, 100, 500, 0, 1); // centeres the text Hello World within 0-500 range at 100 pixels from the top of screen.
+@extends Framework.UI.iDrawable
 **/
 Framework.UI.Text = class extends Framework.UI.iDrawable {
 	/**
@@ -15,7 +16,6 @@ Framework.UI.Text = class extends Framework.UI.iDrawable {
 	@param {number} [options.alpha=1] - The alpha setting for this element: 0 = transparent.. 1 = oqapue
 	@param {string} [options.halign=left] - left, right or centered to draw width
 	@param {number} [options.width=dynamic] - Sets the text width boundary for cropping
-	@todo change label to mandatory parameter on its own
 	**/
 	constructor(canvas, label, font, options) {
 		var _options = new Framework.Util.Val(options).is(Object);
@@ -27,7 +27,10 @@ Framework.UI.Text = class extends Framework.UI.iDrawable {
 		this._width = _options.item('width').is(Number).between(0, null).val(Framework.UI.iDrawable.getTextWidth(canvas, font, label));
 	}
 
-	/** Font colour **/
+	/** 
+	Font colour 
+	@type {string}
+	**/
 	get colour() {
 		return this._colour;
 	}

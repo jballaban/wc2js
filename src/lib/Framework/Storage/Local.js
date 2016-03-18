@@ -1,12 +1,14 @@
 "use strict";
 /**
-Data persistance management.  Currently all works off browser localStorage
+Data persistance management using browser local storage
 @namespace
 **/
 Framework.Storage.Local = {
+
 	/**
-	Saves an object at field name
-	@param {string} field - The storage key
+	Saves an object
+	@param {string} table - The table name (concatenated with id)
+	@param {string} id - The row id (concatenated with table)
 	@param {object} object - JSON data to store (will be serialized)
 	**/
 	save: function(table, id, object) {
@@ -14,20 +16,23 @@ Framework.Storage.Local = {
 	},
 
 	/**
-	Loads data at a specified key
-	@param {string} field - The key to query
+	Loads data from store
+	@param {string} table - The tablename (concatenated with id)
+	@param {string} id - The row id (concatenated with table)
 	**/
 	load: function(table, id) {
 		return JSON.parse(window.localStorage.getItem(table+'-'+id));
 	},
 
 	/**
-	Removes a specific key and data from storage
-	@param {string} field - The key to remove
+	Removes a specific row from store
+	@param {string} table - The tablename (concatenated with id)
+	@param {string} id - The row id (concatenated with table)
 	**/
 	remove: function(table, id) {
 		window.localStorage.removeItem(table+'-'+id);
 	}
+
 }
 
 describe('Framework.Storage.Local', function() {

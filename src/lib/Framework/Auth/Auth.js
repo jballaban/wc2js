@@ -1,5 +1,5 @@
 "use strict";
 /**
-@static
+@namespace
 **/
 Framework.Auth = {}

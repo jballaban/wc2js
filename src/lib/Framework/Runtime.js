@@ -1,13 +1,11 @@
 "use strict";
 /**
-Runtime class (ya don't have good definition)
-@requires Mouse.js
-@requires Screen.js
+Runtime controller
 **/
 Framework.Runtime = class {
 	/**
 	@param {?object} [options] - Default values
-	@param {?number} [options/updatespersecond=60] - The number of updates that should be attempted to do per second.
+	@param {?number} [options.updatespersecond=60] - The number of updates that should be attempted to do per second.
 	**/
 	constructor(canvas, options) {
 		var _options = new Framework.Util.Val(options).is(Object);
@@ -21,14 +19,27 @@ Framework.Runtime = class {
 		window.onresize = this._resize.bind(this);
 	}
 
+	/**
+	Current screen
+	@type {Framework.UI.Screen}
+	**/
 	get screen() {
 		return this._screen;
 	}
 
+	/**
+	Current draw canvas
+	@type {object}
+	**/
 	get canvas() {
 		return this._canvas;
 	}
 
+	/**
+	Calculates the number of ticks required for specific duration
+	@param {number} duration - Time in milliseconds
+	@returns {number}
+	**/
 	getTicks(duration) {
 		return Math.ceil(duration / this._millisecondsperupdate);
 	}
@@ -40,6 +51,10 @@ Framework.Runtime = class {
 		document.documentElement.webkitRequestFullscreen();
 	}
 
+	/**
+	Changes current screen.  Will call destroy on old screen and then attach on new one.
+	@param {Framework.UI.Screen} screen - The new screen
+	**/
 	setScreen(screen) {
 		screen.resize(this._width, this._height);
 		Framework.IO.MouseHandler.setMaxX(screen.width);

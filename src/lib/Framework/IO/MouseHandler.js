@@ -7,12 +7,13 @@ Handler class for the mouse object and reacts to events & state change
 @listens mousemove
 @listens pointerlockchange
 @todo update private methods
-@example
-var handler = Framework.Mouse.MouseHandler;
-handler.update(currentScreen); // current screen object
-handler.draw();
 **/
 Framework.IO.MouseHandler = {
+	/**
+	Initializes the mousehandler to work within a specific range
+	@param {number} maxX - Width
+	@param {number} maxY - Height
+	**/
 	init: function(maxX, maxY) {
 		this.setMaxX(maxX);
 		this.setMaxY(maxY);
@@ -38,11 +39,19 @@ Framework.IO.MouseHandler = {
 		}.bind(this));
 	},
 
+	/**
+	Redefined the width area
+	@param {number} x - New width
+	**/
 	setMaxX: function(x) {
 		new Framework.Util.Val(x).is(Number).req().between(0, null);
 		this._maxX = x;
 	},
 
+	/**
+	Redefined the height area
+	@param {number} y - New height
+	**/
 	setMaxY: function(y) {
 		new Framework.Util.Val(y).is(Number).req().between(0, null);
 		this._maxY = y;
@@ -65,7 +74,7 @@ Framework.IO.MouseHandler = {
 
 	/**
 	Resets the current mouse focus and object
-	@param {Framework.Mouse.Mouse} mouse - The mouse element to attach
+	@param {Framework.IO.Mouse} mouse - The mouse element to attach
 	**/
 	bind: function(mouse) {
 		new Framework.Util.Val(mouse).is(Framework.IO.Mouse).req();
@@ -75,7 +84,7 @@ Framework.IO.MouseHandler = {
 
 	/**
 	Updates the provided screen based on the mouse position
-	@param {Framework.Screen} screen - The screen to apply the mouse to
+	@param {Framework.UI.Screen} screen - The screen to apply the mouse to
 	**/
 	update: function(screen) {
 		new Framework.Util.Val(screen).is(Framework.UI.Screen).req();
@@ -103,7 +112,7 @@ Framework.IO.MouseHandler = {
 	},
 
 	/**
-	Called when on mouse left button release.  Proxy for {@link Framework.Mouse.Mouse#up}
+	Called when on mouse left button release.
 	**/
 	mouseUp: function(e) {
 		if (this._mouse != null)
@@ -111,7 +120,7 @@ Framework.IO.MouseHandler = {
 	},
 
 	/**
-	Called when on mouse move.  Proxy for {@link Framework.Mouse.Mouse#move}
+	Called when on mouse move.
 	**/
 	mouseMove: function(e) {
 		if(!this._locked){
@@ -137,7 +146,7 @@ Framework.IO.MouseHandler = {
 	},
 
 	/**
-	Called when on mouse left button press.  Proxy for {@link Framework.Mouse.Mouse#down}
+	Called when on mouse left button press.
 	**/
 	mouseDown: function(e) {
 		e.preventDefault();

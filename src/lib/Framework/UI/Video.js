@@ -1,5 +1,19 @@
 "use strict";
+/**
+Video player
+**/
 Framework.UI.Video = class {
+	/**
+	@param {string} src - Asset source
+	@param {number} x - X position
+	@param {number} y - Y position
+	@param {number} width - Width
+	@param {number} height - Height
+	@param {object} [options] - Optional default overrides
+	@param {bool} [options.autoplay=false] - Autoplay
+	@param {bool} [options.loop=false] - Loop
+	@param {function} [options.callback] - Callback on play complete
+	**/
 	constructor(src, x, y, width, height, options) {
 		var _options = new Framework.Util.Val(options).is(Object);
 		this._video = Framework.Util.DOM.addVideo(
@@ -14,22 +28,39 @@ Framework.UI.Video = class {
 		)
 	}
 
+	/**
+	Updates the DOM width
+	@type {number}
+	**/
 	set width(val) {
 		Framework.Util.DOM.setAttribute(this._video, 'width', val);
 	}
 
+	/**
+	Updates the DOM height
+	@type {number}
+	**/
 	set height(val) {
 		Framework.Util.DOM.setAttribute(this._video, 'height', val);
 	}
 
+	/**
+	Cleans up the DOM
+	**/
 	destroy() {
 		Framework.Util.DOM.removeElement(this._video);
 	}
 
+	/**
+	Starts video
+	**/
 	play() {
 		this._video.play();
 	}
 
+	/**
+	Stops video
+	**/
 	stop() {
 		this._video.pause();
 	}

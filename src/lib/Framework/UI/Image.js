@@ -22,13 +22,13 @@ img.nextFrame();
 img.draw(100, 100, 10, 10, 1); // draws frame 3
 img.nextFrame();
 img.draw(100, 100, 10, 10, 1); // draws frame 1
-@requires Framework/UI/UI.js
+@extends Framework.UI.iDrawable
 **/
 Framework.UI.Image = class extends Framework.UI.iDrawable {
 	/**
 	@param {Object} canvas - Canvas element to draw to
+	@param {string} src - The image source
 	@param {Object} [options] - Set of default properties
-	@param {string} options.src - The URL of the image (or spritesheet) to display
 	@param {Object[]} [options.frames] - Splits src into a spritesheet.  Each element contains an x,y,w,h that crops the src sprite.
 	@param {decimal} [options.alpha=1] - Seed for alpha
 	**/

@@ -1,7 +1,13 @@
 /**
+Querystring tools
 @namespace
 **/
 Framework.Util.Querystring = {
+	/**
+	Returns the querystring as a map
+	@param {string} querystring - Querystring (after ?)
+	@returns {object}
+	**/
 	getMap(querystring) {
 		if (querystring == undefined)
 			querystring = location.search.substring(1);

@@ -8,28 +8,27 @@ screen.addElement(new Framework.Button());
 screen.draw(1);
 **/
 Framework.UI.Screen = class extends Framework.UI.Element {
-
-	constructor (canvas, options) {
-		var _options = new Framework.Util.Val(options);
-		options = options || {};
-		options.width = _options.item('width').is(Number).val(0);
-		options.height = _options.item('height').is(Number).val(0);
-		super(canvas, options);
-	}
 	
+	/**
+	Resizes the screen to fit maximum viewport and then updates children
+	@param {number} width - Viewport width
+	@param {number} height - Viewport height
+	**/
 	resize(width, height) {
 		this._originalWidth = width;
 		this._originalHeight = height;
 		super.resize();
 	}
 
-	attach() {
-		// abstract method when screen is activated
-	}
+	/**
+	Abstract method for when the screen is activated
+	**/
+	attach() {}
 
-	destroy() {
-		// abstract method for you to clean up your shit!
-	}
+	/**
+	Abstract method for when the screen is deactived (aka implement your garbage collection)
+	**/
+	destroy() {}
 
 	/**
 	Clears the entire screen and draws all child elements
