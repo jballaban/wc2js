@@ -148,7 +148,7 @@ require('../src/lib/Framework/Auth/Google.js');
 require('../src/lib/Framework/Runtime.js');
 
 describe('API:map', function() {
-	this.timeout(5000); // takes a while to post
+	this.timeout(10000); // takes a while to post
 	it('#CREATE', function (done) {
 		var stack = 2;
 		_api({ path: '/map', method: 'POST' }, {
