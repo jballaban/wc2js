@@ -3,7 +3,7 @@
 Introduction video screen
 @extends Framework.UI.Screen
 **/
-Game.Screen.Intro = class extends Framework.UI.Screen {
+Game.Intro.Screen = class extends Framework.UI.Screen {
 
 	constructor () {
 		super(runtime.canvas);
@@ -28,9 +28,9 @@ Game.Screen.Intro = class extends Framework.UI.Screen {
 	@overridesx
 	**/
 	attach() {
-		this._video = new Framework.UI.Video('asset/intro.mp4', 0, 0, 0, 0, { 
+		this._video = new Framework.UI.Video('asset/Intro/video.mp4', 0, 0, 0, 0, { 
 			callback: function() {
-				Game.transition.screen(new Game.Screen.MainMenu())
+				Game.transition.screen(new Game.MainMenu.Screen())
 			}.bind(this),
 			autoplay: true
 		});

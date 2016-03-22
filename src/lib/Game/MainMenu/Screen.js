@@ -3,13 +3,35 @@
 Main game screen
 @extends Framework.UI.Screen
 **/
-Game.Screen.MainMenu = class extends Framework.UI.Screen {
+Game.MainMenu.Screen = class extends Framework.UI.Screen {
 	constructor() {
 		super(runtime.canvas, {
-			sprite: new Framework.UI.Image(runtime.canvas, 'asset/background.jpg'),
+			sprite: new Framework.UI.Image(runtime.canvas, 'asset/MainMenu/background.jpg'),
 			mouse: new Framework.IO.Mouse(Framework.UI.Cursor.Pointer),
 			alpha: 0
 		});
+		this.clouds = [
+			this.addElement(new Game.MainMenu.Cloud(1)),
+			this.addElement(new Game.MainMenu.Cloud(2)),
+			this.addElement(new Game.MainMenu.Cloud(3)),
+			this.addElement(new Game.MainMenu.Cloud(1)),
+			this.addElement(new Game.MainMenu.Cloud(2)),
+			this.addElement(new Game.MainMenu.Cloud(3))
+		];
+		this._addMenu();
+	}
+
+	/**
+	Fades screen in
+	@overrides
+	**/
+	attach() {
+		Game.transition.appear();
+		for (var i=0;i<this.clouds.length;i++)
+			this.clouds[i].attach();
+	}
+
+	_addMenu() {
 		var menu = new Framework.UI.Menu(runtime.canvas, {
 			vAlign: 'centered',
 			hAlign: 'centered',
@@ -21,18 +43,10 @@ Game.Screen.MainMenu = class extends Framework.UI.Screen {
 		menu.addListener('hover', Game.trigger.button.hoverBackground(menu));
 		this.addElement(menu);
 		menu.addMenu('vertical', this._createMenu('Watch Intro', function() {
-			Game.transition.screen(new Game.Screen.Intro());
+			Game.transition.screen(new Game.Intro.Screen());
 		}));
 		menu.addMenu('vertical', this._createMenu('Play Now'));
 		menu.addMenu('vertical', this._createMenu('Settings'));
-	}
-
-	/**
-	Fades screen in
-	@overrides
-	**/
-	attach() {
-		Game.transition.appear();
 	}
 
 	_createMenu(text, fn) {

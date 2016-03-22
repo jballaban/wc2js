@@ -3,7 +3,7 @@
 Holding screen while we auth the user
 @extends Framework.UI.Screen
 **/
-Game.Screen.Auth = class extends Framework.UI.Screen {
+Game.Auth.Screen = class extends Framework.UI.Screen {
 	
 	constructor() {
 		super(runtime.canvas);
@@ -14,7 +14,7 @@ Game.Screen.Auth = class extends Framework.UI.Screen {
 	@overrides
 	**/
 	loaded() {
-		Game.transition.screen(new Game.Screen.MainMenu);
+		Game.transition.screen(new Game.MainMenu.Screen());
 	}
 
 	/**

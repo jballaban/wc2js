@@ -9,6 +9,10 @@ Framework.Util.Math = {
 	**/
 	intersects : function(pointx, pointy, x, y, width, height) {
 		return (pointx >= x && pointx < x+width && pointy >=y && pointy < y+height);
+	},
+
+	random: function(min, max) {
+		return Math.random() * (max - min) + min;
 	}
 }
 

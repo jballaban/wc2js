@@ -85,8 +85,16 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 	}
 
 	/**
+	Clears all animations without calling their callbacks
+	**/
+	clearAnimations() {
+		this._animations = [];
+	}
+
+	/**
 	Attaches a new child to this element
 	@param {Framework.UI.Element} element - The child element to attach
+	@return {Framework.UI.Element} Element
 	**/
 	addElement(element) {
 		new Framework.Util.Val(element).is(Framework.UI.Element).req();
@@ -94,6 +102,7 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 		element._parent = this; // double link
 		element._dirtyX = element._dirtyY = element._dirtyMouse = true;
 		element._calculateLengths();
+		return element;
 	}
 
 	/** 
@@ -292,6 +301,14 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 		this._dirtyX = this._dirtyY = true;
 		for (var i=0; i<this._elements.length; i++)
 			this._elements[i].resize();
+	}
+
+	/**
+	Returns parent element when attached (or null if not yet attached)
+	@returns Framework.UI.Element
+	**/
+	get parent() {
+		return this._parent;
 	}
 
 	/************************************************************************************/
