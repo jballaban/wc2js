@@ -23,13 +23,14 @@ Game.MainMenu.Cloud = class extends Framework.UI.Element {
 
 	_cycle() {
 		this.clearAnimations();
-		this.x = Framework.Util.Math.random(-1000, this.parent == null ? 1477 : this.parent.width);
-		this.y = Framework.Util.Math.random(-400, this.parent == null ? 400 : this.parent.height-200);
+		this.x = Framework.Util.Math.random(-1000, this.parent == null ? 0 : this.parent.width-700);
+		var screenheight = this.parent == null ? 0 : this.parent.height;
+		this.y = Framework.Util.Math.random(screenheight-400, screenheight);
 		this.addAnimation(new Framework.Util.Animate(this, 'alpha', 1, runtime.getTicks(Framework.Util.Math.random(5000, 7000))), function() {
-			this.addAnimation(new Framework.Util.Animate(this, 'alpha', 0, runtime.getTicks(Framework.Util.Math.random(5000, 15000))), function() {
+			this.addAnimation(new Framework.Util.Animate(this, 'alpha', 0, runtime.getTicks(Framework.Util.Math.random(1000, 10000))), function() {
 				this._cycle();
 			}.bind(this));
 		}.bind(this));
-		this.addAnimation(new Framework.Util.Animate(this, 'x', -1000, runtime.getTicks(30000)));
+		this.addAnimation(new Framework.Util.Animate(this, 'y', -499, runtime.getTicks(30000)));
 	}
 }

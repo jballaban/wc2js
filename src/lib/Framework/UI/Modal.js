@@ -12,7 +12,14 @@ Framework.UI.Modal = class extends Framework.UI.Element {
 	constructor(canvas, options) {
 		options = options || {};
 		var _options = new Framework.Util.Val(options).is(Object);
-		options.sprite = _options.item('sprite').val(new Framework.UI.Rectangle( {colour: '#000', alpha: 0.8} ));
+		options.sprite = _options.item('sprite').val(new Framework.UI.Rectangle(canvas, {
+			colour: '#000000', 
+			alpha: 0.8,
+			radius: 0,
+			fill: true
+		} ));
+		options.width = _options.item('width').val('100%');
+		options.height = _options.item('height').val('100%');
 		super(canvas, options);
 	}
 
@@ -20,12 +27,10 @@ Framework.UI.Modal = class extends Framework.UI.Element {
 	On click anywhere on the modal (i.e. not handled higher up) will close itself down.  Still passes event through to {@link Framework.UI.Element#mouseCLick}
 	**/
 	mouseClick() {
-		this.active = false;
-		this.show = false;
+		this.active = this.show = false;
 		super.mouseClick();
 	}
 }
-
 
 describe('Framework.UI.Modal', function() {
 	it('#constructor', function() {

@@ -101,7 +101,8 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 		this._elements.push(element);
 		element._parent = this; // double link
 		element._dirtyX = element._dirtyY = element._dirtyMouse = true;
-		element._calculateLengths();
+		element.resize();
+		//element._calculateLengths();
 		return element;
 	}
 
@@ -208,7 +209,7 @@ Framework.UI.Element = class extends Framework.UI.iDrawable {
 	draw(a) {
 		if (this.show) {
 			if (this.sprite != null)
-				this.sprite.draw(this.x, this.y, this.width, this.height, this._alpha*a);
+				this.sprite.draw(Math.round(this.x), Math.round(this.y), Math.round(this.width), Math.round(this.height), this._alpha*a);
 			for (var i=0; i<this._elements.length; i++) {
 				this._elements[i].draw(this._alpha*a);
 			}

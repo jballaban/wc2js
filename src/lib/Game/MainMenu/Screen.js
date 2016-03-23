@@ -10,6 +10,7 @@ Game.MainMenu.Screen = class extends Framework.UI.Screen {
 			mouse: new Framework.IO.Mouse(Framework.UI.Cursor.Pointer),
 			alpha: 0
 		});
+		this.addElement(new Game.MainMenu.Fire());
 		this.clouds = [
 			this.addElement(new Game.MainMenu.Cloud(1)),
 			this.addElement(new Game.MainMenu.Cloud(2)),
@@ -19,6 +20,8 @@ Game.MainMenu.Screen = class extends Framework.UI.Screen {
 			this.addElement(new Game.MainMenu.Cloud(3))
 		];
 		this._addMenu();
+		this.settings = new Game.MainMenu.Settings();
+		this.addElement(this.settings);
 	}
 
 	/**
@@ -46,7 +49,9 @@ Game.MainMenu.Screen = class extends Framework.UI.Screen {
 			Game.transition.screen(new Game.Intro.Screen());
 		}));
 		menu.addMenu('vertical', this._createMenu('Play Now'));
-		menu.addMenu('vertical', this._createMenu('Settings'));
+		menu.addMenu('vertical', this._createMenu('Settings', function() {
+			this.settings.appear();
+		}.bind(this)));
 	}
 
 	_createMenu(text, fn) {
