@@ -70,7 +70,7 @@ Framework.UI.Button = class extends Framework.UI.Element {
 	draw(a) {
 		super.draw(a);
 		if (this._icon != null) {
-			this._icon.draw(this.x+5, this.y+this.height/2-20/2, 20, 20, this.alpha*a);
+			this._icon.draw(this.x+10, this.y-2+this.height/2-20/2, 20, 20, this.alpha*a);
 		}
 		if (this.text != null)
 			this.text.draw(this.x+5+(this._icon == null ? 0 : 25), this.y+5+this.height/2, this.width-10, this.alpha*a);

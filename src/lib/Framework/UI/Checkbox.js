@@ -34,7 +34,7 @@ Framework.UI.Checkbox = class extends Framework.UI.Button {
 	Updates the checked status then calls base
 	**/
 	mouseClick() {
-		this.checked = true;
+		this.checked = !this.checked;
 		super.mouseClick();
 	}
 }

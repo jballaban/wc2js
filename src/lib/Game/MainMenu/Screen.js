@@ -6,7 +6,6 @@ Main game screen
 Game.MainMenu.Screen = class extends Framework.UI.Screen {
 	constructor() {
 		super(runtime.canvas.foreground, {
-			//sprite: new Framework.UI.Image(runtime.canvas.background, 'asset/MainMenu/background.jpg'),
 			mouse: new Framework.IO.Mouse(Framework.UI.Cursor.Pointer),
 			alpha: 0
 		});
@@ -15,19 +14,6 @@ Game.MainMenu.Screen = class extends Framework.UI.Screen {
 		
 		this.addElement(new Game.MainMenu.Fire());
 		this.addElement(new Game.MainMenu.Smoke());
-		this.clouds = [
-		/*
-			this.addElement(new Game.MainMenu.Cloud(1)),
-			this.addElement(new Game.MainMenu.Cloud(2)),
-			this.addElement(new Game.MainMenu.Cloud(3)),
-			this.addElement(new Game.MainMenu.Cloud(1)),
-			this.addElement(new Game.MainMenu.Cloud(2)),
-			this.addElement(new Game.MainMenu.Cloud(3)),
-			this.addElement(new Game.MainMenu.Cloud(1)),
-			this.addElement(new Game.MainMenu.Cloud(2)),
-			this.addElement(new Game.MainMenu.Cloud(3))
-		*/
-		];
 		this._addMenu();
 		this.settings = new Game.MainMenu.Settings();
 		this.addElement(this.settings);
@@ -39,8 +25,6 @@ Game.MainMenu.Screen = class extends Framework.UI.Screen {
 	**/
 	attach() {
 		Game.transition.appear();
-		for (var i=0;i<this.clouds.length;i++)
-			this.clouds[i].attach();
 	}
 
 	get alpha() {
