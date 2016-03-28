@@ -43,7 +43,14 @@ Game.MainMenu.Fire.Particle = class {
 		if (width == undefined) width = 0;
 		if (y == undefined) y = 0;
 		this.speed = {x: -2+Math.random()*5, y: -10+Math.random()*10};
-		this.location = {x: Math.random()*width, y: y};
+		this.location = { x: Math.random()*width, y: y };
+		var mouseX = runtime.screen.mouse == null ? -100 : runtime.screen.mouse.x;
+		var mouseY = runtime.screen.mouse == null ? -100 : runtime.screen.mouse.y;
+		if (Math.abs(mouseX - this.location.x) < 100 && Math.abs(y - mouseY) < 50) {
+			this.location.x = Math.random() < 0.5 ? 
+			Math.random() * (mouseX-50) : 
+			(mouseX+50+(Math.random()*(width-(mouseX-50))));
+		}
 		this.radius = 10+Math.random()*20;
 		this.life = (Math.random() > 0.5) ? Math.random()*10 : Math.random()*20;
 		this.remaining_life = this.life;

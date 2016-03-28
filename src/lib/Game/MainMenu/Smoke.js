@@ -10,7 +10,7 @@ Game.MainMenu.Smoke = class extends Framework.UI.Element {
 			height: '100%'
 		});
 		this.particles = [];
-		for (var i=0;i<100;i++)
+		for (var i=0;i<200;i++)
 			this.particles.push(this.addElement(new Game.MainMenu.Smoke.Particle(runtime.canvas.foreground)));
 	}
 
@@ -40,14 +40,14 @@ Game.MainMenu.Smoke.Particle = class extends Framework.UI.Element {
 		this.vector = { 
 			x: Framework.Util.Math.random(-2, 2), 
 			y: Framework.Util.Math.random(-1, -3), 
-			a: Framework.Util.Math.random(-0.01, -0.001)
+			a: Framework.Util.Math.random(-0.005, -0.001)
 		}
 	}
 
 	update() {
 		this.x += this.vector.x;
 		this.y += this.vector.y;
-		this.alpha = Math.max(0, this.alpha+this.vector.a);
+		this.alpha = Math.max(0, this.alpha+(this.hovered ? -0.3 : this.vector.a));
 		if (this.y < -256 || this.x <-256 || this.x > this.parent.width || this.alpha == 0) {
 			this.reset();
 		}
