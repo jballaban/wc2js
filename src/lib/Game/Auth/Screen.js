@@ -6,7 +6,7 @@ Holding screen while we auth the user
 Game.Auth.Screen = class extends Framework.UI.Screen {
 	
 	constructor() {
-		super(runtime.canvas);
+		super(runtime.canvas.foreground);
 	}
 
 	/**

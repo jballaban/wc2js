@@ -12,7 +12,11 @@ Framework.Util.Math = {
 	},
 
 	random: function(min, max) {
-		return Math.round(Math.random() * (max - min) + min);
+		var val = Math.random() * (max - min) + min;
+		if (min % 1 == 0 && max % 1 == 0) { // we want decimal
+			return Math.round(val);
+		}
+		return val;
 	}
 }
 
@@ -22,4 +26,9 @@ describe('Framework.Util.Math', function() {
 		assert.equal(Framework.Util.Math.intersects(10,4,5,5,10,10), false);
 		assert.equal(Framework.Util.Math.intersects(5,6,5,5,1,1), false);
 	});
+
+	it ('#random', function() {
+		var rnd = Framework.Util.Math.random(-0.1, -0.1);
+		assert.equal(rnd, -0.1);
+	})
 });

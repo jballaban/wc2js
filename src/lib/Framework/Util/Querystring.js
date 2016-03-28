@@ -3,6 +3,13 @@ Querystring tools
 @namespace
 **/
 Framework.Util.Querystring = {
+	getQuerystring() {
+		var href = window.location.href.split('?');
+		if (href.length == 0)
+			return '';
+		return href[1];
+	},
+
 	/**
 	Returns the querystring as a map
 	@param {string} querystring - Querystring (after ?)
@@ -21,6 +28,6 @@ Framework.Util.Querystring = {
 
 describe('Framework.Util.Querystring', function() {
 	it('#getMap', function() {
-		assert.equal(Framework.Util.Querystring.getMap("?this=that&test=them&there=their")['test'], "them");
+		assert.equal(Framework.Util.Querystring.getMap("this=that&test=them&there=their")['this'], "that");
 	});
 });

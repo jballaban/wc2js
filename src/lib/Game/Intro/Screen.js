@@ -6,7 +6,7 @@ Introduction video screen
 Game.Intro.Screen = class extends Framework.UI.Screen {
 
 	constructor () {
-		super(runtime.canvas);
+		super(runtime.canvas.foreground);
 	}
 
 	/**

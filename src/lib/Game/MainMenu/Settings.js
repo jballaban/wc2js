@@ -5,7 +5,7 @@ Settings screen
 **/
 Game.MainMenu.Settings = class extends Framework.UI.Modal {
 	constructor() {
-		super(runtime.canvas, { active: false, show: false, alpha: 0 });
+		super(runtime.canvas.foreground, { active: false, show: false, alpha: 0 });
 		this._addMenu();
 	}
 
@@ -31,11 +31,11 @@ Game.MainMenu.Settings = class extends Framework.UI.Modal {
 	}
 
 	_addMenu() {
-		var menu = new Framework.UI.Menu(runtime.canvas, {
+		var menu = new Framework.UI.Menu(runtime.canvas.foreground, {
 			vAlign: 'centered',
 			hAlign: 'centered',
 			padding: 20,
-			sprite: new Framework.UI.Image(runtime.canvas, 'asset/MainMenu/settings.png', {
+			sprite: new Framework.UI.Image(runtime.canvas.foreground, 'asset/MainMenu/settings.png', {
 				alpha: 0.8
 			})
 		});
@@ -47,11 +47,11 @@ Game.MainMenu.Settings = class extends Framework.UI.Modal {
 	}
 
 	_createCheckbox(text, state, fn) {
-		var menu = new Framework.UI.Checkbox(runtime.canvas, {
+		var menu = new Framework.UI.Checkbox(runtime.canvas.foreground, {
 			width: 150,
 			height: 30,
 			colour: '#F5F6CE',
-			text: new Framework.UI.Text(runtime.canvas, text, Game.style.button.bigFont, { hAlign: 'centered', colour: '#333333' }),
+			text: new Framework.UI.Text(runtime.canvas.foreground, text, Game.style.button.bigFont, { hAlign: 'centered', colour: '#333333' }),
 			alpha: 0.9,
 			checked: state,
 			click: fn
@@ -61,11 +61,11 @@ Game.MainMenu.Settings = class extends Framework.UI.Modal {
 	}
 
 	_createMenu(text, fn) {
-		var menu = new Framework.UI.Button(runtime.canvas, {
+		var menu = new Framework.UI.Button(runtime.canvas.foreground, {
 			width: 150,
 			height: 30,
 			colour: '#F5F6CE',
-			text: new Framework.UI.Text(runtime.canvas, text, Game.style.button.bigFont, { hAlign: 'centered', colour: '#333333' }),
+			text: new Framework.UI.Text(runtime.canvas.foreground, text, Game.style.button.bigFont, { hAlign: 'centered', colour: '#333333' }),
 			alpha: 0.9,
 			click: fn
 		});

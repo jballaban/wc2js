@@ -13,10 +13,11 @@ var Framework = {
 	@param {Framework.Runtime} runtime - The runtime controller
 	@param {string} mode - Build mode
 	**/
-	init: function(runtime, mode) {
+	init: function(runtime, cursorcanvas, mode) {
 		if (mode)
 			Framework.mode = mode;
+		console.log('Framework Init: "'+Framework.mode+'" mode enabled');
 		this.FPS = new FPSMeter({ decimals: 0, graph: true, theme: 'dark', left: '5px' });
-		Framework.UI.Cursor.init(runtime.canvas);
+		Framework.UI.Cursor.init(cursorcanvas);
 	}
 }

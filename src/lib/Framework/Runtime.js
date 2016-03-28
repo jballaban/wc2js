@@ -69,11 +69,11 @@ Framework.Runtime = class {
 	Resizes the current screen / canvas to current browser size
 	**/
 	_resize() {
-		this._width = this._canvas.canvas.width = this._canvas.width = window.innerWidth;
-		this._height = this._canvas.canvas.height = this._canvas.height = window.innerHeight;
-		if (this._screen != null) {
+		this._width = window.innerWidth;
+		this._height = window.innerHeight;
+		this.canvas.resize(this._width, this._height);
+		if (this._screen != null)
 			this._screen.resize(this._width, this._height);
-		}
 	}
 
 	_update () {

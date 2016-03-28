@@ -19,7 +19,9 @@
 		<link rel="shortcut icon" href="asset/favicon.gif">
 		<style>
 			html, body { margin:0; background-color:black; cursor: none; }
-			canvas { z-index: 1; }
+			canvas { position: absolute; }
+			canvas#background { z-index: 1; }
+			canvas#foreground { z-index: 2; }
 			video { position:absolute; z-index: 2; }
 			div.loading {
 				z-index: 2;
@@ -50,7 +52,8 @@
 			<img id="user_photo">
 			<span id="user_name" ></span>
 		</a>
-		<canvas id="canvas"></canvas>
+		<canvas id="background"></canvas>
+		<canvas id="foreground"></canvas>
 		<script>
 			describe = function() {}; // placeholder for tests
 			elvtr.loadJS([
@@ -96,6 +99,7 @@
 				'lib/Game/MainMenu/Screen.js',
 				'lib/Game/MainMenu/Cloud.js',
 				'lib/Game/MainMenu/Fire.js',
+				'lib/Game/MainMenu/Smoke.js',
 				'lib/Game/MainMenu/Settings.js',
 				'https://apis.google.com/js/client.js',
 				'start.js'

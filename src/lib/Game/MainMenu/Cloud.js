@@ -6,10 +6,10 @@ Cloud effect
 Game.MainMenu.Cloud = class extends Framework.UI.Element {
 	constructor(inc) {
 		new Framework.Util.Val(inc).is(Number).between(1,3).req();
-		super(runtime.canvas, {
-			sprite: new Framework.UI.Image(runtime.canvas, 'asset/MainMenu/cloud_'+inc+'.png'),
-			width: '1477',
-			height: '499',
+		super(runtime.canvas.foreground, {
+			sprite: new Framework.UI.Image(runtime.canvas.foreground, 'asset/MainMenu/cloud_'+inc+'.png'),
+			width: inc==1?1118:inc==2?1186:1459,
+			height: inc==1?448:inc==2?479:473,
 			alpha: 0
 		});
 	}

@@ -5,12 +5,12 @@ Fire effect
 **/
 Game.MainMenu.Fire = class extends Framework.UI.Element {
 	constructor() {
-		super(runtime.canvas, {
+		super(runtime.canvas.foreground, {
 			width: '100%',
 			height: '100%'
 		});
 		this.particles = [];
-		this.particle_count = 600;
+		this.particle_count = 400;
 		for(var i = 0; i < this.particle_count; i++)
 			this.particles.push(new Game.MainMenu.Fire.Particle());
 	}
@@ -21,32 +21,19 @@ Game.MainMenu.Fire = class extends Framework.UI.Element {
 			var p = this.particles[i];
 			p.remaining_life--;
 			p.radius--;
+			//regenerate particles
+			if(p.remaining_life < 0 || p.radius < 0)
+				p = this.particles[i] = new Game.MainMenu.Fire.Particle(this.width, this.height);
 			p.location.x += p.speed.x;
 			p.location.y += p.speed.y;
-			//regenerate particles
-			if(p.remaining_life < 0 || p.radius < 0) {
-				this.particles[i] = new Game.MainMenu.Fire.Particle(this.width, this.height);
-			}
+			p.opacity = Math.round(p.remaining_life/p.life*100)/100;
 		}
 	}
 
 	draw() {
 		this._canvas.globalCompositeOperation = "lighter";
-		for(var i = 0; i < this.particles.length; i++) {
-			var p = this.particles[i];
-			this._canvas.beginPath();
-			//changing opacity according to the life.
-			//opacity goes to 0 at the end of life of a particle
-			p.opacity = Math.round(p.remaining_life/p.life*100)/100
-			//a gradient instead of white fill
-			var gradient = this._canvas.createRadialGradient(p.location.x, p.location.y, 0, p.location.x, p.location.y, p.radius);
-			gradient.addColorStop(0, "rgba("+p.r+", "+p.g+", "+p.b+", "+p.opacity+")");
-			gradient.addColorStop(0.5, "rgba("+p.r+", "+p.g+", "+p.b+", "+p.opacity+")");
-			gradient.addColorStop(1, "rgba("+p.r+", "+p.g+", "+p.b+", 0)");
-			this._canvas.fillStyle = gradient;
-			this._canvas.arc(Math.round(p.location.x), Math.round(p.location.y), p.radius, Math.PI*2, false);
-			this._canvas.fill();
-		}
+		for(var i = 0; i < this.particles.length; i++)
+			this.particles[i].draw(this._canvas);
 		this._canvas.globalCompositeOperation = "source-over";
 	}
 }
@@ -58,11 +45,23 @@ Game.MainMenu.Fire.Particle = class {
 		this.speed = {x: -2+Math.random()*5, y: -10+Math.random()*10};
 		this.location = {x: Math.random()*width, y: y};
 		this.radius = 10+Math.random()*20;
-		this.life = Math.random()*20;
+		this.life = (Math.random() > 0.5) ? Math.random()*10 : Math.random()*20;
 		this.remaining_life = this.life;
 		this.r = Math.round(Math.random()*255);
 		this.g = Math.round(Math.random()*100);
 		this.b = Math.round(Math.random()*100);
+		this.opacity = 0;
+	}
+
+	draw(canvas) {
+		canvas.beginPath();
+		var gradient = canvas.createRadialGradient(this.location.x, this.location.y, 0, this.location.x, this.location.y, this.radius);
+		gradient.addColorStop(0, "rgba("+this.r+", "+this.g+", "+this.b+", "+this.opacity+")");
+		gradient.addColorStop(0.5, "rgba("+this.r+", "+this.g+", "+this.b+", "+this.opacity+")");
+		gradient.addColorStop(1, "rgba("+this.r+", "+this.g+", "+this.b+", 0)");
+		canvas.fillStyle = gradient;
+		canvas.arc(Math.round(this.location.x), Math.round(this.location.y), this.radius, Math.PI*2, false);
+		canvas.fill();
 	}
 }
 
