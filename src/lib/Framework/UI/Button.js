@@ -77,7 +77,6 @@ Framework.UI.Button = class extends Framework.UI.Element {
 	}
 }
 
-
 describe('Framework.UI.Button', function() {
 	it('#constructor', function() {
 		var el = new Framework.UI.Button(runtime.canvas);

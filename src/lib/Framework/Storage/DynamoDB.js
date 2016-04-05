@@ -11,7 +11,7 @@ Framework.Storage.DynamoDB = {
 		this._aws = apigClientFactory.newClient();
 	},
 
-	_tables: ['map'],
+	_tables: ['user'],
 
 	/**
 	Saves an object at field name
@@ -27,15 +27,7 @@ Framework.Storage.DynamoDB = {
 		new Framework.Util.Val(object).is(Object).req();
 		var _options = new Framework.Util.Val(options).is(Object);
 		var callback = _options.item('callback').is(Function).val();
-		var fn = null;
-		switch (table) {
-			case 'map' :
-				fn = this._aws.mapPost;
-				object.id = id;
-				break;
-			default:
-				throw new Error('Unknown table '+table);
-		}
+		var fn = this._aws[table+'Put'];
 		fn({}, object)
 		.then(function(result){
 			if (callback != null)
@@ -56,14 +48,7 @@ Framework.Storage.DynamoDB = {
 		new Framework.Util.Val(table).is(String).in(this._tables).req();
 		new Framework.Util.Val(id).req();
 		new Framework.Util.Val(callback).is(Function).req();
-		var fn = null;
-		switch (table) {
-			case 'map' :
-				fn = this._aws.mapGet;
-				break;
-			default:
-				throw new Error('Unknown table '+table);
-		}
+		var fn = this._aws[table+'Get'];
 		fn({id: id, limit: 1}, {})
 		.then(function(result){
 			if (callback != null)
@@ -86,14 +71,7 @@ Framework.Storage.DynamoDB = {
 		new Framework.Util.Val(id).req();
 		var _options = new Framework.Util.Val(options).is(Object);
 		var callback = _options.item('callback').is(Function).val();
-		var fn = null;
-		switch (table) {
-			case 'map' :
-				fn = this._aws.mapDelete;
-				break;
-			default:
-				throw new Error('Unknown table '+table);
-		}
+		var fn = this._aws[table+'Delete'];
 		fn({id: id}, {id: id})
 		.then(function(result){
 			if (callback != null)
@@ -109,9 +87,7 @@ describe('Framework.Storage.DynamoDB', function() {
 	it('#save,load,remove', function() {
 		// BOOOO CAN'T UNIT TEST THIS SINCE IT REQUIRES BROWSER SO THIS JUST FAKES
 		Framework.Storage.DynamoDB.init();
-		Framework.Storage.DynamoDB.save('map', 'mocha-1', { name: 'mocha-1' });
-		Framework.Storage.DynamoDB.load('map', 'mocha-1', function(item) {
-			
-		});
+		//Framework.Storage.DynamoDB.save('user', 'mocha-1', { name: 'mocha-1' });
+		//Framework.Storage.DynamoDB.load('map', 'mocha-1', function(item) {});
 	});
 });

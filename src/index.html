@@ -8,8 +8,7 @@
 				var addscr = function(){
 					var scrTag = document.createElement('script'), path = arr[C];
 					scrTag.type = 'text/javascript';
-					C++;
-					(C<L) ? scrTag.onload = addscr :0;
+					(++C<L) ? scrTag.onload = addscr :0;
 					scrTag.src = path; 
 					document.head.appendChild(scrTag);
 				};
@@ -40,6 +39,7 @@
 				padding: 5px;
 				font-size:14px;
 				text-decoration: none;
+				z-index: 3;
 			}
 			#user_photo {
 				height: 18px;
@@ -48,12 +48,12 @@
 		</style>
 	</head>
 	<body>
+		<canvas id="background"></canvas>
+		<canvas id="foreground"></canvas>
 		<a id="user" href="#" onclick="Framework.Auth.User.signOut(); location.reload(); return false;">
 			<img id="user_photo">
 			<span id="user_name" ></span>
 		</a>
-		<canvas id="background"></canvas>
-		<canvas id="foreground"></canvas>
 		<script>
 			describe = function() {}; // placeholder for tests
 			elvtr.loadJS([
@@ -61,6 +61,7 @@
 				'lib/Framework/Framework.js',
 				'lib/Framework/Storage/Storage.js',
 				'lib/Framework/Storage/Local.js',
+				'lib/Framework/Storage/DynamoDB.js',
 				'lib/Framework/Auth/Auth.js',
 				'lib/Framework/Auth/User.js',
 				'lib/Framework/Auth/Google.js',
@@ -93,6 +94,7 @@
 				'lib/Game/Game.js',
 				'lib/Game/Auth/Auth.js',
 				'lib/Game/Auth/Screen.js',
+				'lib/Game/Auth/User.js',
 				'lib/Game/Intro/Intro.js',
 				'lib/Game/Intro/Screen.js',
 				'lib/Game/MainMenu/MainMenu.js',
@@ -101,6 +103,17 @@
 				'lib/Game/MainMenu/Fire.js',
 				'lib/Game/MainMenu/Smoke.js',
 				'lib/Game/MainMenu/Settings.js',
+				'lib/ref/aws/lib/axios/dist/axios.standalone.js',
+			    'lib/ref/aws/lib/CryptoJS/rollups/hmac-sha256.js',
+			    'lib/ref/aws/lib/CryptoJS/rollups/sha256.js',
+			    'lib/ref/aws/lib/CryptoJS/components/hmac.js',
+			    'lib/ref/aws/lib/CryptoJS/components/enc-base64.js',
+			    'lib/ref/aws/lib/url-template/url-template.js',
+			    'lib/ref/aws/lib/apiGatewayCore/sigV4Client.js',
+			    'lib/ref/aws/lib/apiGatewayCore/apiGatewayClient.js',
+			    'lib/ref/aws/lib/apiGatewayCore/simpleHttpClient.js',
+			    'lib/ref/aws/lib/apiGatewayCore/utils.js',
+			    'lib/ref/aws/apigClient.js',
 				'https://apis.google.com/js/client.js',
 				'start.js'
 			]);

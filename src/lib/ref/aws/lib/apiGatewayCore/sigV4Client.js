@@ -21,8 +21,6 @@ apiGateway.core.sigV4ClientFactory.newClient = function (config) {
     var AWS_SHA_256 = 'AWS4-HMAC-SHA256';
     var AWS4_REQUEST = 'aws4_request';
     var AWS4 = 'AWS4';
-    var DATE_FORMAT = 'YYYYMMDD';
-    var TIME_FORMAT = 'HHmmss';
     var X_AMZ_DATE = 'x-amz-date';
     var X_AMZ_SECURITY_TOKEN = 'x-amz-security-token';
     var HOST = 'host';
@@ -105,27 +103,23 @@ apiGateway.core.sigV4ClientFactory.newClient = function (config) {
         return sortedKeys.join(';');
     }
 
-    function buildStringToSign(date, credentialScope, hashedCanonicalRequest) {
+    function buildStringToSign(datetime, credentialScope, hashedCanonicalRequest) {
         return AWS_SHA_256 + '\n' +
-            buildXAmzDate(date) + '\n' +
+            datetime + '\n' +
             credentialScope + '\n' +
             hashedCanonicalRequest;
     }
 
-    function buildCredentialScope(date, region, service) {
-        return date.format(DATE_FORMAT) + '/' + region + '/' + service + '/' + AWS4_REQUEST
+    function buildCredentialScope(datetime, region, service) {
+        return datetime.substr(0, 8) + '/' + region + '/' + service + '/' + AWS4_REQUEST
     }
 
-    function calculateSigningKey(secretKey, date, region, service) {
-        return hmac(hmac(hmac(hmac(AWS4 + secretKey, date.format(DATE_FORMAT)), region), service), AWS4_REQUEST);
+    function calculateSigningKey(secretKey, datetime, region, service) {
+        return hmac(hmac(hmac(hmac(AWS4 + secretKey, datetime.substr(0, 8)), region), service), AWS4_REQUEST);
     }
 
     function calculateSignature(key, stringToSign) {
         return hexEncode(hmac(key, stringToSign));
-    }
-
-    function buildXAmzDate(date) {
-        return date.format(DATE_FORMAT) + 'T' + date.format(TIME_FORMAT) + 'Z';
     }
 
     function buildAuthorizationHeader(accessKey, credentialScope, headers, signature) {
@@ -177,17 +171,17 @@ apiGateway.core.sigV4ClientFactory.newClient = function (config) {
             delete headers['Content-Type'];
         }
 
-        var date = moment.utc();
-        headers[X_AMZ_DATE] = buildXAmzDate(date);
+        var datetime = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[:\-]|\.\d{3}/g, '');
+        headers[X_AMZ_DATE] = datetime;
         var parser = document.createElement('a');
         parser.href = awsSigV4Client.endpoint;
         headers[HOST] = parser.hostname;
 
         var canonicalRequest = buildCanonicalRequest(verb, path, queryParams, headers, body);
         var hashedCanonicalRequest = hashCanonicalRequest(canonicalRequest);
-        var credentialScope = buildCredentialScope(date, awsSigV4Client.region, awsSigV4Client.serviceName);
-        var stringToSign = buildStringToSign(date, credentialScope, hashedCanonicalRequest);
-        var signingKey = calculateSigningKey(awsSigV4Client.secretKey, date, awsSigV4Client.region, awsSigV4Client.serviceName);
+        var credentialScope = buildCredentialScope(datetime, awsSigV4Client.region, awsSigV4Client.serviceName);
+        var stringToSign = buildStringToSign(datetime, credentialScope, hashedCanonicalRequest);
+        var signingKey = calculateSigningKey(awsSigV4Client.secretKey, datetime, awsSigV4Client.region, awsSigV4Client.serviceName);
         var signature = calculateSignature(signingKey, stringToSign);
         headers[AUTHORIZATION] = buildAuthorizationHeader(awsSigV4Client.accessKey, credentialScope, headers, signature);
         if(awsSigV4Client.sessionToken !== undefined && awsSigV4Client.sessionToken !== '') {
