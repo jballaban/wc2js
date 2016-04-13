@@ -24,22 +24,26 @@ Game.Auth.user = {
 		// ensure user exists and store login
 		document.getElementById('user_photo').src = user.Photo;
 		document.getElementById('user_name').innerHTML = user.Name;
-		this.save(user);
+		this.get(user.Id, function(result) {
+			if (result.status != 'OK') // TODO: redirect to an error page with try again button
+				throw 'Couldn\'t access APIs, please refresh and try again as certain gameplay may be affected'
+			if (result.data == null) { // new record
+				result.data = {
+					logins: [],
+					profile: user._data
+				}
+			}
+			result.data.logins.push(Date.now());
+			Game.Auth.user.save(user.Id, result.data);
+		});
 		callback();
 	},
 
-	save: function(user) {
-		// WARNING VERY NOT THREAD SAFE... just can't be bothered yet.
-		Framework.Storage.DynamoDB.load('user', user.Id, function(result) {
-			if (result.status == 'OK') {
-				if (result.data == null)
-					result.data = {
-						logins: [],
-						profile: user._data
-					}
-				result.data.logins.push(Date.now());
-				Framework.Storage.DynamoDB.save('user', user.Id, result.data);
-			}
-		});
+	get: function(userid, callback) {
+		Framework.Storage.DynamoDB.load('user', userid, callback);
+	},
+
+	save: function(userid, data) {
+		Framework.Storage.DynamoDB.save('user', userid, data);
 	}
 }

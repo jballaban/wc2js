@@ -8,10 +8,7 @@ Framework.Storage.DynamoDB = {
 	Connects the storage to AWS client
 	**/
 	init: function() {
-		this._aws = apigClientFactory.newClient(
-			{
-				apiKey: 'CALMqlNkw41wp2W5ppuJM3mOBoAIso9Yj2TuzTc1'
-			});
+		this._aws = apigClientFactory.newClient();
 	},
 
 	_tables: ['user'],
