@@ -8,7 +8,10 @@ Framework.Storage.DynamoDB = {
 	Connects the storage to AWS client
 	**/
 	init: function() {
-		this._aws = apigClientFactory.newClient();
+		this._aws = apigClientFactory.newClient(
+			{
+				apiKey: 'CALMqlNkw41wp2W5ppuJM3mOBoAIso9Yj2TuzTc1'
+			});
 	},
 
 	_tables: ['user'],
@@ -19,7 +22,7 @@ Framework.Storage.DynamoDB = {
 	@param {string} id - The unique row ID
 	@param {object} object - The data to store (will be serialized)
 	@param {object} [options] - Optional parameters
-	@param {function} [options.callback] - Callback method once save has completed
+	@param {function} [options.callback] - Callback method once save has completed.  Returns true if suceeded
 	**/
 	save: function(table, id, object, options) {
 		new Framework.Util.Val(table).is(String).in(this._tables).req();
@@ -28,14 +31,39 @@ Framework.Storage.DynamoDB = {
 		var _options = new Framework.Util.Val(options).is(Object);
 		var callback = _options.item('callback').is(Function).val();
 		var fn = this._aws[table+'Put'];
+		object.id = id;
 		fn({}, object)
 		.then(function(result){
-			if (callback != null)
-				callback();
+			Framework.Storage.DynamoDB._response('save', result, callback);
 		}).catch( function(result){
-			if (callback != null)
-				callback();
+			Framework.Storage.DynamoDB._response('save', result, callback);
 		});
+	},
+
+	_response: function(action, result, callback) {
+		var returns = {};
+		if (result.data == null) {
+			console.log('Unexpected API result: ', result);
+			returns = { 'status': 'Network error', data: result }
+		}
+		else if (result.status != 200 || result.data.errorType != null) {
+			console.log('API error: ', result);
+			returns = { 'status': 'API error', data: result.data }
+		} else {
+			returns = { 'status': 'OK' }
+			if (action == 'save')
+				returns.data = null;
+			else if (action == 'load') {
+				if (result.data.Item)
+					returns.data = result.data.Item;
+				else
+					returns.data = null;
+			}
+			else
+				returns.data = result.data;
+		}
+		if (callback != null)
+			callback(returns);
 	},
 
 	/**
@@ -49,13 +77,11 @@ Framework.Storage.DynamoDB = {
 		new Framework.Util.Val(id).req();
 		new Framework.Util.Val(callback).is(Function).req();
 		var fn = this._aws[table+'Get'];
-		fn({id: id, limit: 1}, {})
+		fn({id: id}, {})
 		.then(function(result){
-			if (callback != null)
-				callback(result.data.Item);
+			Framework.Storage.DynamoDB._response('load', result, callback);
 		}).catch( function(result){
-			if (callback != null)
-				callback();
+			Framework.Storage.DynamoDB._response('load', result, callback);
 		});
 	},
 

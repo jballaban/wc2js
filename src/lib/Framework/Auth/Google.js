@@ -35,6 +35,7 @@ Framework.Auth.Google = {
 				Framework.Auth.User.Photo = resp.result.image.url;
 				Framework.Auth.User.Id = resp.result.id;
 				Framework.Auth.User.Name = resp.result.displayName;
+				Framework.Auth.User._data = resp.result;
 				Framework.Auth.User.save();
 				success();
 			}, function(reason) {

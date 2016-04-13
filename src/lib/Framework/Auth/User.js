@@ -25,6 +25,11 @@ Framework.Auth.User = {
 	Name: null,
 
 	/**
+	The provider raw data, only set once
+	**/
+	_data: null,
+
+	/**
 	Configures the user data store to use.  Defaults to local.
 	**/
 	init: function(storage) {

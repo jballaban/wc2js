@@ -53,7 +53,7 @@ apigClientFactory.newClient = function (config) {
 
     
     // extract endpoint and path from url
-    var invokeUrl = 'https://api.wc2js.com/(none)';
+    var invokeUrl = 'https://api.wc2js.com';
     var endpoint = /(^https?:\/\/[^\/]+)/g.exec(invokeUrl)[1];
     var pathComponent = invokeUrl.substring(endpoint.length);
 
@@ -83,6 +83,42 @@ apigClientFactory.newClient = function (config) {
     
     
     
+    apigClient.rootOptions = function (params, body, additionalParams) {
+        if(additionalParams === undefined) { additionalParams = {}; }
+        
+        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
+        
+        var rootOptionsRequest = {
+            verb: 'options'.toUpperCase(),
+            path: pathComponent + uritemplate('/').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
+            body: body
+        };
+        
+        
+        return apiGatewayClient.makeRequest(rootOptionsRequest, authType, additionalParams, config.apiKey);
+    };
+    
+    
+    apigClient.userGet = function (params, body, additionalParams) {
+        if(additionalParams === undefined) { additionalParams = {}; }
+        
+        apiGateway.core.utils.assertParametersDefined(params, ['id'], ['body']);
+        
+        var userGetRequest = {
+            verb: 'get'.toUpperCase(),
+            path: pathComponent + uritemplate('/user').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            queryParams: apiGateway.core.utils.parseParametersToObject(params, ['id']),
+            body: body
+        };
+        
+        
+        return apiGatewayClient.makeRequest(userGetRequest, authType, additionalParams, config.apiKey);
+    };
+    
+    
     apigClient.userPut = function (params, body, additionalParams) {
         if(additionalParams === undefined) { additionalParams = {}; }
         
@@ -98,6 +134,24 @@ apigClientFactory.newClient = function (config) {
         
         
         return apiGatewayClient.makeRequest(userPutRequest, authType, additionalParams, config.apiKey);
+    };
+    
+    
+    apigClient.userOptions = function (params, body, additionalParams) {
+        if(additionalParams === undefined) { additionalParams = {}; }
+        
+        apiGateway.core.utils.assertParametersDefined(params, [], ['body']);
+        
+        var userOptionsRequest = {
+            verb: 'options'.toUpperCase(),
+            path: pathComponent + uritemplate('/user').expand(apiGateway.core.utils.parseParametersToObject(params, [])),
+            headers: apiGateway.core.utils.parseParametersToObject(params, []),
+            queryParams: apiGateway.core.utils.parseParametersToObject(params, []),
+            body: body
+        };
+        
+        
+        return apiGatewayClient.makeRequest(userOptionsRequest, authType, additionalParams, config.apiKey);
     };
     
 

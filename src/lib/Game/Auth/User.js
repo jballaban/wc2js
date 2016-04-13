@@ -29,11 +29,17 @@ Game.Auth.user = {
 	},
 
 	save: function(user) {
-		Framework.Storage.DynamoDB.save('user', user.Id, {
-			name: user.Name,
-			logins: [
-				Date.now()
-			]
+		// WARNING VERY NOT THREAD SAFE... just can't be bothered yet.
+		Framework.Storage.DynamoDB.load('user', user.Id, function(result) {
+			if (result.status == 'OK') {
+				if (result.data == null)
+					result.data = {
+						logins: [],
+						profile: user._data
+					}
+				result.data.logins.push(Date.now());
+				Framework.Storage.DynamoDB.save('user', user.Id, result.data);
+			}
 		});
 	}
 }
