@@ -40,7 +40,7 @@ Game.MainMenu.Settings = class extends Framework.UI.Modal {
 			})
 		});
 		this.addElement(menu);
-		menu.addMenu('vertical', this._createCheckbox('Play Now', false));
+		menu.addMenu('vertical', this._createCheckbox('Fullscreen', false));
 		menu.addMenu('vertical', this._createMenu('Close', function() {
 			this.mouseClick();
 		}.bind(this)));

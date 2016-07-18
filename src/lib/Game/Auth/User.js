@@ -1,26 +1,21 @@
 "use strict";
-/**
-Holding screen while we auth the user
-@extends Framework.UI.Screen
-**/
 Game.Auth.user = {
-	
+
 	authenticate: function(onlogin) {
 		Framework.Auth.User.init();
 		Framework.Auth.User.load();
-
 		if (Framework.Auth.User.Id != null) {
-			Game.Auth.user.login(Framework.Auth.User, onlogin);
+			this._login(onlogin);
 		} else {
 			setTimeout(function() {
 				Framework.Auth.Google.auth(function() {
-			  		 Game.Auth.user.login(Framework.Auth.User, onlogin);
+			  		 this._login(onlogin);
 			  	});
 			}, 1000);
 		}
 	},
 
-	login: function(user, callback) {
+	_login: function(callback) {
 		// ensure user exists and store login
 		document.getElementById('user_photo').src = user.Photo;
 		document.getElementById('user_name').innerHTML = user.Name;
@@ -30,20 +25,21 @@ Game.Auth.user = {
 			if (result.data == null) { // new record
 				result.data = {
 					logins: [],
-					profile: user._data
+					profile: user._data,
+					settings: {}
 				}
 			}
 			result.data.logins.push(Date.now());
-			Game.Auth.user.save(user.Id, result.data);
-		});
+			this.save(user.Id, result.data);
+		}).bind(this);
 		callback();
 	},
 
-	get: function(userid, callback) {
+	_get: function(userid, callback) {
 		Framework.Storage.DynamoDB.load('user', userid, callback);
 	},
 
-	save: function(userid, data) {
-		Framework.Storage.DynamoDB.save('user', userid, data);
+	_save: function(userid, userrecord) {
+		Framework.Storage.DynamoDB.save('user', userid, userrecord);
 	}
 }
