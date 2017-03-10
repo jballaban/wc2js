@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Tides Documentation</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Description">
+        <meta name="author" content="Autor">
+    
+        <!-- loading the css -->
+        <link href="assets/css/bootstrap.css" rel="stylesheet">
+        <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+        <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+        
+		<style type="text/css">
+        body {
+            padding-bottom: 40px;
+        }
+		
+		section {padding: 60px 0 0 0;}
+		
+		.slider-table td {
+			
+		}
+        </style>
+        
+        <!--[if lt IE 9]>
+          <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    
+        <!-- Various Icons (Favicon, Touch Icon,... -->
+        <link rel="shortcut icon" href="assets/img/favicon.ico">
+        <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="assets/img/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="assets/img/apple-touch-icon-114x114.png">
+        
+    </head>
+    
+    
+        
+    <body data-spy="scroll" data-target=".navbar" id="top">
+    
+        <!-- ========================= NAVIGATION BAR >> START ========================= -->
+        <div class="navbar navbar-fixed-top navbar-inverse">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a> 
+                    <a class="brand" href="#overview">Tides</a><!-- TIP: Change this for the name of your file -->
+                    <div class="nav-collapse">
+                        <ul class="nav">
+                            <li><a href="#overview">Overview</a></li>
+                            <li><a href="#general">General</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ========================= NAVIGATION BAR >> END ========================= -->
+    
+    
+    
+        <!-- ========================= MAIN CONTAINER >> START ========================= -->
+        <div class="container">
+        
+            <!-- ========================= SECTION: OVERVIEW >> START ========================= -->
+            <section id="overview">
+            
+                <div class="hero-unit">
+                    <h1>Tides Help Documentation</h1>
+                    <p>Yet Another Documentation Crafted with &hearts; by <a href="http://themeforest.net/user/tommusrhodus">TommusRhodus</a></p>
+                    <p class="well well-small">We use Ticksy, a ticket based support system to support our themes.<br/><b>Please Note:</b> We do not offer support for customisations or plugins in our support policy, If you have a question related to setting up the theme or a bug please visit our <a href="http://tommusrhodus.ticksy.com">Ticksy Support Site</a>.</p>
+                    <div class="row-fluid">
+                        <div class="span3"><a href="http://tommusrhodus.ticksy.com" class="btn btn-primary btn-large btn-block">Item Support</a></div>
+                    </div>
+    
+                </div>
+                
+            </section>
+            <!-- ========================= SECTION: OVERVIEW >> END ========================= -->
+
+
+          
+            <!-- ========================= SECTION: GENERAL >> START ========================= -->
+            <section id="general">
+	<div class="page-header">
+	  <h1>General <small>Styles customization and highlights</small></h1>
+	</div>
+
+    <div id="retina" class="row">
+      <div class="span3">
+        <h3>Logo</h3>
+        <p>The logo section in the main header of each page can either be text or an image.</p>
+      </div>
+
+<div class="span9">
+<table class="table table-bordered table-striped">
+	      <thead>
+	        <tr>
+	          <th>Type</th>
+	          <th>Code</th>
+	        </tr>
+	      </thead>
+	      <tbody>
+	        <tr>
+	          <td><code>Text</code></td>
+	          <td>Shadow&lt;span&gt;box.&lt;/span&gt; &lt;small&gt;This can be a tagline.&lt;/small&gt;</td>
+	        </tr>
+	        <tr>
+	          <td><code>Image</code></td>
+	          <td>&lt;img src=&quot;img/logo.jpg&quot; alt=&quot;logo&quot; /&gt;</td>
+	        </tr>
+	      </tbody>
+	    </table>
+      </div>
+        </div>
+
+    <hr />
+    
+    <div id="retina" class="row">
+          <div class="span3">
+            <h3>Retina Ready Logo and other images</h3>
+            <p>Tides includes some javascript to provide full retina ready support, here's what you need to do;</p>
+            <ol>
+            	<li>Add an image and the retina version to your /img/ folder, they need to be named like this; <code>example.jpg</code> & <code>example@2x.jpg</code></li>
+            	<li>Add a class of <code>retina</code> to your image tag, the javascript will now search for a retina version of this image and will either return with the retina version for retina displays, or will return a 404 if the image cannot be found.</li>
+            </ol>
+          </div>
+    
+    <div class="span9">
+    <table class="table table-bordered table-striped">
+    	      <thead>
+    	        <tr>
+    	          <th>Type</th>
+    	          <th>Code</th>
+    	        </tr>
+    	      </thead>
+    	      <tbody>
+    	        <tr>
+    	          <td><code>Image</code></td>
+    	          <td>&lt;img src=&quot;img/logo.jpg&quot; alt=&quot;logo&quot; class="retina" /&gt;</td>
+    	        </tr>
+    	      </tbody>
+    	    </table>
+          </div>
+            </div>
+    
+        <hr />
+
+
+        
+<div class="row">
+    <div class="span3">
+  <h3>Social Icons</h3>
+  <p>Font Awesome (included) comes with loads of social icons ready to drop straight into your template. You can combine them with a Tides button for a great looking social icon button.</p>
+  <a class="btn" href="http://fortawesome.github.io/Font-Awesome/icons/">See All Icons</a>
+</div>
+
+<div class="span9">
+<pre class="prettyprint linenums">
+&lt;a href=&quot;facebook.com&quot; &gt;&lt;i class=&quot;fa fa-facebook&quot;&gt;&lt;/i&gt;&lt;/a&gt;
+</pre>
+      </div>
+        </div>
+        
+        
+<hr />
+
+<div class="row">
+    <div class="span12">
+  <h3>Menu Active Classes</h3>
+  <p>The main nav and side-menu nav active states are handled by javascript. If you want to do this manually, you'd add a class of <code>active</code> to the containing li element of the active a tag.</p>
+  <p>To use the scroll spy technique, which scrolls you through a page, your nav items need a class of <code>scroller</code></p>
+  <p>If you leave off the scroller class then your nav items will simply links like normal link tags.</p>
+</div>
+        </div>
+        
+        
+<hr />
+        
+<div class="row">
+    <div class="span3">
+  <h3>Menu</h3>
+  <p>Tides uses a very traditional system for the menu, shown to the right.</p>
+  <p>All styles for the menu will be found in <code>/css/style.css</code></p>
+  <p>The responsive menu is handled by selectnav, take look for <code>selectnav</code> styling in <code>/css/style.css</code> to change the breakpoints for this if you wish,</p>
+</div>
+
+<div class="span9">
+<pre class="prettyprint linenums">
+&lt;nav&gt;
+	&lt;ul&gt;
+		&lt;li class="active"&gt;&lt;a href="#"&gt;1. Item&lt;/a&gt;&lt;/li&gt;
+		&lt;li&gt;&lt;a href="#"&gt;2. Item&lt;/a&gt;
+			&lt;ul&gt;
+				&lt;li&gt;&lt;a href="#"&gt;2.1 Item&lt;/a&gt;&lt;/li&gt;
+				&lt;li&gt;&lt;a href="#"&gt;2.2 Item&lt;/a&gt;
+					&lt;ul&gt;
+						&lt;li&gt;&lt;a href="#"&gt;2.2.1 Item&lt;/a&gt;&lt;/li&gt;
+						&lt;li&gt;&lt;a href="#"&gt;2.2.2 Item&lt;/a&gt;&lt;/li&gt;
+						&lt;li&gt;&lt;a href="#"&gt;2.2.3 Item&lt;/a&gt;
+							&lt;ul&gt;
+								&lt;li&gt;&lt;a href="#"&gt;2.2.3.1 Item&lt;/a&gt;&lt;/li&gt;
+								&lt;li&gt;&lt;a href="#"&gt;2.2.3.2 Item&lt;/a&gt;&lt;/li&gt;
+							&lt;/ul&gt;
+						&lt;/li&gt;
+					&lt;/ul&gt;
+				&lt;/li&gt;
+			&lt;/ul&gt;
+		&lt;/li&gt;
+		&lt;li&gt;&lt;a href="#"&gt;3. Item&lt;/a&gt;&lt;/li&gt;
+		&lt;li&gt;&lt;a href="#"&gt;4. Item&lt;/a&gt;&lt;/li&gt;
+	&lt;/ul&gt;
+&lt;/nav&gt;
+</pre>
+      </div>
+        </div>        
+        
+        <hr />
+        
+
+	   
+	   <div class="row">
+    <div class="span3">
+    <h3>Contact Form</h3>
+	    <p>To receive the messages sent through the contact form, edit line 33 of <br /><code>sendemail.php</code></p>
+	</div>
+	
+	<div class="span9">
+		<pre class="prettyprint linenums">
+//ENTER YOUR EMAIL ADDRESS HERE
+$address = 'hello@email.com';</pre>
+	</div>
+	   </div>
+	   
+	   <br />
+
+<hr />
+  
+  <div class="row">
+    <div class="span3">
+    <h3>Changing Fonts</h3>
+	    <p>If you would like to use different Google Fonts, copy the font link in Google Fonts page and paste it before closing head tag in your HTML files.</p>
+	</div>
+	
+	<div class="span9">
+		<div class="thumbnail"><img src="assets/img/1.png" alt="Google Fonts" /></div>
+	</div>
+    
+    </div>
+    <br />
+    <div class="row">
+    <div class="span3">
+	    <p>Then you need to add the font name to your CSS styles.</p>
+	</div>
+	
+	<div class="span9">
+		<pre class="prettyprint linenums">
+body {
+    font-family: 'Lato', sans-serif;
+}
+</pre>
+	</div>
+    
+    </div>             
+
+  
+  </section> <!-- General -->
+
+
+<hr />
+    
+            <div class="goodbye">
+                <p>Once again, thank you so much for purchasing this theme. As said at the beginning, we'd be glad to help you if you have any questions relating to this theme. No guarantees, but we'll do our best to assist. If you have a more general question relating to the themes on ThemeForest, you might consider visiting the forums and asking your question in the "Item Discussion" section.</p>
+            </div>
+        
+            <hr />
+        
+            <footer>
+                <p>&copy; TommusRhodus 2013</p>
+            </footer>
+            
+        </div>
+        <!-- ========================= MAIN CONTAINER >> END ========================= -->
+         
+        
+        <!-- CHANGELOG >> START -->
+        <div class="modal hide fade" id="changelog" tabindex="-1" role="dialog" aria-labelledby="changelog-label" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="changelog-label">Changelog</h3>
+            </div>
+            <div class="modal-body">
+               
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+        </div>
+        <!-- CHANGELOG >> END -->
+        
+
+        <!-- loading javascripts -->
+		<script src="assets/js/jquery.js"></script> 
+        <script src="assets/js/bootstrap.min.js"></script>
+        <script src="assets/js/google-code-prettify/prettify.js"></script>
+        
+        <!-- init javascripts -->
+        <script src="assets/js/init.js"></script>
+         
+    </body>
+    
+</html>

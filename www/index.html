@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head profile="http://www.w3.org/2005/10/profile">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>WC2JS</title>
+    <meta name="author" content="">
+    <meta name="description" content="">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:300,400,500' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/framework.css">
+    <link rel="stylesheet" type="text/css" href="css/plugins.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	<link rel="icon" type="image/png" href="/asset/fav.png">
+</head>
+
+<body>
+
+	<header>
+		<div class="wrapper clearfix">
+			<div class="one_fourth remove_bottom logo">
+				<a href="/">
+					<img src="/asset/logo_small.png" alt="logo" class="retina" />
+				</a>
+			</div><!--/one_fourth-->
+			<div class="three_fourths remove_bottom last">
+				<nav>
+					<ul id="selectnav">
+						<li>
+							<a href="#home" class="scroller active">Home</a>
+						</li>
+						<li>
+							<a href="#about" class="scroller">About</a>
+						</li>
+						<li>
+							<a href="http://doc.wc2js.com" target="_blank" class="scroller">Docs</a>
+						</li>
+						<li>
+							<a href="http://play.wc2js.com" target="_blank" class="scroller">Play</a>
+						</li>
+					</ul>
+				</nav>
+			</div><!--/three_fourths-->
+		</div><!--/wrapper-->
+	</header><!--/header-->
+	
+	<section class="full video" id="home">
+	
+		<h1 class="mega"><img src="/asset/logo_fire.png"><BR>WC2JS</h1>
+		<a class="button white light scroller" href="http://play.wc2js.com" target="_blank">Play Now</a>
+	
+	</section>
+	
+	<section class="small-padding" id="about">
+	
+		<div class="wrapper">
+
+			<h3>The project</h3>
+			<p>The goal of this project is to build a fully functional Real Time Stratety (RTS) game engine using vanilla JavaScript/NodeJS and as a proof of concept implement an old favourite game: Warcraft 2.  The rules are not to leverage any external libraries - all meaningful code should be written from scratch.  The game should not leverage the DOM as much as possible and be written completely through canvas.  Only latest Chrome browser is being supported at the moment.  The backend will work on a serverless AWS infrastructure for state preservation, game data and multiplayer communication.</p>
+			<p>Source is available on <a href="https://github.com/jballaban/wc2js" target="_blank">GitHub</a>.</p>
+			<p>Feel free to contact me at jballaban (at) gmail.com for any inquiries or interest if you want to contribute.</p>
+
+		</div>
+		
+	</section>
+	
+	
+<!--LOAD SCRIPTS-->
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/plugins.js"></script>
+<script type="text/javascript" src="js/video.js"></script>
+<script type="text/javascript" src="js/custom.js"></script>
+<script>
+    $(function() {
+        var BV = new $.BigVideo({useFlashForFirefox:false});
+		BV.init();
+		if ((/iPhone|iPod|iPad|Android|BlackBerry/).test(navigator.userAgent)) {
+		    BV.show('/asset/background.png');
+		} else {
+		    BV.show('/asset/background.mp4');
+		}
+		BV.getPlayer().volume(0);
+		
+		$('body').on('click', '.mute.muted', function(){
+			BV.getPlayer().volume(0.8);
+			$(this).removeClass('muted').addClass('unmuted');
+			return false;
+		});
+		
+		$('body').on('click', '.mute.unmuted', function(){
+			BV.getPlayer().volume(0);
+			$(this).removeClass('unmuted').addClass('muted');
+			return false;
+		});
+    });
+</script>
+
+</body>
+</html>

@@ -112,40 +112,40 @@ document = {
 	}
 }
 
-require('../src/lib/Framework/Util/Util.js');
-require('../src/lib/Framework/Util/Val.js');
-require('../src/lib/Framework/Util/Math.js');
-require('../src/lib/Framework/Util/Querystring.js');
-require('../src/lib/Framework/Util/Timer.js');
-require('../src/lib/Framework/Util/Colour.js');
-require('../src/lib/Framework/Util/Animate.js');
-require('../src/lib/Framework/Util/DOM.js');
-require('../src/lib/Framework/UI/UI.js');
-require('../src/lib/Framework/UI/iDrawable.js');
-require('../src/lib/Framework/UI/Text.js');
-require('../src/lib/Framework/UI/Rectangle.js');
-require('../src/lib/Framework/UI/Image.js');
-require('../src/lib/Framework/UI/Element.js');
-require('../src/lib/Framework/UI/Cursor.js');
-require('../src/lib/Framework/UI/Video.js');
-require('../src/lib/Framework/UI/Audio.js');
-require('../src/lib/Framework/IO/IO.js');
-require('../src/lib/Framework/IO/Mouse.js');
-require('../src/lib/Framework/IO/MouseHandler.js');
+require('../play/lib/Framework/Util/Util.js');
+require('../play/lib/Framework/Util/Val.js');
+require('../play/lib/Framework/Util/Math.js');
+require('../play/lib/Framework/Util/Querystring.js');
+require('../play/lib/Framework/Util/Timer.js');
+require('../play/lib/Framework/Util/Colour.js');
+require('../play/lib/Framework/Util/Animate.js');
+require('../play/lib/Framework/Util/DOM.js');
+require('../play/lib/Framework/UI/UI.js');
+require('../play/lib/Framework/UI/iDrawable.js');
+require('../play/lib/Framework/UI/Text.js');
+require('../play/lib/Framework/UI/Rectangle.js');
+require('../play/lib/Framework/UI/Image.js');
+require('../play/lib/Framework/UI/Element.js');
+require('../play/lib/Framework/UI/Cursor.js');
+require('../play/lib/Framework/UI/Video.js');
+require('../play/lib/Framework/UI/Audio.js');
+require('../play/lib/Framework/IO/IO.js');
+require('../play/lib/Framework/IO/Mouse.js');
+require('../play/lib/Framework/IO/MouseHandler.js');
 Framework.UI.Cursor.init(runtime.canvas); // seed cursors based on our context
 Framework.IO.MouseHandler.init(100, 100); // seed cursors based on our context
-require('../src/lib/Framework/UI/Button.js');
-require('../src/lib/Framework/UI/Checkbox.js');
-require('../src/lib/Framework/UI/Modal.js');
-require('../src/lib/Framework/UI/Menu.js');
-require('../src/lib/Framework/UI/Screen.js');
-require('../src/lib/Framework/Storage/Storage.js');
-require('../src/lib/Framework/Storage/Local.js');
-require('../src/lib/Framework/Storage/DynamoDB.js');
-require('../src/lib/Framework/Auth/Auth.js');
-require('../src/lib/Framework/Auth/User.js');
-require('../src/lib/Framework/Auth/Google.js');
-require('../src/lib/Framework/Runtime.js');
+require('../play/lib/Framework/UI/Button.js');
+require('../play/lib/Framework/UI/Checkbox.js');
+require('../play/lib/Framework/UI/Modal.js');
+require('../play/lib/Framework/UI/Menu.js');
+require('../play/lib/Framework/UI/Screen.js');
+require('../play/lib/Framework/Storage/Storage.js');
+require('../play/lib/Framework/Storage/Local.js');
+require('../play/lib/Framework/Storage/DynamoDB.js');
+require('../play/lib/Framework/Auth/Auth.js');
+require('../play/lib/Framework/Auth/User.js');
+require('../play/lib/Framework/Auth/Google.js');
+require('../play/lib/Framework/Runtime.js');
 
 describe('API:map', function() {
 	this.timeout(10000); // takes a while to post

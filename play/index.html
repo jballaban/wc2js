@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<script>
+			var elvtr = elvtr || {};
+			elvtr.loadJS = function(arr){
+				var L = arr.length, C = 0;
+				var addscr = function(){
+					var scrTag = document.createElement('script'), path = arr[C];
+					scrTag.type = 'text/javascript';
+					(++C<L) ? scrTag.onload = addscr :0;
+					scrTag.src = path; 
+					document.head.appendChild(scrTag);
+				};
+				addscr();
+			};
+		</script>
+		<link rel="shortcut icon" href="asset/favicon.gif">
+		<style>
+			html, body { margin:0; background-color:black; cursor: none; }
+			canvas { position: absolute; }
+			canvas#background { z-index: 1; }
+			canvas#foreground { z-index: 2; }
+			video { position:absolute; z-index: 2; }
+			div.loading {
+				z-index: 2;
+				position:absolute;
+				height:100%;
+				width:100%;
+			 	background-image: url(asset/Auth/background.gif);
+			  	background-size: 100% 100%;
+			  	top: 0;
+			  	left: 0;
+			}
+			#user {
+				position: absolute;
+				right: 0px;
+				background-color: white;
+				padding: 5px;
+				font-size:14px;
+				text-decoration: none;
+				z-index: 3;
+			}
+			#user_photo {
+				height: 18px;
+				width: 18px;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="background"></canvas>
+		<canvas id="foreground"></canvas>
+		<a id="user" href="#" onclick="Framework.Auth.User.signOut(); location.reload(); return false;">
+			<img id="user_photo">
+			<span id="user_name" ></span>
+		</a>
+		<script>
+			describe = function() {}; // placeholder for tests
+			elvtr.loadJS([
+				'lib/ref/FPSMeter.js',
+				'lib/Framework/Framework.js',
+				'lib/Framework/Storage/Storage.js',
+				'lib/Framework/Storage/Local.js',
+				'lib/Framework/Storage/DynamoDB.js',
+				'lib/Framework/Auth/Auth.js',
+				'lib/Framework/Auth/User.js',
+				'lib/Framework/Auth/Google.js',
+				'lib/Framework/Runtime.js',
+				'lib/Framework/Util/Util.js',
+				'lib/Framework/Util/Val.js',
+				'lib/Framework/Util/DOM.js',
+				'lib/Framework/Util/Timer.js',
+				'lib/Framework/Util/Colour.js',
+				'lib/Framework/Util/Animate.js',
+				'lib/Framework/Util/Math.js',
+				'lib/Framework/Util/Querystring.js',
+				'lib/Framework/UI/UI.js',
+				'lib/Framework/UI/Cursor.js',
+				'lib/Framework/UI/iDrawable.js',
+				'lib/Framework/UI/Rectangle.js',
+				'lib/Framework/UI/Image.js',
+				'lib/Framework/UI/Element.js',
+				'lib/Framework/UI/Text.js',
+				'lib/Framework/UI/Modal.js',
+				'lib/Framework/UI/Button.js',
+				'lib/Framework/UI/Menu.js',
+				'lib/Framework/UI/Checkbox.js',
+				'lib/Framework/UI/Screen.js',
+				'lib/Framework/UI/Video.js',
+				'lib/Framework/IO/IO.js',
+				'lib/Framework/IO/Mouse.js',
+				'lib/Framework/IO/MouseHandler.js',
+				'lib/Framework/Effect/Effect.js',
+				'lib/Game/Game.js',
+				'lib/Game/Auth/Auth.js',
+				'lib/Game/Auth/Screen.js',
+				'lib/Game/Auth/User.js',
+				'lib/Game/Intro/Intro.js',
+				'lib/Game/Intro/Screen.js',
+				'lib/Game/MainMenu/MainMenu.js',
+				'lib/Game/MainMenu/Screen.js',
+				'lib/Game/MainMenu/Cloud.js',
+				'lib/Game/MainMenu/Fire.js',
+				'lib/Game/MainMenu/Smoke.js',
+				'lib/Game/MainMenu/Settings.js',
+				'lib/ref/aws/lib/axios/dist/axios.standalone.js',
+			    'lib/ref/aws/lib/CryptoJS/rollups/hmac-sha256.js',
+			    'lib/ref/aws/lib/CryptoJS/rollups/sha256.js',
+			    'lib/ref/aws/lib/CryptoJS/components/hmac.js',
+			    'lib/ref/aws/lib/CryptoJS/components/enc-base64.js',
+			    'lib/ref/aws/lib/url-template/url-template.js',
+			    'lib/ref/aws/lib/apiGatewayCore/sigV4Client.js',
+			    'lib/ref/aws/lib/apiGatewayCore/apiGatewayClient.js',
+			    'lib/ref/aws/lib/apiGatewayCore/simpleHttpClient.js',
+			    'lib/ref/aws/lib/apiGatewayCore/utils.js',
+			    'lib/ref/aws/apigClient.js',
+				'https://apis.google.com/js/client.js',
+				'start.js'
+			]);
+		</script>
+	</body>
+</html>

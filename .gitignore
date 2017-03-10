@@ -1,4 +1,2 @@
-.picasa.ini
-/build
 /node_modules
-/doc
+aws-credentials.json
