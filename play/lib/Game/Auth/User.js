@@ -5,33 +5,33 @@ Game.Auth.user = {
 		Framework.Auth.User.init();
 		Framework.Auth.User.load();
 		if (Framework.Auth.User.Id != null) {
-			this._login(onlogin);
+			Game.Auth.user._login(onlogin);
 		} else {
 			setTimeout(function() {
 				Framework.Auth.Google.auth(function() {
-			  		 this._login(onlogin);
-			  	});
+			  		 Game.Auth.user._login(onlogin);
+			  	});f
 			}, 1000);
 		}
 	},
 
 	_login: function(callback) {
 		// ensure user exists and store login
-		document.getElementById('user_photo').src = user.Photo;
-		document.getElementById('user_name').innerHTML = user.Name;
-		this.get(user.Id, function(result) {
+		document.getElementById('user_photo').src = Framework.Auth.User.Photo;
+		document.getElementById('user_name').innerHTML = Framework.Auth.User.Name;
+		Game.Auth.user._get(Framework.Auth.User.Id, function(result) {
 			if (result.status != 'OK') // TODO: redirect to an error page with try again button
 				throw 'Couldn\'t access APIs, please refresh and try again as certain gameplay may be affected'
 			if (result.data == null) { // new record
 				result.data = {
 					logins: [],
-					profile: user._data,
+					profile: Framework.Auth.User._data,
 					settings: {}
 				}
 			}
 			result.data.logins.push(Date.now());
-			this.save(user.Id, result.data);
-		}).bind(this);
+			Game.Auth.user._save(Framework.Auth.User.Id, result.data);
+		});
 		callback();
 	},
 
