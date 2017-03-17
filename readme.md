@@ -1,47 +1,42 @@
-# WC2JS
+See [wc2js.com](http://www.wc2js.com) for project information
 
-Elements
-- Child elements must be contained within parent element size in order for the mouse to traverse and look for hover states.  If we need to change this then simply change the Mouse.
+# INSTALLATION
 
+- Install npm
+- Run `npm install -g grunt-cli` to get the grunt-cli installed globally
+- Run `npm install` from the root to get all the local modules installed
+- Create a user in AWS with all permissions (because I'm too lazy to figure out proper ones yet)
+- Create a `aws-credentials.json` file in the root with the following format using the credentials of the above user
+~~~~
+{
+  "accessKeyId": "keyhere",
+  "secretAccessKey": "secrethere"
+}
+~~~~
+- Run `grunt` to trigger the default build scripts
+- Setup IIS to point localhost to `/play` to run the application
 
-## SETUP
+# TEST
 
-Ensure node and npm are available your PATH. Clone this repo to your machine.
+- Run `mocha test` and ensure all UTs pass
 
-- Run `npm install -g grunt-cli` anywhere on your machine.
-- Run `grunt build` in the repo root see the results
-- Setup localhost to point to root folder (for authentication to work)
+# DOC
 
-## RUN
+- Load `/doc/index.html` to view current documentation
 
-hit localhost/src/index.html
+# RUN
 
-Optional Querystring Parameters
-- mode = debug or prod.  By default on localhost it will be debug, otherwise prod.  debug mode modes more validation is done on parameters (type safety etc.)
+- Local localhost in Chrome (only supported browser)
+- Optionally add ?mode=debug to enable debug mode, or ?mode=prod to do prob.  Debug adds more validation is done on parameters (type safety etc.) and is the default currently.
 
 ## TECHNOLOGIES
-
-**NODE.js**
 
 - Grunt: building/bundling the application & generates docs
 - Mocha: Unit tests
 - aws-sdk: AWS integration module (currently not implemented?)
 - jsdoc: Doc format using a custom jaguarjs-doc module
-
-**Github**
-
-- Repo
-
-**Travis CI**
-
-- Watches the master branch for pushes
-  - runs Grunt / Mocha
-  - if passed
-  - - uploads /build to S3 (play.wc2js.com)
-  - - uploads /doc to S3 (doc.wc2js.com)
-
-**API**
-
-- Front-End: AWS API Gateway
-- Processing: AWS Lambdas
-- Storage: AWS Dynamodb & LocalStorage
+- Github: Repository
+- aws-dynamodb: Remote storage
+- localstorage: Local storage
+- aws-lambda: Processing
+- aws-api: Front end to lambdas

@@ -5,6 +5,7 @@
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-aws": "^0.6.2",
+    "grunt-aws-sdk": "^0.3.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-jsdoc": "^2.1.0",
