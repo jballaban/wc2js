@@ -9,6 +9,8 @@
 					var scrTag = document.createElement('script'), path = arr[C];
 					scrTag.type = 'text/javascript';
 					(++C<L) ? scrTag.onload = addscr :0;
+					if (location.href.indexOf('localhost') != -1)
+						path+='?_='+new Date().getTime(); // if localhost don't cache
 					scrTag.src = path; 
 					document.head.appendChild(scrTag);
 				};

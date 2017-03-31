@@ -10,7 +10,7 @@ Game.Auth.user = {
 			setTimeout(function() {
 				Framework.Auth.Google.auth(function() {
 			  		 Game.Auth.user._login(onlogin);
-			  	});f
+			  	});
 			}, 1000);
 		}
 	},
