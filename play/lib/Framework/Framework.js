@@ -19,5 +19,7 @@ var Framework = {
 		console.log('Framework Init: "'+Framework.mode+'" mode enabled');
 		this.FPS = new FPSMeter({ decimals: 0, graph: true, theme: 'dark', left: '5px' });
 		Framework.UI.Cursor.init(cursorcanvas);
+		Framework.Storage.DynamoDB.init();
+		Framework.Settings.init();
 	}
 }

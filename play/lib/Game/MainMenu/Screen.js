@@ -15,7 +15,7 @@ Game.MainMenu.Screen = class extends Framework.UI.Screen {
 		this.addElement(new Game.MainMenu.Fire());
 		this.addElement(new Game.MainMenu.Smoke());
 		this._addMenu();
-		this.settings = new Game.MainMenu.Settings();
+		this.settings = new Game.Settings.Modal();
 		this.addElement(this.settings);
 	}
 

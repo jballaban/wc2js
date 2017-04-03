@@ -14,7 +14,7 @@ Framework.UI.Checkbox = class extends Framework.UI.Button {
 		options = options || {};
 		var _options = new Framework.Util.Val(options);
 		options.icon = _options.item('icon').is(Framework.UI.Image).val(new Framework.UI.Image(canvas, 'asset/Framework/checkbox.png', { frames: [ { x: 21, y:0, w:20, h:20 }, { x: 0, y:0, w:20, h:20 } ] }));
-		if (_options.item('click').is(Function)) { // override the click event so that we can pass in the current state to whoever asked for a callback
+		if (options['click'] != null) { // override the click event so that we can pass in the current state to whoever asked for a callback
 			var fn = options['click'];
 			options['click'] = function() { fn(this.checked); }
 		}
@@ -66,5 +66,8 @@ describe('Framework.UI.Checkbox', function() {
 		var el = new Framework.UI.Checkbox(runtime.canvas);
 		el.mouseClick();
 		assert.equal(el.checked, true);
+		el.mouseClick();
+		assert.equal(el.checked, false);
 	});
+
 });

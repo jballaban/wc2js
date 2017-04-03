@@ -14,5 +14,4 @@ Framework.init(runtime, runtime.canvas.foreground, mode);
 runtime.setScreen(new Game.Auth.Screen());
 runtime.start();
 
-Framework.Storage.DynamoDB.init()
 Game.Auth.user.authenticate(runtime.screen.loaded);

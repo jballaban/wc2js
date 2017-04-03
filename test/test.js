@@ -25,7 +25,7 @@ function _api(options, item, callback) {
 }
 
 Framework = {
-	mode: 'debug'
+	mode: 'test'
 }
 
 runtime = {
@@ -116,6 +116,7 @@ require('../play/lib/Framework/Util/Util.js');
 require('../play/lib/Framework/Util/Val.js');
 require('../play/lib/Framework/Util/Math.js');
 require('../play/lib/Framework/Util/Querystring.js');
+require('../play/lib/Framework/Util/DateTime.js');
 require('../play/lib/Framework/Util/Timer.js');
 require('../play/lib/Framework/Util/Colour.js');
 require('../play/lib/Framework/Util/Animate.js');

@@ -1,6 +1,6 @@
 "use strict";
 /** 
-Validation functions 
+Validation functions.  Do not use for production logic as all validation gets turned off in production!
 **/
 Framework.Util.Val = class {
 	/**
@@ -123,12 +123,12 @@ Framework.Util.Val = class {
 	}
 
 	_run() {
-		return Framework.mode == 'debug';
+		return Framework.mode != 'prod';
 	}
 
 
 	_is (obj, type) {
-		if (obj == null) return true;
+		if (obj == null) return true; // null is everything
 		var matched = false;
 		switch (type.name) {
 			case 'String' :
@@ -157,6 +157,7 @@ describe('Framework.Util.Val', function() {
 		var fn = function() { };
 		var obj = { item: 1, alpha: 0.5, hi: 'welcome', click: fn };
 		var val = new Framework.Util.Val(obj);
+		assert.notEqual(val.item('null').is(Function), true);
 		assert.equal(val.item('hi').is(String).val('bye'), 'welcome');
 		assert.equal(val.item('item').is(Number).req().val(2), 1);
 		assert.equal(val.item('item2').is(Number).val(2), 2);

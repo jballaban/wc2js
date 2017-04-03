@@ -3,7 +3,7 @@
 Settings screen
 @extends Framework.UI.Modal
 **/
-Game.MainMenu.Settings = class extends Framework.UI.Modal {
+Game.Settings.Modal = class extends Framework.UI.Modal {
 	constructor() {
 		super(runtime.canvas.foreground, { active: false, show: false, alpha: 0 });
 		this._addMenu();
