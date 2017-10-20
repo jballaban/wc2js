@@ -1,4 +1,4 @@
-import { Element } from "./ELement";
+/* import { Element } from "./ELement";
 import { Dimension } from "./Dimension";
 
 export class Video {
@@ -18,4 +18,4 @@ export class Video {
 	public resize(): void {
 		// empty
 	}
-}
+} */

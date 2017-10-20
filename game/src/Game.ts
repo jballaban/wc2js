@@ -1,22 +1,15 @@
-
-/// <reference path="../node_modules/@types/fpsmeter/index.d.ts"/>
-import { Runtime } from "./lib/Runtime";
-import { Logger, Level } from "./lib/logger";
-import { Screen } from "./lib/Screen";
+import { Runtime } from "./Core/Runtime";
+import { Logger, Level } from "./Util/logger";
+import { Screen } from "./UI/Screen";
+import { LoadingScreen } from "./Play/Loading/LoadingScreen";
 
 export class Game {
-	public static FPS: FPSMeter;
 	public static init(ver: string): void {
 		Logger.level = Level.Debug;
-		Logger.log("Game: Version: " + ver);
-		Logger.log("Log: " + Level[Logger.level]);
-		var startscreen: Screen = new Screen();
+		Logger.log("Game: Version " + ver);
+		Logger.log("Game: Log " + Level[Logger.level]);
 		Runtime.init();
+		var startscreen: LoadingScreen = new LoadingScreen();
 		Runtime.start(startscreen);
-		this.FPS = new FPSMeter(null, {
-			decimals: 0,
-			graph: 1,
-			left: "5px"
-		});
 	}
 }

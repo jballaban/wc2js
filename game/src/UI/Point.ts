@@ -1,4 +1,5 @@
 export class Point {
+	// todo: points shouldn't recalculate children.  Only when position is accessed should it recalculate tree positioning
 	public x: number = 0;
 	public y: number = 0;
 	public offsetX: number = null;

@@ -8,6 +8,22 @@ export class Rectangle extends Polygon {
 		this.points.set(Position.BottomRight, bottomright);
 	}
 
+	public x(): number {
+		return this.getPoint(Position.TopLeft).x;
+	}
+
+	public y(): number {
+		return this.getPoint(Position.TopLeft).y;
+	}
+
+	public width(): number {
+		return this.getPoint(Position.BottomRight).x;
+	}
+
+	public height(): number {
+		return this.getPoint(Position.BottomRight).y;
+	}
+
 	public getPoint(position: Position): Point {
 		var result: Point = super.getPoint(position);
 		if (result == null) {
