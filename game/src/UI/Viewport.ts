@@ -1,6 +1,6 @@
 import { Point } from "./Point";
-import { Logger } from "Util/Logger";
-import { Runtime } from "Core/Runtime";
+import { Logger } from "../Util/Logger";
+import { Runtime } from "../Core/Runtime";
 
 export class Viewport {
 	public static topLeft: Point;

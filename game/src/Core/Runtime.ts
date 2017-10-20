@@ -1,6 +1,6 @@
-import { Logger, Level } from "Util/Logger";
-import { Game } from "Game";
-import { Screen } from "UI/Screen";
+import { Logger, Level } from "../Util/Logger";
+import { Game } from "../Game";
+import { Screen } from "../UI/Screen";
 import { Viewport } from "../UI/Viewport";
 
 export class Runtime {
@@ -8,7 +8,7 @@ export class Runtime {
 	public static ctx: CanvasRenderingContext2D;
 	private static dt: number = 0;
 	private static now: number;
-	private static last: number = window.performance.now();
+	private static last: number;
 	private static step: number = 1 / 60;
 	private static screen: Screen;
 	private static fps: FPSMeter;
@@ -16,7 +16,8 @@ export class Runtime {
 	public static init(): void {
 		var canv: HTMLCanvasElement = document.createElement("canvas");
 		document.body.appendChild(canv);
-		this.ctx = canv.getContext("2d");
+		Runtime.ctx = canv.getContext("2d");
+		console.log(canv);
 		Viewport.init();
 		Runtime.fps = new FPSMeter(null, {
 			decimals: 0,
@@ -27,6 +28,7 @@ export class Runtime {
 
 	public static start(startscreen: Screen): void {
 		Runtime.screen = startscreen;
+		Runtime.last = window.performance.now();
 		requestAnimationFrame(Runtime.frame);
 	}
 

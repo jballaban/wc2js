@@ -302,7 +302,8 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
         static init() {
             var canv = document.createElement("canvas");
             document.body.appendChild(canv);
-            this.ctx = canv.getContext("2d");
+            Runtime.ctx = canv.getContext("2d");
+            console.log(canv);
             Viewport_2.Viewport.init();
             Runtime.fps = new FPSMeter(null, {
                 decimals: 0,
@@ -312,6 +313,7 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
         }
         static start(startscreen) {
             Runtime.screen = startscreen;
+            Runtime.last = window.performance.now();
             requestAnimationFrame(Runtime.frame);
         }
         static update(step) {
@@ -334,7 +336,6 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
         }
     }
     Runtime.dt = 0;
-    Runtime.last = window.performance.now();
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });

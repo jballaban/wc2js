@@ -1,17 +1,18 @@
-/* tslint:disable:no-bitwise */
-import { Point } from "./Point";
-import { Rectangle } from "./Rectangle";
-import { Position } from "./Polygon";
-import { Viewport } from "./Viewport";
+import { Point } from "../src/UI/Point";
+import { Rectangle } from "../src/UI/Rectangle";
+import { Position } from "../src/UI/Polygon";
+import { Viewport } from "../src/UI/Viewport";
+import { Runtime } from "../src/Core/Runtime";
 import { expect } from "chai";
 import "mocha";
 
 describe("Dimension test", () => {
 
 	it("dependentrectangle", () => {
+		Runtime.init();
+		Viewport.init();
 		var origin: Point = new Point(0, 0, null);
-		var viewport: Viewport = new Viewport();
-		var background: Rectangle = new Rectangle(origin, origin, viewport.bottomRight);
+		var background: Rectangle = new Rectangle(origin, origin, Viewport.bottomRight);
 		expect(background.getPoint(Position.TopLeft).x).equal(0);
 		expect(background.getPoint(Position.TopCenter).x).equal(1024 / 2);
 		expect(background.getPoint(Position.TopRight).x).equal(1024);
@@ -43,9 +44,9 @@ describe("Dimension test", () => {
 	});
 
 	it("viewport", () => {
-		var viewport: Viewport = new Viewport();
-		expect(viewport.bottomRight.x).equal(1024);
-		expect(viewport.bottomRight.y).equal(768);
+		Viewport.init();
+		expect(Viewport.bottomRight.x).equal(1024);
+		expect(Viewport.bottomRight.y).equal(768);
 	});
 
 });
