@@ -1,6 +1,6 @@
 {
   "name": "game",
-  "version": "1.0.85",
+  "version": "1.0.86",
   "description": "",
   "main": "gruntfile.js",
   "directories": {
