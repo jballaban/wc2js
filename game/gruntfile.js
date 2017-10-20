@@ -63,7 +63,8 @@ module.exports = function (grunt) {
 		bump: {
 			options: {
 				commit: false,
-				push: false
+				push: false,
+				createTag: false
 			}
 		}
 	});
