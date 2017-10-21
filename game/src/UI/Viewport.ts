@@ -1,22 +1,33 @@
 import { Point } from "./Point";
 import { Logger } from "../Util/Logger";
 import { Runtime } from "../Core/Runtime";
+import { PrimitiveRectangle } from "./PrimitiveRectangle";
+import { Rectangle } from "./Rectangle";
+import { QuarteredContextLayer, ContextLayer } from "../Core/ContextLayer";
 
 export class Viewport {
-	public static topLeft: Point;
-	public static bottomRight: Point;
+	public static area: Rectangle;
+	private static layers: Map<string, ContextLayer> = new Map<string, ContextLayer>();
 
 	public static init(): void {
-		Viewport.topLeft = new Point(0, 0, null);
-		Viewport.bottomRight = new Point(0, 0, null);
+		Viewport.area = new Rectangle(new Point(0, 0, null), new Point(0, 0, null));
 		Viewport.resize();
-		window.onresize = Viewport.resize;
+	}
+
+	public static layer(name: string) {
+		var ctx = Viewport.layers.get(name);
+		if (ctx == null) {
+			ctx = new QuarteredContextLayer();
+			Viewport.layers.set(name, ctx);
+		}
+		return ctx;
 	}
 
 	public static resize(): void {
-		Runtime.ctx.canvas.width = window.innerWidth;
-		Runtime.ctx.canvas.height = window.innerHeight;
-		Viewport.bottomRight.move(window.innerWidth, window.innerHeight);
-		Logger.debug("Viewport: resized to [" + Viewport.bottomRight.x + ", " + Viewport.bottomRight.y + "]");
+		for (var layer of Viewport.layers.values()) {
+			layer.resize();
+		}
+		Viewport.area.bottomRight().move(window.innerWidth, window.innerHeight);
 	}
+
 }

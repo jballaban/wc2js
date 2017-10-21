@@ -26,10 +26,21 @@ export class Point {
 		}
 	}
 
+	public inc(offsetX: number, offsetY: number) {
+		this.move(this.offsetX + offsetX, this.offsetY + offsetY);
+	}
+
 	public move(offsetX: number, offsetY: number): void {
-		if (offsetX === this.offsetX && offsetY === this.offsetY) { return; }
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
+		if (
+			(offsetX == null || offsetX === this.offsetX)
+			&& (offsetY == null || offsetY === this.offsetY)
+		) { return; }
+		if (offsetX != null) {
+			this.offsetX = offsetX;
+		}
+		if (offsetY != null) {
+			this.offsetY = offsetY;
+		}
 		this.recalculate();
 	}
 

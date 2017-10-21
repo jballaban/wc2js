@@ -1,3 +1,200 @@
+define("UI/Point", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Point {
+        constructor(offsetX, offsetY, parent) {
+            this.x = 0;
+            this.y = 0;
+            this.offsetX = null;
+            this.offsetY = null;
+            this.children = new Array();
+            this.parent = null;
+            this.parent = parent;
+            if (this.parent != null) {
+                this.parent.children.push(this);
+            }
+            this.move(offsetX, offsetY);
+        }
+        recalculate() {
+            var x = this.calculate("x");
+            var y = this.calculate("y");
+            if (x === this.x && y === this.y) {
+                return;
+            }
+            this.x = x;
+            this.y = y;
+            for (var child of this.children) {
+                child.recalculate();
+            }
+        }
+        inc(offsetX, offsetY) {
+            this.move(this.offsetX + offsetX, this.offsetY + offsetY);
+        }
+        move(offsetX, offsetY) {
+            if ((offsetX == null || offsetX === this.offsetX)
+                && (offsetY == null || offsetY === this.offsetY)) {
+                return;
+            }
+            if (offsetX != null) {
+                this.offsetX = offsetX;
+            }
+            if (offsetY != null) {
+                this.offsetY = offsetY;
+            }
+            this.recalculate();
+        }
+        calculate(field) {
+            var result = 0;
+            if (this.parent != null) {
+                result = this.parent[field];
+            }
+            result += this["offset" + field.toUpperCase()];
+            return result;
+        }
+    }
+    exports.Point = Point;
+    var DynamicDimension;
+    (function (DynamicDimension) {
+        DynamicDimension[DynamicDimension["x"] = 0] = "x";
+        DynamicDimension[DynamicDimension["y"] = 1] = "y";
+    })(DynamicDimension = exports.DynamicDimension || (exports.DynamicDimension = {}));
+    class DynamicPoint extends Point {
+        constructor(parent, p2, dimension) {
+            super(null, null, parent);
+            this.p2 = p2;
+            this.dimension = dimension;
+            this.p2.children.push(this);
+            this.recalculate();
+        }
+        recalculate() {
+            switch (this.dimension) {
+                case DynamicDimension.x:
+                    this.offsetX = this.p2.x - this.parent.x;
+                    break;
+                case DynamicDimension.y:
+                    this.offsetY = this.p2.y - this.parent.y;
+                    break;
+            }
+            super.recalculate();
+        }
+    }
+    exports.DynamicPoint = DynamicPoint;
+    class MidPoint extends Point {
+        constructor(parent, p2) {
+            super(null, null, parent);
+            this.p2 = p2;
+            this.p2.children.push(this);
+            this.recalculate();
+        }
+        recalculate() {
+            this.offsetX = (this.p2.x - this.parent.x) / 2;
+            this.offsetY = (this.p2.y - this.parent.y) / 2;
+            super.recalculate();
+        }
+    }
+    exports.MidPoint = MidPoint;
+});
+define("UI/Polygon", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var Position;
+    (function (Position) {
+        Position[Position["TopLeft"] = 0] = "TopLeft";
+        Position[Position["TopCenter"] = 1] = "TopCenter";
+        Position[Position["TopRight"] = 2] = "TopRight";
+        Position[Position["RightCenter"] = 3] = "RightCenter";
+        Position[Position["BottomRight"] = 4] = "BottomRight";
+        Position[Position["BottomCenter"] = 5] = "BottomCenter";
+        Position[Position["BottomLeft"] = 6] = "BottomLeft";
+        Position[Position["LeftCenter"] = 7] = "LeftCenter";
+        Position[Position["Center"] = 8] = "Center";
+        Position[Position["Origin"] = 9] = "Origin";
+    })(Position = exports.Position || (exports.Position = {}));
+    class Polygon {
+        constructor() {
+            this.points = new Map();
+        }
+        getPoint(position) {
+            return this.points.get(position);
+        }
+    }
+    exports.Polygon = Polygon;
+});
+define("UI/Rectangle", ["require", "exports", "UI/Polygon", "UI/Point"], function (require, exports, Polygon_1, Point_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Rectangle extends Polygon_1.Polygon {
+        constructor(topleft, bottomright) {
+            super();
+            this.points.set(Polygon_1.Position.TopLeft, topleft);
+            this.points.set(Polygon_1.Position.BottomRight, bottomright);
+        }
+        x() {
+            return this.getPoint(Polygon_1.Position.TopLeft).x;
+        }
+        y() {
+            return this.getPoint(Polygon_1.Position.TopLeft).y;
+        }
+        x2() {
+            return this.getPoint(Polygon_1.Position.BottomRight).x;
+        }
+        y2() {
+            return this.getPoint(Polygon_1.Position.BottomRight).y;
+        }
+        width() {
+            return this.x2() - this.x();
+        }
+        height() {
+            return this.y2() - this.y();
+        }
+        topLeft() {
+            return this.points.get(Polygon_1.Position.TopLeft);
+        }
+        bottomRight() {
+            return this.points.get(Polygon_1.Position.BottomRight);
+        }
+        getPoint(position) {
+            var result = super.getPoint(position);
+            if (result == null) {
+                switch (position) {
+                    case Polygon_1.Position.TopCenter:
+                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.TopRight));
+                        break;
+                    case Polygon_1.Position.TopRight:
+                        result = new Point_1.DynamicPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight), Point_1.DynamicDimension.x);
+                        break;
+                    case Polygon_1.Position.RightCenter:
+                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopRight), this.getPoint(Polygon_1.Position.BottomRight));
+                        break;
+                    case Polygon_1.Position.BottomCenter:
+                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.BottomLeft), this.getPoint(Polygon_1.Position.BottomRight));
+                        break;
+                    case Polygon_1.Position.BottomLeft:
+                        result = new Point_1.DynamicPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight), Point_1.DynamicDimension.y);
+                        break;
+                    case Polygon_1.Position.LeftCenter:
+                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomLeft));
+                        break;
+                    case Polygon_1.Position.Center:
+                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight));
+                        break;
+                    default:
+                        throw "Rectangle: Unknown position " + position;
+                }
+                this.points.set(position, result);
+            }
+            return result;
+        }
+        intersects(rect) {
+            if (rect.x() > this.x2() || rect.x2() < this.x())
+                return false;
+            if (rect.y() > this.y2() || rect.y2() < this.y())
+                return false;
+            return true;
+        }
+    }
+    exports.Rectangle = Rectangle;
+});
 define("Util/Logger", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -70,217 +267,52 @@ define("Util/Logger", ["require", "exports"], function (require, exports) {
     Logger._messagesSkipped = 0;
     exports.Logger = Logger;
 });
-define("UI/Screen", ["require", "exports"], function (require, exports) {
+define("UI/Screen", ["require", "exports", "UI/Viewport"], function (require, exports, Viewport_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
+        constructor() {
+            this.elements = new Array();
+        }
         update(step) {
+            for (var element of this.elements) {
+                Viewport_1.Viewport.layer("foreground").markForRedraw(element);
+                element.topLeft().inc(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2));
+                if (element.x() > Viewport_1.Viewport.area.x2())
+                    element.topLeft().move(0, null);
+                if (element.y() > Viewport_1.Viewport.area.y2())
+                    element.topLeft().move(null, 0);
+                Viewport_1.Viewport.layer("foreground").markForRedraw(element);
+            }
+        }
+        render() {
+            var foreground = Viewport_1.Viewport.layer("foreground");
+            foreground.renderStart();
+            for (var element of this.elements) {
+                if (!foreground.shouldRedraw(element)) {
+                    continue;
+                }
+                foreground.ctx.fillStyle = "#FF0000";
+                foreground.ctx.fillRect(element.x(), element.y(), element.width(), element.height());
+            }
+            foreground.renderComplete();
         }
     }
     exports.Screen = Screen;
 });
-define("UI/Point", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Point {
-        constructor(offsetX, offsetY, parent) {
-            this.x = 0;
-            this.y = 0;
-            this.offsetX = null;
-            this.offsetY = null;
-            this.children = new Array();
-            this.parent = null;
-            this.parent = parent;
-            if (this.parent != null) {
-                this.parent.children.push(this);
-            }
-            this.move(offsetX, offsetY);
-        }
-        recalculate() {
-            var x = this.calculate("x");
-            var y = this.calculate("y");
-            if (x === this.x && y === this.y) {
-                return;
-            }
-            this.x = x;
-            this.y = y;
-            for (var child of this.children) {
-                child.recalculate();
-            }
-        }
-        move(offsetX, offsetY) {
-            if (offsetX === this.offsetX && offsetY === this.offsetY) {
-                return;
-            }
-            this.offsetX = offsetX;
-            this.offsetY = offsetY;
-            this.recalculate();
-        }
-        calculate(field) {
-            var result = 0;
-            if (this.parent != null) {
-                result = this.parent[field];
-            }
-            result += this["offset" + field.toUpperCase()];
-            return result;
-        }
-    }
-    exports.Point = Point;
-    var DynamicDimension;
-    (function (DynamicDimension) {
-        DynamicDimension[DynamicDimension["x"] = 0] = "x";
-        DynamicDimension[DynamicDimension["y"] = 1] = "y";
-    })(DynamicDimension = exports.DynamicDimension || (exports.DynamicDimension = {}));
-    class DynamicPoint extends Point {
-        constructor(parent, p2, dimension) {
-            super(null, null, parent);
-            this.p2 = p2;
-            this.dimension = dimension;
-            this.p2.children.push(this);
-            this.recalculate();
-        }
-        recalculate() {
-            switch (this.dimension) {
-                case DynamicDimension.x:
-                    this.offsetX = this.p2.x - this.parent.x;
-                    break;
-                case DynamicDimension.y:
-                    this.offsetY = this.p2.y - this.parent.y;
-                    break;
-            }
-            super.recalculate();
-        }
-    }
-    exports.DynamicPoint = DynamicPoint;
-    class MidPoint extends Point {
-        constructor(parent, p2) {
-            super(null, null, parent);
-            this.p2 = p2;
-            this.p2.children.push(this);
-            this.recalculate();
-        }
-        recalculate() {
-            this.offsetX = (this.p2.x - this.parent.x) / 2;
-            this.offsetY = (this.p2.y - this.parent.y) / 2;
-            super.recalculate();
-        }
-    }
-    exports.MidPoint = MidPoint;
-});
-define("UI/Polygon", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var Position;
-    (function (Position) {
-        Position[Position["TopLeft"] = 0] = "TopLeft";
-        Position[Position["TopCenter"] = 1] = "TopCenter";
-        Position[Position["TopRight"] = 2] = "TopRight";
-        Position[Position["RightCenter"] = 3] = "RightCenter";
-        Position[Position["BottomRight"] = 4] = "BottomRight";
-        Position[Position["BottomCenter"] = 5] = "BottomCenter";
-        Position[Position["BottomLeft"] = 6] = "BottomLeft";
-        Position[Position["LeftCenter"] = 7] = "LeftCenter";
-        Position[Position["Center"] = 8] = "Center";
-        Position[Position["Origin"] = 9] = "Origin";
-    })(Position = exports.Position || (exports.Position = {}));
-    class Polygon {
-        constructor(origin) {
-            this.points = new Map();
-            this.points.set(Position.Origin, origin);
-        }
-        getPoint(position) {
-            return this.points.get(position);
-        }
-    }
-    exports.Polygon = Polygon;
-});
-define("UI/Rectangle", ["require", "exports", "UI/Polygon", "UI/Point"], function (require, exports, Polygon_1, Point_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Rectangle extends Polygon_1.Polygon {
-        constructor(origin, topleft, bottomright) {
-            super(origin);
-            this.points.set(Polygon_1.Position.TopLeft, topleft);
-            this.points.set(Polygon_1.Position.BottomRight, bottomright);
-        }
-        x() {
-            return this.getPoint(Polygon_1.Position.TopLeft).x;
-        }
-        y() {
-            return this.getPoint(Polygon_1.Position.TopLeft).y;
-        }
-        width() {
-            return this.getPoint(Polygon_1.Position.BottomRight).x;
-        }
-        height() {
-            return this.getPoint(Polygon_1.Position.BottomRight).y;
-        }
-        getPoint(position) {
-            var result = super.getPoint(position);
-            if (result == null) {
-                switch (position) {
-                    case Polygon_1.Position.TopCenter:
-                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.TopRight));
-                        break;
-                    case Polygon_1.Position.TopRight:
-                        result = new Point_1.DynamicPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight), Point_1.DynamicDimension.x);
-                        break;
-                    case Polygon_1.Position.RightCenter:
-                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopRight), this.getPoint(Polygon_1.Position.BottomRight));
-                        break;
-                    case Polygon_1.Position.BottomCenter:
-                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.BottomLeft), this.getPoint(Polygon_1.Position.BottomRight));
-                        break;
-                    case Polygon_1.Position.BottomLeft:
-                        result = new Point_1.DynamicPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight), Point_1.DynamicDimension.y);
-                        break;
-                    case Polygon_1.Position.LeftCenter:
-                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomLeft));
-                        break;
-                    case Polygon_1.Position.Center:
-                        result = new Point_1.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight));
-                        break;
-                }
-                if (result != null) {
-                    this.points.set(position, result);
-                }
-            }
-            return result;
-        }
-    }
-    exports.Rectangle = Rectangle;
-});
-define("UI/Viewport", ["require", "exports", "UI/Point", "Util/Logger", "Core/Runtime"], function (require, exports, Point_2, Logger_1, Runtime_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Viewport {
-        static init() {
-            Viewport.topLeft = new Point_2.Point(0, 0, null);
-            Viewport.bottomRight = new Point_2.Point(0, 0, null);
-            Viewport.resize();
-            window.onresize = Viewport.resize;
-        }
-        static resize() {
-            Runtime_1.Runtime.ctx.canvas.width = window.innerWidth;
-            Runtime_1.Runtime.ctx.canvas.height = window.innerHeight;
-            Viewport.bottomRight.move(window.innerWidth, window.innerHeight);
-            Logger_1.Logger.debug("Viewport: resized to [" + Viewport.bottomRight.x + ", " + Viewport.bottomRight.y + "]");
-        }
-    }
-    exports.Viewport = Viewport;
-});
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "UI/Viewport", "Core/Runtime"], function (require, exports, Screen_1, Viewport_1, Runtime_2) {
+define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "UI/Rectangle", "UI/Point"], function (require, exports, Screen_1, Rectangle_1, Point_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
-        render() {
-            Runtime_2.Runtime.ctx.fillStyle = "#FF0000";
-            Runtime_2.Runtime.ctx.fillRect(0, 0, Viewport_1.Viewport.bottomRight.x, Viewport_1.Viewport.bottomRight.y);
+        constructor() {
+            super();
+            var origin = new Point_2.Point(0, 0, null);
+            this.elements.push(new Rectangle_1.Rectangle(origin, new Point_2.Point(100, 50, origin)));
         }
     }
     exports.LoadingScreen = LoadingScreen;
 });
-define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loading/LoadingScreen"], function (require, exports, Runtime_3, logger_1, LoadingScreen_1) {
+define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loading/LoadingScreen"], function (require, exports, Runtime_1, logger_1, LoadingScreen_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Game {
@@ -288,9 +320,9 @@ define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loadi
             logger_1.Logger.level = logger_1.Level.Debug;
             logger_1.Logger.log("Game: Version " + ver);
             logger_1.Logger.log("Game: Log " + logger_1.Level[logger_1.Logger.level]);
-            Runtime_3.Runtime.init();
+            Runtime_1.Runtime.init();
             var startscreen = new LoadingScreen_1.LoadingScreen();
-            Runtime_3.Runtime.start(startscreen);
+            Runtime_1.Runtime.start(startscreen);
         }
     }
     exports.Game = Game;
@@ -300,10 +332,6 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
     Object.defineProperty(exports, "__esModule", { value: true });
     class Runtime {
         static init() {
-            var canv = document.createElement("canvas");
-            document.body.appendChild(canv);
-            Runtime.ctx = canv.getContext("2d");
-            console.log(canv);
             Viewport_2.Viewport.init();
             Runtime.fps = new FPSMeter(null, {
                 decimals: 0,
@@ -314,6 +342,7 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
         static start(startscreen) {
             Runtime.screen = startscreen;
             Runtime.last = window.performance.now();
+            window.onresize = Viewport_2.Viewport.resize;
             requestAnimationFrame(Runtime.frame);
         }
         static update(step) {
@@ -322,15 +351,15 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
         static render() {
             Runtime.screen.render();
         }
-        static frame() {
+        static frame(now) {
             Runtime.fps.tickStart();
-            Runtime.now = window.performance.now();
-            Runtime.dt += Math.min(1, (Runtime.now - Runtime.last) / 1000);
+            Runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
             while (Runtime.dt > Runtime.step) {
                 Runtime.dt = Runtime.dt - Runtime.step;
                 Runtime.update(Runtime.step);
             }
             Runtime.render();
+            Runtime.last = now;
             Runtime.fps.tick();
             requestAnimationFrame(Runtime.frame);
         }
@@ -338,6 +367,120 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
     Runtime.dt = 0;
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
+});
+define("UI/PrimitiveRectangle", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class PrimitiveRectangle {
+        constructor(x, y, x2, y2) {
+            this.x = x;
+            this.y = y;
+            this.x2 = x2;
+            this.y2 = y2;
+        }
+    }
+    exports.PrimitiveRectangle = PrimitiveRectangle;
+});
+define("UI/Viewport", ["require", "exports", "UI/Point", "UI/Rectangle", "Core/ContextLayer"], function (require, exports, Point_3, Rectangle_2, ContextLayer_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Viewport {
+        static init() {
+            Viewport.area = new Rectangle_2.Rectangle(new Point_3.Point(0, 0, null), new Point_3.Point(0, 0, null));
+            Viewport.resize();
+        }
+        static layer(name) {
+            var ctx = Viewport.layers.get(name);
+            if (ctx == null) {
+                ctx = new ContextLayer_1.QuarteredContextLayer();
+                Viewport.layers.set(name, ctx);
+            }
+            return ctx;
+        }
+        static resize() {
+            for (var layer of Viewport.layers.values()) {
+                layer.resize();
+            }
+            Viewport.area.bottomRight().move(window.innerWidth, window.innerHeight);
+        }
+    }
+    Viewport.layers = new Map();
+    exports.Viewport = Viewport;
+});
+define("Core/ContextLayer", ["require", "exports", "UI/Rectangle", "UI/Viewport", "UI/Polygon"], function (require, exports, Rectangle_3, Viewport_3, Polygon_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class ContextLayer {
+        constructor() {
+            this.redrawAreas = new Map();
+            var canv = document.createElement("canvas");
+            document.body.appendChild(canv);
+            this.ctx = canv.getContext("2d");
+            this.resize();
+        }
+        renderStart() {
+            for (var region of this.redrawAreas.keys()) {
+                if (this.redrawAreas.get(region)) {
+                    this.ctx.clearRect(region.x(), region.y(), region.width(), region.height());
+                }
+            }
+        }
+        renderComplete() {
+            for (var region of this.redrawAreas.keys()) {
+                if (this.redrawAreas.get(region)) {
+                    this.redrawAreas.set(region, false);
+                }
+            }
+        }
+        markForRedraw(area) {
+            for (var region of this.redrawAreas.keys()) {
+                if (!this.redrawAreas.get(region) && area.intersects(region)) {
+                    this.redrawAreas.set(region, true);
+                }
+            }
+        }
+        shouldRedraw(area) {
+            for (var region of this.redrawAreas.keys()) {
+                if (this.redrawAreas.get(region) && area.intersects(region)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        resize() {
+            this.ctx.canvas.width = window.innerWidth;
+            this.ctx.canvas.height = window.innerHeight;
+            this.redrawAreas.clear();
+        }
+    }
+    exports.ContextLayer = ContextLayer;
+    class QuarteredContextLayer extends ContextLayer {
+        resize() {
+            super.resize();
+            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.topLeft(), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center)), true);
+            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.TopCenter), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.RightCenter)), true);
+            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.LeftCenter), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.BottomCenter)), true);
+            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center), Viewport_3.Viewport.area.bottomRight()), true);
+        }
+    }
+    exports.QuarteredContextLayer = QuarteredContextLayer;
+});
+define("Core/Element", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Element {
+    }
+    exports.Element = Element;
+});
+define("Core/RedrawManager", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class RedrawManager {
+        static init(quadrants) {
+        }
+    }
+    RedrawManager.areas = new Array();
+    exports.RedrawManager = RedrawManager;
 });
 define("Unused/DI", ["require", "exports"], function (require, exports) {
     "use strict";

@@ -14,11 +14,9 @@ export enum Position {
 }
 
 export class Polygon {
-	public points: Map<Position, Point> = new Map<Position, Point>();
+	protected points: Map<Position, Point> = new Map<Position, Point>();
 
-	public constructor(origin: Point) {
-		this.points.set(Position.Origin, origin);
-	}
+	public constructor() { }
 
 	public getPoint(position: Position): Point {
 		return this.points.get(position);

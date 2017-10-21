@@ -2,22 +2,17 @@ import { Logger, Level } from "../Util/Logger";
 import { Game } from "../Game";
 import { Screen } from "../UI/Screen";
 import { Viewport } from "../UI/Viewport";
+import { ContextLayer } from "./ContextLayer";
 
 export class Runtime {
 
-	public static ctx: CanvasRenderingContext2D;
 	private static dt: number = 0;
-	private static now: number;
 	private static last: number;
 	private static step: number = 1 / 60;
 	private static screen: Screen;
 	private static fps: FPSMeter;
 
 	public static init(): void {
-		var canv: HTMLCanvasElement = document.createElement("canvas");
-		document.body.appendChild(canv);
-		Runtime.ctx = canv.getContext("2d");
-		console.log(canv);
 		Viewport.init();
 		Runtime.fps = new FPSMeter(null, {
 			decimals: 0,
@@ -29,6 +24,7 @@ export class Runtime {
 	public static start(startscreen: Screen): void {
 		Runtime.screen = startscreen;
 		Runtime.last = window.performance.now();
+		window.onresize = Viewport.resize;
 		requestAnimationFrame(Runtime.frame);
 	}
 
@@ -40,15 +36,15 @@ export class Runtime {
 		Runtime.screen.render();
 	}
 
-	private static frame(): void {
+	private static frame(now): void {
 		Runtime.fps.tickStart();
-		Runtime.now = window.performance.now();
-		Runtime.dt += Math.min(1, (Runtime.now - Runtime.last) / 1000);
+		Runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
 		while (Runtime.dt > Runtime.step) {
 			Runtime.dt = Runtime.dt - Runtime.step;
 			Runtime.update(Runtime.step);
 		}
 		Runtime.render();
+		Runtime.last = now;
 		Runtime.fps.tick();
 		requestAnimationFrame(Runtime.frame);
 	}
