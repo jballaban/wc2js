@@ -17,13 +17,17 @@ export class Collision {
 	}
 
 	private static circleCircleIntersect(circle1: Circle, circle2: Circle): boolean {
-		var distance: number = Math.sqrt(
-			(circle1.x - circle2.x) * (circle1.x - circle2.x)
-			+ ((circle1.y - circle2.y) * (circle1.y - circle2.y))
-		);
-		if (distance < circle1.r + circle2.r) {
-			//balls have collided
-			return true; // this isn't a true collission, just that the rectangle representations of each circle hvae collided
+		if (circle1.x + circle1.r + circle2.r > circle2.x
+			&& circle1.x < circle2.x + circle1.r + circle2.r
+			&& circle1.y + circle1.r + circle2.r > circle2.y
+			&& circle1.y < circle2.y + circle1.r + circle2.r) {
+			var distance: number = Math.sqrt(
+				(circle1.x - circle2.x) * (circle1.x - circle2.x)
+				+ ((circle1.y - circle2.y) * (circle1.y - circle2.y))
+			);
+			if (distance < circle1.r + circle2.r) {
+				return true;
+			}
 		}
 		return false;
 	}
