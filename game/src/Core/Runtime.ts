@@ -1,15 +1,16 @@
 import { Logger, Level } from "../Util/Logger";
 import { Game } from "../Game";
 import { Screen } from "../UI/Screen";
-import { Viewport } from "../UI/Viewport";
+import { Viewport } from "./Viewport";
 import { ContextLayer } from "./ContextLayer";
+import { MouseHandler } from "../IO/MouseHandler";
 
 export class Runtime {
 
 	private static dt: number = 0;
 	private static last: number;
 	private static step: number = 1 / 60;
-	private static screen: Screen;
+	public static screen: Screen;
 	private static fps: FPSMeter;
 
 	public static init(): void {
@@ -19,12 +20,12 @@ export class Runtime {
 			graph: 1,
 			left: "5px"
 		});
+		MouseHandler.init();
 	}
 
 	public static start(startscreen: Screen): void {
 		Runtime.screen = startscreen;
 		Runtime.last = window.performance.now();
-		window.onresize = Viewport.resize;
 		requestAnimationFrame(Runtime.frame);
 	}
 

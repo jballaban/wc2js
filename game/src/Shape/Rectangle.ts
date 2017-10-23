@@ -85,3 +85,9 @@ export class Rectangle extends Polygon {
 		return true;
 	}
 }
+
+export class PointRectangle extends Rectangle {
+	constructor(point: Point) {
+		super(point, point);
+	}
+}

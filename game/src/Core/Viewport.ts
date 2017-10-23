@@ -1,8 +1,7 @@
-import { Point } from "./Point";
+import { Point } from "../Shape/Point";
 import { Logger } from "../Util/Logger";
 import { Runtime } from "../Core/Runtime";
-import { PrimitiveRectangle } from "./PrimitiveRectangle";
-import { Rectangle } from "./Rectangle";
+import { Rectangle } from "../Shape/Rectangle";
 import { QuarteredContextLayer, ContextLayer } from "../Core/ContextLayer";
 
 export class Viewport {
@@ -12,6 +11,7 @@ export class Viewport {
 	public static init(): void {
 		Viewport.area = new Rectangle(new Point(0, 0, null), new Point(0, 0, null));
 		Viewport.resize();
+		window.onresize = Viewport.resize;
 	}
 
 	public static layer(name: string) {

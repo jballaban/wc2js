@@ -1,7 +1,7 @@
-import { Rectangle } from "../UI/Rectangle";
-import { Viewport } from "../UI/Viewport";
-import { MidPoint, Point } from "../UI/Point";
-import { Position } from "../UI/Polygon";
+import { Rectangle } from "../Shape/Rectangle";
+import { Viewport } from "../Core/Viewport";
+import { MidPoint, Point } from "../Shape/Point";
+import { Position } from "../Shape/Polygon";
 import { Logger } from "../Util/Logger";
 
 export abstract class ContextLayer {

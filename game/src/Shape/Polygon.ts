@@ -16,9 +16,10 @@ export enum Position {
 export class Polygon {
 	protected points: Map<Position, Point> = new Map<Position, Point>();
 
-	public constructor() { }
-
 	public getPoint(position: Position): Point {
 		return this.points.get(position);
 	}
+
+
+
 }

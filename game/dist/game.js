@@ -1,4 +1,4 @@
-define("UI/Point", ["require", "exports"], function (require, exports) {
+define("Shape/Point", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Point {
@@ -94,7 +94,7 @@ define("UI/Point", ["require", "exports"], function (require, exports) {
     }
     exports.MidPoint = MidPoint;
 });
-define("UI/Polygon", ["require", "exports"], function (require, exports) {
+define("Shape/Polygon", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Position;
@@ -120,7 +120,7 @@ define("UI/Polygon", ["require", "exports"], function (require, exports) {
     }
     exports.Polygon = Polygon;
 });
-define("UI/Rectangle", ["require", "exports", "UI/Polygon", "UI/Point"], function (require, exports, Polygon_1, Point_1) {
+define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point"], function (require, exports, Polygon_1, Point_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Rectangle extends Polygon_1.Polygon {
@@ -194,6 +194,12 @@ define("UI/Rectangle", ["require", "exports", "UI/Polygon", "UI/Point"], functio
         }
     }
     exports.Rectangle = Rectangle;
+    class PointRectangle extends Rectangle {
+        constructor(point) {
+            super(point, point);
+        }
+    }
+    exports.PointRectangle = PointRectangle;
 });
 define("Util/Logger", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -267,47 +273,75 @@ define("Util/Logger", ["require", "exports"], function (require, exports) {
     Logger._messagesSkipped = 0;
     exports.Logger = Logger;
 });
-define("UI/Screen", ["require", "exports", "UI/Viewport"], function (require, exports, Viewport_1) {
+define("Core/Element", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Element {
+        constructor(area) {
+            this.area = area;
+        }
+        render(ctx) {
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(this.area.x(), this.area.y(), this.area.width(), this.area.height());
+        }
+    }
+    exports.Element = Element;
+});
+define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Rectangle", "Shape/Point"], function (require, exports, Element_1, Rectangle_1, Point_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Mouse extends Element_1.Element {
+        constructor() {
+            super(new Rectangle_1.PointRectangle(new Point_2.Point(0, 0, null)));
+        }
+    }
+    exports.Mouse = Mouse;
+});
+define("UI/Screen", ["require", "exports", "Core/Viewport", "IO/Mouse"], function (require, exports, Viewport_1, Mouse_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
         constructor() {
             this.elements = new Array();
+            this.mouse = new Mouse_1.Mouse();
         }
         update(step) {
             for (var element of this.elements) {
-                Viewport_1.Viewport.layer("foreground").markForRedraw(element);
-                element.topLeft().inc(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2));
-                if (element.x() > Viewport_1.Viewport.area.x2())
-                    element.topLeft().move(0, null);
-                if (element.y() > Viewport_1.Viewport.area.y2())
-                    element.topLeft().move(null, 0);
-                Viewport_1.Viewport.layer("foreground").markForRedraw(element);
+                Viewport_1.Viewport.layer("foreground").markForRedraw(element.area);
+                element.area.topLeft().inc(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2));
+                if (element.area.x() > Viewport_1.Viewport.area.x2())
+                    element.area.topLeft().move(0, null);
+                if (element.area.y() > Viewport_1.Viewport.area.y2())
+                    element.area.topLeft().move(null, 0);
+                Viewport_1.Viewport.layer("foreground").markForRedraw(element.area);
             }
         }
         render() {
-            var foreground = Viewport_1.Viewport.layer("foreground");
-            foreground.renderStart();
+            var layer = Viewport_1.Viewport.layer("foreground");
+            layer.renderStart();
             for (var element of this.elements) {
-                if (!foreground.shouldRedraw(element)) {
+                if (!layer.shouldRedraw(element.area)) {
                     continue;
                 }
-                foreground.ctx.fillStyle = "#FF0000";
-                foreground.ctx.fillRect(element.x(), element.y(), element.width(), element.height());
+                element.render(layer.ctx);
             }
-            foreground.renderComplete();
+            layer.renderComplete();
+            layer = Viewport_1.Viewport.layer("mouse");
+            layer.renderStart();
+            this.mouse.render(layer.ctx);
+            layer.renderComplete();
         }
     }
     exports.Screen = Screen;
 });
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "UI/Rectangle", "UI/Point"], function (require, exports, Screen_1, Rectangle_1, Point_2) {
+define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Shape/Point", "Core/Element"], function (require, exports, Screen_1, Rectangle_2, Point_3, Element_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
         constructor() {
             super();
-            var origin = new Point_2.Point(0, 0, null);
-            this.elements.push(new Rectangle_1.Rectangle(origin, new Point_2.Point(100, 50, origin)));
+            var origin = new Point_3.Point(0, 0, null);
+            this.elements.push(new Element_2.Element(new Rectangle_2.Rectangle(origin, new Point_3.Point(100, 50, origin))));
         }
     }
     exports.LoadingScreen = LoadingScreen;
@@ -327,7 +361,38 @@ define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loadi
     }
     exports.Game = Game;
 });
-define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require, exports, Viewport_2) {
+define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (require, exports, Runtime_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class MouseHandler {
+        static init() {
+            document.addEventListener('mousemove', MouseHandler.mouseMove);
+            document.addEventListener('pointerlockchange', MouseHandler.lockChanged);
+            document.body.onclick = function () {
+                document.body.requestPointerLock();
+            };
+        }
+        static mouseMove(e) {
+            if (MouseHandler.locked) {
+                MouseHandler.x = Math.min(window.innerWidth, Math.max(0, MouseHandler.x + e.movementX));
+                MouseHandler.y = Math.min(window.innerWidth, Math.max(0, MouseHandler.y + e.movementY));
+                Runtime_2.Runtime.screen.mouse.area.topLeft().move(MouseHandler.x, MouseHandler.y);
+                console.log(MouseHandler.x);
+            }
+        }
+        static lockChanged() {
+            var locked = document.pointerLockElement != null;
+            if (locked && !MouseHandler.locked) {
+                MouseHandler.locked = true;
+            }
+        }
+    }
+    MouseHandler.x = 0;
+    MouseHandler.y = 0;
+    MouseHandler.locked = false;
+    exports.MouseHandler = MouseHandler;
+});
+define("Core/Runtime", ["require", "exports", "Core/Viewport", "IO/MouseHandler"], function (require, exports, Viewport_2, MouseHandler_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Runtime {
@@ -338,11 +403,11 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
                 graph: 1,
                 left: "5px"
             });
+            MouseHandler_1.MouseHandler.init();
         }
         static start(startscreen) {
             Runtime.screen = startscreen;
             Runtime.last = window.performance.now();
-            window.onresize = Viewport_2.Viewport.resize;
             requestAnimationFrame(Runtime.frame);
         }
         static update(step) {
@@ -368,26 +433,14 @@ define("Core/Runtime", ["require", "exports", "UI/Viewport"], function (require,
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });
-define("UI/PrimitiveRectangle", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class PrimitiveRectangle {
-        constructor(x, y, x2, y2) {
-            this.x = x;
-            this.y = y;
-            this.x2 = x2;
-            this.y2 = y2;
-        }
-    }
-    exports.PrimitiveRectangle = PrimitiveRectangle;
-});
-define("UI/Viewport", ["require", "exports", "UI/Point", "UI/Rectangle", "Core/ContextLayer"], function (require, exports, Point_3, Rectangle_2, ContextLayer_1) {
+define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle", "Core/ContextLayer"], function (require, exports, Point_4, Rectangle_3, ContextLayer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Viewport {
         static init() {
-            Viewport.area = new Rectangle_2.Rectangle(new Point_3.Point(0, 0, null), new Point_3.Point(0, 0, null));
+            Viewport.area = new Rectangle_3.Rectangle(new Point_4.Point(0, 0, null), new Point_4.Point(0, 0, null));
             Viewport.resize();
+            window.onresize = Viewport.resize;
         }
         static layer(name) {
             var ctx = Viewport.layers.get(name);
@@ -407,7 +460,7 @@ define("UI/Viewport", ["require", "exports", "UI/Point", "UI/Rectangle", "Core/C
     Viewport.layers = new Map();
     exports.Viewport = Viewport;
 });
-define("Core/ContextLayer", ["require", "exports", "UI/Rectangle", "UI/Viewport", "UI/Polygon"], function (require, exports, Rectangle_3, Viewport_3, Polygon_2) {
+define("Core/ContextLayer", ["require", "exports", "Shape/Rectangle", "Core/Viewport", "Shape/Polygon"], function (require, exports, Rectangle_4, Viewport_3, Polygon_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class ContextLayer {
@@ -457,30 +510,13 @@ define("Core/ContextLayer", ["require", "exports", "UI/Rectangle", "UI/Viewport"
     class QuarteredContextLayer extends ContextLayer {
         resize() {
             super.resize();
-            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.topLeft(), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center)), true);
-            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.TopCenter), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.RightCenter)), true);
-            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.LeftCenter), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.BottomCenter)), true);
-            this.redrawAreas.set(new Rectangle_3.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center), Viewport_3.Viewport.area.bottomRight()), true);
+            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_3.Viewport.area.topLeft(), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center)), true);
+            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.TopCenter), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.RightCenter)), true);
+            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.LeftCenter), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.BottomCenter)), true);
+            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center), Viewport_3.Viewport.area.bottomRight()), true);
         }
     }
     exports.QuarteredContextLayer = QuarteredContextLayer;
-});
-define("Core/Element", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Element {
-    }
-    exports.Element = Element;
-});
-define("Core/RedrawManager", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class RedrawManager {
-        static init(quadrants) {
-        }
-    }
-    RedrawManager.areas = new Array();
-    exports.RedrawManager = RedrawManager;
 });
 define("Unused/DI", ["require", "exports"], function (require, exports) {
     "use strict";
