@@ -6,7 +6,7 @@ import { QuarteredContextLayer, ContextLayer } from "../Core/ContextLayer";
 
 export class Viewport {
 	public static area: Rectangle;
-	private static layers: Map<string, ContextLayer> = new Map<string, ContextLayer>();
+	public static layers: Map<string, ContextLayer> = new Map<string, ContextLayer>();
 
 	public static init(): void {
 		Viewport.area = new Rectangle(new Point(0, 0, null), new Point(0, 0, null));
@@ -14,13 +14,11 @@ export class Viewport {
 		window.onresize = Viewport.resize;
 	}
 
-	public static layer(name: string) {
-		var ctx = Viewport.layers.get(name);
-		if (ctx == null) {
-			ctx = new QuarteredContextLayer();
-			Viewport.layers.set(name, ctx);
+	public static reset(): void {
+		for (var layer of Viewport.layers.values()) {
+			layer.destroy();
 		}
-		return ctx;
+		Viewport.layers = new Map<string, ContextLayer>();
 	}
 
 	public static resize(): void {

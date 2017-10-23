@@ -3,16 +3,22 @@ import { Viewport } from "../Core/Viewport";
 import { MidPoint, Point } from "../Shape/Point";
 import { Position } from "../Shape/Polygon";
 import { Logger } from "../Util/Logger";
+import { IShape } from "../Shape/IShape";
 
 export abstract class ContextLayer {
 	protected redrawAreas: Map<Rectangle, boolean> = new Map<Rectangle, boolean>();
 	public ctx: CanvasRenderingContext2D;
 
-	constructor() {
+	constructor(zindex: number) {
 		var canv: HTMLCanvasElement = document.createElement("canvas");
+		canv.style.setProperty("z-index", zindex.toString());
 		document.body.appendChild(canv);
 		this.ctx = canv.getContext("2d");
 		this.resize();
+	}
+
+	public destroy(): void {
+		document.body.removeChild(this.ctx.canvas);
 	}
 
 	public renderStart(): void {
@@ -31,7 +37,7 @@ export abstract class ContextLayer {
 		}
 	}
 
-	public markForRedraw(area: Rectangle): void {
+	public markForRedraw(area: IShape): void {
 		for (var region of this.redrawAreas.keys()) {
 			if (!this.redrawAreas.get(region) && area.intersects(region)) {
 				this.redrawAreas.set(region, true);
@@ -39,9 +45,9 @@ export abstract class ContextLayer {
 		}
 	}
 
-	public shouldRedraw(area: Rectangle): boolean {
+	public shouldRedraw(shape: IShape): boolean {
 		for (var region of this.redrawAreas.keys()) {
-			if (this.redrawAreas.get(region) && area.intersects(region)) {
+			if (this.redrawAreas.get(region) && shape.intersects(region)) {
 				return true;
 			}
 		}

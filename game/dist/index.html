@@ -2,6 +2,7 @@
 <html>
 
 <head>
+	<link rel="shortcut icon" href="asset/favicon.gif">
 	<script src="./require.js"></script>
 	<script src="./game.js"></script>
 	<script src="./FPSMeter.js"></script>
@@ -16,13 +17,15 @@
 
 		canvas {
 			position: absolute;
+			left: 0px;
+			top: 0px;
 		}
 	</style>
 	<script>
 		require(["Game"], function (start) {
 			start.Game.init(function () {
-				var diff = new Date() - new Date("Sat Oct 21 2017 15:36:38");
-				return "1.0.423 compiled " + Math.floor(diff / 1000) + " seconds ago";
+				var diff = new Date() - new Date("Mon Oct 23 2017 15:29:07");
+				return "1.0.568 compiled " + Math.floor(diff / 1000) + " seconds ago";
 			}());
 		});
 	</script>

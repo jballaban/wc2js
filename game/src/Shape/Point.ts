@@ -27,10 +27,6 @@ export class Point {
 		}
 	}
 
-	public inc(offsetX: number, offsetY: number) {
-		this.move(this.offsetX + offsetX, this.offsetY + offsetY);
-	}
-
 	public move(offsetX: number, offsetY: number): void {
 		if (
 			(offsetX == null || offsetX === this.offsetX)
@@ -96,8 +92,8 @@ export class MidPoint extends Point {
 	}
 
 	public recalculate(): void {
-		this.offsetX = (this.p2.x - this.parent.x) / 2;
-		this.offsetY = (this.p2.y - this.parent.y) / 2;
+		this.offsetX = Math.floor((this.p2.x - this.parent.x) / 2);
+		this.offsetY = Math.floor((this.p2.y - this.parent.y) / 2);
 		super.recalculate();
 	}
 }

@@ -1,7 +1,9 @@
 import { Polygon, Position } from "./Polygon";
 import { Point, MidPoint, DynamicPoint, DynamicDimension } from "./Point";
+import { IShape } from "./IShape";
+import { Collision } from "../Util/Collision";
 
-export class Rectangle extends Polygon {
+export class Rectangle extends Polygon implements IShape {
 	public constructor(topleft: Point, bottomright: Point) {
 		super();
 		this.points.set(Position.TopLeft, topleft);
@@ -73,21 +75,18 @@ export class Rectangle extends Polygon {
 		return result;
 	}
 
-	public intersects(rect: Rectangle): boolean {
-		// If one rectangle is on left side of other
-		if (rect.x() > this.x2() || rect.x2() < this.x())
-			return false;
+	public intersects(shape: IShape): boolean {
+		return Collision.intersects(this, shape);
+	}
 
-		// If one rectangle is above other
-		if (rect.y() > this.y2() || rect.y2() < this.y())
-			return false;
-
-		return true;
+	public render(ctx: CanvasRenderingContext2D): void {
+		ctx.fillStyle = "#FF0000";
+		ctx.fillRect(this.x(), this.y(), this.width(), this.height());
 	}
 }
 
 export class PointRectangle extends Rectangle {
 	constructor(point: Point) {
-		super(point, point);
+		super(point, new Point(1, 1, point));
 	}
 }
