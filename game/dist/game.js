@@ -132,8 +132,8 @@ define("Shape/Circle", ["require", "exports", "Shape/Point", "Util/Collision"], 
         intersects(shape) {
             return Collision_1.Collision.intersects(this, shape);
         }
-        render(ctx) {
-            ctx.fillStyle = "#FF0000";
+        render(ctx, colour) {
+            ctx.fillStyle = colour;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
             ctx.fill();
@@ -162,10 +162,15 @@ define("Util/Collision", ["require", "exports", "Shape/Rectangle", "Shape/Circle
             throw "Unknown";
         }
         static circleCircleIntersect(circle1, circle2) {
-            var distance = Math.sqrt((circle1.x - circle2.x) * (circle1.x - circle2.x)
-                + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
-            if (distance < circle1.r + circle2.r) {
-                return true;
+            if (circle1.x + circle1.r + circle2.r > circle2.x
+                && circle1.x < circle2.x + circle1.r + circle2.r
+                && circle1.y + circle1.r + circle2.r > circle2.y
+                && circle1.y < circle2.y + circle1.r + circle2.r) {
+                var distance = Math.sqrt((circle1.x - circle2.x) * (circle1.x - circle2.x)
+                    + ((circle1.y - circle2.y) * (circle1.y - circle2.y)));
+                if (distance < circle1.r + circle2.r) {
+                    return true;
+                }
             }
             return false;
         }
@@ -186,14 +191,15 @@ define("Util/Collision", ["require", "exports", "Shape/Rectangle", "Shape/Circle
             }
             var dx = distX - rect.width() / 2;
             var dy = distY - rect.height() / 2;
-            console.log(dy);
             return (dx * dx + dy * dy <= (circle.r * circle.r));
         }
         static rectRectIntersect(rect1, rect2) {
-            if (rect2.x() > rect1.x2() || rect2.x2() < rect1.x())
+            if (rect2.x() > rect1.x2() || rect2.x2() < rect1.x()) {
                 return false;
-            if (rect2.y() > rect1.y2() || rect2.y2() < rect1.y())
+            }
+            if (rect2.y() > rect1.y2() || rect2.y2() < rect1.y()) {
                 return false;
+            }
             return true;
         }
     }
@@ -267,8 +273,8 @@ define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point",
         intersects(shape) {
             return Collision_2.Collision.intersects(this, shape);
         }
-        render(ctx) {
-            ctx.fillStyle = "#FF0000";
+        render(ctx, colour) {
+            ctx.fillStyle = colour;
             ctx.fillRect(this.x(), this.y(), this.width(), this.height());
         }
     }
@@ -352,14 +358,25 @@ define("Util/Logger", ["require", "exports"], function (require, exports) {
     Logger._messagesSkipped = 0;
     exports.Logger = Logger;
 });
-define("Core/Element", ["require", "exports", "Core/Viewport"], function (require, exports, Viewport_1) {
+define("Core/Element", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var Events;
+    (function (Events) {
+        Events[Events["drawDirty"] = 0] = "drawDirty";
+        Events[Events["registerCollision"] = 1] = "registerCollision";
+        Events[Events["deregisterCollision"] = 2] = "deregisterCollision";
+    })(Events = exports.Events || (exports.Events = {}));
     class Element {
         constructor(origin, area, layer) {
+            this.collisions = new Array();
+            this.requiresRedraw = true;
             this.origin = origin;
             this.area = area;
             this.layer = layer;
+        }
+        collides(element) {
+            return this.area.intersects(element.area);
         }
         inc(offsetx, offsety) {
             this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
@@ -368,28 +385,18 @@ define("Core/Element", ["require", "exports", "Core/Viewport"], function (requir
             this.layer.markForRedraw(this.area);
             this.origin.move(offsetX, offsetY);
             this.layer.markForRedraw(this.area);
+            this.requiresRedraw = true;
         }
-        update() { }
+        update(step) {
+            return;
+        }
         render() {
-            if (!this.layer.shouldRedraw(this.area)) {
-                return false;
-            }
-            this.area.render(this.layer.ctx);
-            return true;
+            var result = this.requiresRedraw || this.layer.shouldRedraw(this.area);
+            this.requiresRedraw = false;
+            return result;
         }
     }
     exports.Element = Element;
-    class Thing extends Element {
-        update() {
-            super.update();
-            this.inc(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2));
-            if (this.origin.x > Viewport_1.Viewport.area.x2())
-                this.origin.move(0, null);
-            if (this.origin.y > Viewport_1.Viewport.area.y2())
-                this.origin.move(null, 0);
-        }
-    }
-    exports.Thing = Thing;
 });
 define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle"], function (require, exports, Element_1, Point_3, Circle_2) {
     "use strict";
@@ -399,10 +406,18 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
             var origin = new Point_3.Point(0, 0, null);
             super(origin, new Circle_2.Circle(origin, 10), layer);
         }
+        render() {
+            if (!super.render()) {
+                return false;
+            }
+            var color = this.collisions.length === 0 ? "#000000" : "#FF0000";
+            this.area.render(this.layer.ctx, color);
+            return true;
+        }
     }
     exports.Mouse = Mouse;
 });
-define("UI/Screen", ["require", "exports", "Core/Viewport"], function (require, exports, Viewport_2) {
+define("UI/Screen", ["require", "exports", "Core/Viewport"], function (require, exports, Viewport_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
@@ -411,35 +426,173 @@ define("UI/Screen", ["require", "exports", "Core/Viewport"], function (require, 
         }
         update(step) {
             for (var element of this.elements) {
-                element.update();
+                element.update(step);
+            }
+            for (var el of this.elements) {
+                for (var collision of el.collisions) {
+                    if (!el.collides(collision)) {
+                        el.collisions.splice(el.collisions.indexOf(collision, 0), 1);
+                        collision.collisions.splice(collision.collisions.indexOf(el, 0), 1);
+                    }
+                }
+            }
+            for (var i = 0; i < this.elements.length - 1; i++) {
+                for (var j = i + 1; j < this.elements.length; j++) {
+                    if (this.elements[i].collisions.indexOf(this.elements[j]) > -1) {
+                        continue;
+                    }
+                    if (this.elements[i].collides(this.elements[j])) {
+                        this.elements[i].collisions.push(this.elements[j]);
+                        this.elements[j].collisions.push(this.elements[i]);
+                    }
+                }
             }
         }
         render() {
-            for (var layer of Viewport_2.Viewport.layers.values()) {
+            for (var layer of Viewport_1.Viewport.layers.values()) {
                 layer.renderStart();
             }
             for (var el of this.elements) {
                 el.render();
             }
-            for (var layer of Viewport_2.Viewport.layers.values()) {
+            for (var layer of Viewport_1.Viewport.layers.values()) {
                 layer.renderComplete();
             }
         }
     }
     exports.Screen = Screen;
 });
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Core/Viewport", "Shape/Point", "Core/Element", "Core/ContextLayer", "IO/Mouse"], function (require, exports, Screen_1, Rectangle_2, Viewport_3, Point_4, Element_2, ContextLayer_1, Mouse_1) {
+define("Core/Vector", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Vector {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        clone() {
+            return new Vector(this.x, this.y);
+        }
+        multiply(n) {
+            this.x = this.x * n;
+            this.y = this.y * n;
+            return this;
+        }
+    }
+    exports.Vector = Vector;
+});
+define("UI/Thing", ["require", "exports", "IO/Mouse", "Core/Element", "Core/Viewport", "Shape/Rectangle", "Shape/Point", "Core/Vector", "Shape/Circle", "Util/Logger"], function (require, exports, Mouse_1, Element_2, Viewport_2, Rectangle_2, Point_4, Vector_1, Circle_3, Logger_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class StaticThing extends Element_2.Element {
+        constructor(layer, color, rect) {
+            super(null, rect, layer);
+            this._color = color;
+        }
+        update(step) {
+            super.update(step);
+            if (this.color === this._color && this.collisions.length > 0) {
+                this.color = "red";
+                this.requiresRedraw = true;
+            }
+            else if (this.color !== this._color && this.collisions.length === 0) {
+                this.color = this._color;
+                this.requiresRedraw = true;
+            }
+        }
+        render() {
+            if (!super.render()) {
+                return false;
+            }
+            console.log("reder");
+            this.area.render(this.layer.ctx, this.color);
+            return true;
+        }
+    }
+    exports.StaticThing = StaticThing;
+    class Thing extends Element_2.Element {
+        constructor(layer, color) {
+            var origin = new Point_4.Point(0, 0, null);
+            var shape = Math.floor(Math.random() * 2) === 0 ?
+                new Rectangle_2.Rectangle(origin, new Point_4.Point(Math.floor(Math.random() * 100), Math.floor(Math.random() * 50), origin))
+                : new Circle_3.Circle(origin, Math.floor(Math.random() * 50));
+            super(origin, shape, layer);
+            this._color = color;
+            this.color = color;
+            this.direction = new Vector_1.Vector(60, 60);
+        }
+        collides(element) {
+            if (element instanceof Thing || element instanceof Mouse_1.Mouse) {
+                return super.collides(element);
+            }
+            return false;
+        }
+        update(step) {
+            super.update(step);
+            var move = this.direction.clone().multiply(step);
+            Logger_1.Logger.log("Thing: " + this.direction.x + ", " + move.x);
+            this.inc(move.x, move.y);
+            if (this.origin.x > Viewport_2.Viewport.area.x2()) {
+                this.move(0, null);
+            }
+            if (this.origin.x < 0) {
+                this.move(Viewport_2.Viewport.area.x2(), null);
+            }
+            if (this.origin.y > Viewport_2.Viewport.area.y2()) {
+                this.move(null, 0);
+            }
+            if (this.origin.y < 0) {
+                this.move(null, Viewport_2.Viewport.area.y2());
+            }
+            if (this.color === this._color && this.collisions.length > 0) {
+                this.color = "red";
+                this.requiresRedraw = true;
+            }
+            else if (this.color !== this._color && this.collisions.length === 0) {
+                this.color = this._color;
+                this.requiresRedraw = true;
+            }
+        }
+        render() {
+            if (!super.render()) {
+                return false;
+            }
+            this.area.render(this.layer.ctx, this.color);
+            return true;
+        }
+    }
+    exports.Thing = Thing;
+});
+define("Util/Color", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Color {
+        static getRandomColor() {
+            var letters = "0123456789ABCDEF";
+            var color = "#";
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    }
+    exports.Color = Color;
+});
+define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Core/Viewport", "Shape/Polygon", "Shape/Point", "UI/Thing", "Core/ContextLayer", "IO/Mouse", "Util/Color"], function (require, exports, Screen_1, Rectangle_3, Viewport_3, Polygon_2, Point_5, Thing_1, ContextLayer_1, Mouse_2, Color_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
         constructor() {
             super();
             Viewport_3.Viewport.reset();
-            var origin = new Point_4.Point(0, 0, null);
-            Viewport_3.Viewport.layers.set("items", new ContextLayer_1.QuarteredContextLayer(1));
-            this.elements.push(new Element_2.Thing(origin, new Rectangle_2.Rectangle(origin, new Point_4.Point(100, 50, origin)), Viewport_3.Viewport.layers.get("items")));
+            Viewport_3.Viewport.layers.set("items", new ContextLayer_1.QuarteredContextLayer(2));
+            for (var i = 0; i < 1; i++) {
+                this.elements.push(new Thing_1.Thing(Viewport_3.Viewport.layers.get("items"), Color_1.Color.getRandomColor()));
+            }
+            Viewport_3.Viewport.layers.set("background", new ContextLayer_1.QuarteredContextLayer(1));
+            this.elements.push(new Thing_1.StaticThing(Viewport_3.Viewport.layers.get("background"), "darkblue", new Rectangle_3.Rectangle(new Point_5.MidPoint(Viewport_3.Viewport.area.topLeft(), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center)), new Point_5.MidPoint(Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center), Viewport_3.Viewport.area.bottomRight()))));
             Viewport_3.Viewport.layers.set("mouse", new ContextLayer_1.QuarteredContextLayer(10));
-            this.mouse = new Mouse_1.Mouse(Viewport_3.Viewport.layers.get("mouse"));
+            this.mouse = new Mouse_2.Mouse(Viewport_3.Viewport.layers.get("mouse"));
             this.elements.push(this.mouse);
         }
     }
@@ -528,12 +681,12 @@ define("Core/Runtime", ["require", "exports", "Core/Viewport", "IO/MouseHandler"
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });
-define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle"], function (require, exports, Point_5, Rectangle_3) {
+define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle"], function (require, exports, Point_6, Rectangle_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Viewport {
         static init() {
-            Viewport.area = new Rectangle_3.Rectangle(new Point_5.Point(0, 0, null), new Point_5.Point(0, 0, null));
+            Viewport.area = new Rectangle_4.Rectangle(new Point_6.Point(0, 0, null), new Point_6.Point(0, 0, null));
             Viewport.resize();
             window.onresize = Viewport.resize;
         }
@@ -553,7 +706,7 @@ define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle"]
     Viewport.layers = new Map();
     exports.Viewport = Viewport;
 });
-define("Core/ContextLayer", ["require", "exports", "Shape/Rectangle", "Core/Viewport", "Shape/Polygon"], function (require, exports, Rectangle_4, Viewport_5, Polygon_2) {
+define("Core/ContextLayer", ["require", "exports", "Shape/Rectangle", "Core/Viewport", "Shape/Polygon"], function (require, exports, Rectangle_5, Viewport_5, Polygon_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class ContextLayer {
@@ -607,13 +760,20 @@ define("Core/ContextLayer", ["require", "exports", "Shape/Rectangle", "Core/View
     class QuarteredContextLayer extends ContextLayer {
         resize() {
             super.resize();
-            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_5.Viewport.area.topLeft(), Viewport_5.Viewport.area.getPoint(Polygon_2.Position.Center)), true);
-            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_5.Viewport.area.getPoint(Polygon_2.Position.TopCenter), Viewport_5.Viewport.area.getPoint(Polygon_2.Position.RightCenter)), true);
-            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_5.Viewport.area.getPoint(Polygon_2.Position.LeftCenter), Viewport_5.Viewport.area.getPoint(Polygon_2.Position.BottomCenter)), true);
-            this.redrawAreas.set(new Rectangle_4.Rectangle(Viewport_5.Viewport.area.getPoint(Polygon_2.Position.Center), Viewport_5.Viewport.area.bottomRight()), true);
+            this.redrawAreas.set(new Rectangle_5.Rectangle(Viewport_5.Viewport.area.topLeft(), Viewport_5.Viewport.area.getPoint(Polygon_3.Position.Center)), true);
+            this.redrawAreas.set(new Rectangle_5.Rectangle(Viewport_5.Viewport.area.getPoint(Polygon_3.Position.TopCenter), Viewport_5.Viewport.area.getPoint(Polygon_3.Position.RightCenter)), true);
+            this.redrawAreas.set(new Rectangle_5.Rectangle(Viewport_5.Viewport.area.getPoint(Polygon_3.Position.LeftCenter), Viewport_5.Viewport.area.getPoint(Polygon_3.Position.BottomCenter)), true);
+            this.redrawAreas.set(new Rectangle_5.Rectangle(Viewport_5.Viewport.area.getPoint(Polygon_3.Position.Center), Viewport_5.Viewport.area.bottomRight()), true);
         }
     }
     exports.QuarteredContextLayer = QuarteredContextLayer;
+});
+define("Core/Segmentation", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Segmentation {
+    }
+    exports.Segmentation = Segmentation;
 });
 define("Unused/DI", ["require", "exports"], function (require, exports) {
     "use strict";

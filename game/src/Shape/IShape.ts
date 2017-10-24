@@ -1,4 +1,4 @@
 export interface IShape {
-	intersects(shape: IShape);
-	render(ctx: CanvasRenderingContext2D);
+	intersects(shape: IShape): boolean;
+	render(ctx: CanvasRenderingContext2D, color: string): void;
 }

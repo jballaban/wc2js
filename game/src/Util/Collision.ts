@@ -3,6 +3,7 @@ import { Rectangle } from "../Shape/Rectangle";
 import { Circle } from "../Shape/Circle";
 
 export class Collision {
+
 	public static intersects(shape1: IShape, shape2: IShape): boolean {
 		if (shape1 instanceof Rectangle && shape2 instanceof Rectangle) {
 			return Collision.rectRectIntersect(shape1, shape2);
@@ -33,8 +34,8 @@ export class Collision {
 	}
 
 	private static rectCircleIntersect(rect: Rectangle, circle: Circle): boolean {
-		var distX = Math.abs(circle.x - rect.x() - rect.width() / 2);
-		var distY = Math.abs(circle.y - rect.y() - rect.height() / 2);
+		var distX: number = Math.abs(circle.x - rect.x() - rect.width() / 2);
+		var distY: number = Math.abs(circle.y - rect.y() - rect.height() / 2);
 
 		if (distX > (rect.width() / 2 + circle.r)) { return false; }
 		if (distY > (rect.height() / 2 + circle.r)) { return false; }
@@ -42,20 +43,21 @@ export class Collision {
 		if (distX <= (rect.width() / 2)) { return true; }
 		if (distY <= (rect.height() / 2)) { return true; }
 
-		var dx = distX - rect.width() / 2;
-		var dy = distY - rect.height() / 2;
-		console.log(dy);
+		var dx: number = distX - rect.width() / 2;
+		var dy: number = distY - rect.height() / 2;
 		return (dx * dx + dy * dy <= (circle.r * circle.r));
 	}
 
 	private static rectRectIntersect(rect1: Rectangle, rect2: Rectangle): boolean {
-		// If one rectangle is on left side of other
-		if (rect2.x() > rect1.x2() || rect2.x2() < rect1.x())
+		// if one rectangle is on left side of other
+		if (rect2.x() > rect1.x2() || rect2.x2() < rect1.x()) {
 			return false;
+		}
 
-		// If one rectangle is above other
-		if (rect2.y() > rect1.y2() || rect2.y2() < rect1.y())
+		// if one rectangle is above other
+		if (rect2.y() > rect1.y2() || rect2.y2() < rect1.y()) {
 			return false;
+		}
 
 		return true;
 	}

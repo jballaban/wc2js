@@ -15,8 +15,8 @@ export class Circle extends Point implements IShape {
 		return Collision.intersects(this, shape);
 	}
 
-	public render(ctx: CanvasRenderingContext2D): void {
-		ctx.fillStyle = "#FF0000";
+	public render(ctx: CanvasRenderingContext2D, colour: string): void {
+		ctx.fillStyle = colour;
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
 		ctx.fill();

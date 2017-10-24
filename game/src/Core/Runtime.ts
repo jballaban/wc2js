@@ -37,7 +37,7 @@ export class Runtime {
 		Runtime.screen.render();
 	}
 
-	private static frame(now): void {
+	private static frame(now: number): void {
 		Runtime.fps.tickStart();
 		Runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
 		while (Runtime.dt > Runtime.step) {

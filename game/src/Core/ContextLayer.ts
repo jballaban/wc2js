@@ -4,6 +4,7 @@ import { MidPoint, Point } from "../Shape/Point";
 import { Position } from "../Shape/Polygon";
 import { Logger } from "../Util/Logger";
 import { IShape } from "../Shape/IShape";
+import { Color } from "../Util/Color";
 
 export abstract class ContextLayer {
 	protected redrawAreas: Map<Rectangle, boolean> = new Map<Rectangle, boolean>();

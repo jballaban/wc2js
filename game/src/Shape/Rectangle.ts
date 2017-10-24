@@ -79,8 +79,8 @@ export class Rectangle extends Polygon implements IShape {
 		return Collision.intersects(this, shape);
 	}
 
-	public render(ctx: CanvasRenderingContext2D): void {
-		ctx.fillStyle = "#FF0000";
+	public render(ctx: CanvasRenderingContext2D, colour: string): void {
+		ctx.fillStyle = colour;
 		ctx.fillRect(this.x(), this.y(), this.width(), this.height());
 	}
 }

@@ -1,15 +1,21 @@
-import { Rectangle } from "../Shape/Rectangle";
 import { Point } from "../Shape/Point";
 import { ContextLayer } from "./ContextLayer";
-import { Viewport } from "./Viewport";
 import { IShape } from "../Shape/IShape";
-import { Circle } from "../Shape/Circle";
+import { Runtime } from "./Runtime";
+
+export enum Events {
+	drawDirty,
+	registerCollision,
+	deregisterCollision
+}
 
 export abstract class Element {
 
 	public origin: Point;
 	public area: IShape;
 	public layer: ContextLayer;
+	public collisions: Element[] = new Array<Element>();
+	protected requiresRedraw: boolean = true;
 
 	constructor(origin: Point, area: IShape, layer: ContextLayer) {
 		this.origin = origin;
@@ -17,34 +23,28 @@ export abstract class Element {
 		this.layer = layer;
 	}
 
-	public inc(offsetx: number, offsety: number) {
+	public collides(element: Element): boolean {
+		return this.area.intersects(element.area);
+	}
+
+	public inc(offsetx: number, offsety: number): void {
 		this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
 	}
 
-	public move(offsetX: number, offsetY: number) {
+	public move(offsetX: number, offsetY: number): void {
 		this.layer.markForRedraw(this.area);
 		this.origin.move(offsetX, offsetY);
 		this.layer.markForRedraw(this.area);
+		this.requiresRedraw = true;
 	}
 
-	public update(): void { }
+	public update(step: number): void {
+		return;
+	}
 
 	public render(): boolean {
-		if (!this.layer.shouldRedraw(this.area)) {
-			return false;
-		}
-		this.area.render(this.layer.ctx);
-		return true;
-	}
-}
-
-export class Thing extends Element {
-	public update(): void {
-		super.update();
-		this.inc(Math.floor(Math.random() * 2), Math.floor(Math.random() * 2));
-		if (this.origin.x > Viewport.area.x2())
-			this.origin.move(0, null);
-		if (this.origin.y > Viewport.area.y2())
-			this.origin.move(null, 0);
+		var result: boolean = this.requiresRedraw || this.layer.shouldRedraw(this.area);
+		this.requiresRedraw = false;
+		return result;
 	}
 }

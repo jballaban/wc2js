@@ -11,4 +11,13 @@ export class Mouse extends Element {
 		super(origin, new Circle(origin, 10), layer);
 	}
 
+	public render(): boolean {
+		if (!super.render()) {
+			return false;
+		}
+		var color: string = this.collisions.length === 0 ? "#000000" : "#FF0000";
+		this.area.render(this.layer.ctx, color);
+		return true;
+	}
+
 }
