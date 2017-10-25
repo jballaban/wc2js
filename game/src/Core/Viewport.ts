@@ -9,7 +9,8 @@ export class Viewport {
 	public static layers: Map<string, ContextLayer> = new Map<string, ContextLayer>();
 
 	public static init(): void {
-		Viewport.area = new Rectangle(new Point(0, 0, null), new Point(0, 0, null));
+		var origin = new Point(0, 0, null);
+		Viewport.area = new Rectangle(origin, new Point(0, 0, origin));
 		Viewport.resize();
 		window.onresize = Viewport.resize;
 	}

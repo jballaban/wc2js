@@ -1,5 +1,5 @@
 import { Mouse } from "../IO/Mouse";
-import { Element, Events } from "../Core/Element";
+import { Element } from "../Core/Element";
 import { Viewport } from "../Core/Viewport";
 import { Rectangle } from "../Shape/Rectangle";
 import { ContextLayer } from "../Core/ContextLayer";

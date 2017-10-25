@@ -9,19 +9,20 @@ import { Thing, StaticThing } from "../../UI/Thing";
 import { ContextLayer } from "../../Core/ContextLayer";
 import { Mouse } from "../../IO/Mouse";
 import { Color } from "../../Util/Color";
+import { ElementContainer } from "../../Core/Element";
 
 export class LoadingScreen extends Screen {
 
 	constructor() {
 		super();
+		this.elements = new ElementContainer(256, Viewport.area);
 		Viewport.reset();
 		Viewport.layers.set("items", new ContextLayer(1 / 8, 2));
-		for (var i: number = 0; i < 1; i++) {
-			this.elements.push(new Thing(Viewport.layers.get("items"), Color.getRandomColor()));
+		for (var i: number = 0; i < 100; i++) {
+			this.elements.register(new Thing(Viewport.layers.get("items"), Color.getRandomColor()));
 		}
-
 		Viewport.layers.set("background", new ContextLayer(1 / 2, 1));
-		this.elements.push(new StaticThing(Viewport.layers.get("background"), "darkblue",
+		this.elements.register(new StaticThing(Viewport.layers.get("background"), "darkblue",
 			new Rectangle(
 				new MidPoint(Viewport.area.topLeft(), Viewport.area.getPoint(Position.Center)),
 				new MidPoint(Viewport.area.getPoint(Position.Center), Viewport.area.bottomRight())
@@ -29,7 +30,7 @@ export class LoadingScreen extends Screen {
 		));
 		Viewport.layers.set("mouse", new ContextLayer(1 / 8, 10));
 		this.mouse = new Mouse(Viewport.layers.get("mouse"));
-		this.elements.push(this.mouse);
+		this.elements.register(this.mouse);
 	}
 
 }

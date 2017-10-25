@@ -5,17 +5,12 @@ import { Runtime } from "./Runtime";
 import { Region, RegionContainer } from "./Region";
 import { Rectangle } from "../Shape/Rectangle";
 
-export enum Events {
-	drawDirty,
-	registerCollision,
-	deregisterCollision
-}
-
 export abstract class Element {
 
 	public origin: Point;
 	public area: IShape;
 	public layer: ContextLayer;
+	public container: ElementContainer;
 	public collisions: Element[] = new Array<Element>();
 	protected requiresRedraw: boolean = true;
 
@@ -36,6 +31,7 @@ export abstract class Element {
 	public move(offsetX: number, offsetY: number): void {
 		this.layer.markForRedraw(this.area);
 		this.origin.move(offsetX, offsetY);
+		this.container.update(this);
 		this.layer.markForRedraw(this.area);
 		this.requiresRedraw = true;
 	}
@@ -53,30 +49,74 @@ export abstract class Element {
 
 export class ElementRegion extends Region {
 	public elements: Element[] = new Array<Element>();
+	public requiresRedraw: boolean = false;
 }
 
 export class ElementContainer {
+
 	private regions: RegionContainer<ElementRegion>;
-	private elements: Element[] = new Array<Element>();
+	public elements: Map<Element, ElementRegion[]> = new Map<Element, ElementRegion[]>();
+
 	public constructor(regionsize: number, area: Rectangle) {
 		this.regions = new RegionContainer(regionsize, area, ElementRegion);
 	}
 
-	public add(element: Element): Element {
-		this.elements.push(element);
-		for (var region of this.regions.getRegions(element.area)) {
-			region.elements.push(element);
+	public register(element: Element): void {
+		this.elements.set(element, new Array<ElementRegion>());
+		element.container = this;
+		this.update(element);
+	}
+
+	public deregister(element: Element): void {
+		for (var region of this.elements.get(element)) {
+			this.remove(element, region);
 		}
-		return element;
+		this.elements.delete(element);
+	}
+
+	public add(element: Element, region: ElementRegion): void {
+		region.elements.push(element);
+		this.elements.get(element).push(region);
+		region.requiresRedraw = true;
+	}
+
+	public remove(element: Element, region: ElementRegion): void {
+		this.elements.get(element).splice(this.elements.get(element).indexOf(region), 1);
+		region.requiresRedraw = true;
+	}
+
+	public update(element: Element) {
+		var oldregions = this.elements.get(element);
+		var currentregions = this.regions.getRegions(element.area);
+		for (var oldregion of oldregions) {
+			if (currentregions.indexOf(oldregion) === -1) {
+				this.remove(element, oldregion);
+			}
+		}
+		for (var currentregion of currentregions) {
+			if (oldregions.indexOf(currentregion) === -1) {
+				this.add(element, currentregion);
+			}
+		}
+	}
+
+	public renderComplete(): void {
+		for (var region of this.regions.getRegions(null)) {
+			region.requiresRedraw = false;
+		}
+	}
+
+	public getRegions(): ElementRegion[] {
+		return Array.from(this.regions.regions.values());
 	}
 
 	public getElements(area: IShape): Element[] {
 		if (area == null) {
-			return this.elements;
+			return Array.from(this.elements.keys());
 		}
 		var result = [];
 		for (var region of this.regions.getRegions(area)) {
-			result.concat(region.elements);
+			result.push.apply(result, region.elements);
 		}
 		return Array.from(new Set(result));
 	}
