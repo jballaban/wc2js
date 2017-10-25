@@ -20,7 +20,6 @@ export class Circle extends Point implements IShape {
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
 		ctx.fill();
-		ctx.stroke();
 	}
 
 }

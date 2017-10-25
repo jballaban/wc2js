@@ -81,19 +81,28 @@ export class DynamicPoint extends Point {
 	}
 }
 
-export class MidPoint extends Point {
+export class RatioPoint extends Point {
 	public p2: Point;
+	private ratio: number;
 
-	constructor(parent: Point, p2: Point) {
+	constructor(ratio: number, parent: Point, p2: Point) {
 		super(null, null, parent);
 		this.p2 = p2;
+		this.ratio = ratio;
 		this.p2.children.push(this);
 		this.recalculate();
 	}
 
 	public recalculate(): void {
-		this.offsetX = Math.floor((this.p2.x - this.parent.x) / 2);
-		this.offsetY = Math.floor((this.p2.y - this.parent.y) / 2);
+		this.offsetX = Math.floor((this.p2.x - this.parent.x) * this.ratio);
+		this.offsetY = Math.floor((this.p2.y - this.parent.y) * this.ratio);
 		super.recalculate();
+	}
+}
+
+export class MidPoint extends RatioPoint {
+
+	constructor(parent: Point, p2: Point) {
+		super(1 / 2, parent, p2);
 	}
 }

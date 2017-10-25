@@ -2,7 +2,7 @@ import { Point } from "../Shape/Point";
 import { Logger } from "../Util/Logger";
 import { Runtime } from "../Core/Runtime";
 import { Rectangle } from "../Shape/Rectangle";
-import { QuarteredContextLayer, ContextLayer } from "../Core/ContextLayer";
+import { ContextLayer } from "../Core/ContextLayer";
 
 export class Viewport {
 	public static area: Rectangle;

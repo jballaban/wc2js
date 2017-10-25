@@ -5,12 +5,14 @@ import { Position } from "../Shape/Polygon";
 import { Logger } from "../Util/Logger";
 import { IShape } from "../Shape/IShape";
 import { Color } from "../Util/Color";
+import { RegionContainer, BooleanRegion } from "./Region";
 
-export abstract class ContextLayer {
-	protected redrawAreas: Map<Rectangle, boolean> = new Map<Rectangle, boolean>();
+export class ContextLayer {
+
 	public ctx: CanvasRenderingContext2D;
+	private regions: RegionContainer<BooleanRegion>;
 
-	constructor(zindex: number) {
+	constructor(private ratio: number, zindex: number) {
 		var canv: HTMLCanvasElement = document.createElement("canvas");
 		canv.style.setProperty("z-index", zindex.toString());
 		document.body.appendChild(canv);
@@ -23,32 +25,28 @@ export abstract class ContextLayer {
 	}
 
 	public renderStart(): void {
-		for (var region of this.redrawAreas.keys()) {
-			if (this.redrawAreas.get(region)) {
-				this.ctx.clearRect(region.x(), region.y(), region.width(), region.height());
+		for (var rect of this.regions.regions.keys()) {
+			if (this.regions.regions.get(rect).value) {
+				this.ctx.clearRect(rect.x(), rect.y(), rect.width(), rect.height());
 			}
 		}
 	}
 
 	public renderComplete(): void {
-		for (var region of this.redrawAreas.keys()) {
-			if (this.redrawAreas.get(region)) {
-				this.redrawAreas.set(region, false);
-			}
+		for (var region of this.regions.regions.values()) {
+			region.value = false;
 		}
 	}
 
 	public markForRedraw(area: IShape): void {
-		for (var region of this.redrawAreas.keys()) {
-			if (!this.redrawAreas.get(region) && area.intersects(region)) {
-				this.redrawAreas.set(region, true);
-			}
+		for (var region of this.regions.getRegions(area)) {
+			region.value = true;
 		}
 	}
 
 	public shouldRedraw(shape: IShape): boolean {
-		for (var region of this.redrawAreas.keys()) {
-			if (this.redrawAreas.get(region) && shape.intersects(region)) {
+		for (var region of this.regions.getRegions(shape)) {
+			if (region.value) {
 				return true;
 			}
 		}
@@ -58,29 +56,9 @@ export abstract class ContextLayer {
 	public resize(): void {
 		this.ctx.canvas.width = window.innerWidth;
 		this.ctx.canvas.height = window.innerHeight;
-		this.redrawAreas.clear();
-	}
-}
-
-export class QuarteredContextLayer extends ContextLayer {
-	public resize(): void {
-		super.resize();
-		// split layer into quadrants
-		this.redrawAreas.set(new Rectangle(Viewport.area.topLeft(), Viewport.area.getPoint(Position.Center)), true);
-		this.redrawAreas.set(new Rectangle(
-			Viewport.area.getPoint(Position.TopCenter),
-			Viewport.area.getPoint(Position.RightCenter)),
-			true
-		);
-		this.redrawAreas.set(new Rectangle(
-			Viewport.area.getPoint(Position.LeftCenter),
-			Viewport.area.getPoint(Position.BottomCenter)),
-			true
-		);
-		this.redrawAreas.set(new Rectangle(
-			Viewport.area.getPoint(Position.Center),
-			Viewport.area.bottomRight()),
-			true
-		);
+		this.regions = new RegionContainer<BooleanRegion>(
+			Math.ceil(Viewport.area.width() * this.ratio),
+			Viewport.area,
+			BooleanRegion);
 	}
 }

@@ -46,12 +46,12 @@ export class Thing extends Element {
 	constructor(layer: ContextLayer, color: string) {
 		var origin: Point = new Point(0, 0, null);
 		var shape: IShape = Math.floor(Math.random() * 2) === 0 ?
-			new Rectangle(origin, new Point(Math.floor(Math.random() * 100), Math.floor(Math.random() * 50), origin))
-			: new Circle(origin, Math.floor(Math.random() * 50));
+			new Rectangle(origin, new Point(Math.floor(Math.random() * 50), Math.floor(Math.random() * 25), origin))
+			: new Circle(origin, Math.floor(Math.random() * 25));
 		super(origin, shape, layer);
 		this._color = color;
 		this.color = color;
-		this.direction = new Vector(60, 60);
+		this.direction = new Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
 	}
 
 	public collides(element: Element): boolean {
@@ -63,9 +63,7 @@ export class Thing extends Element {
 
 	public update(step: number): void {
 		super.update(step);
-
 		var move: Vector = this.direction.clone().multiply(step);
-		Logger.log("Thing: " + this.direction.x + ", " + move.x);
 		this.inc(move.x, move.y);
 		if (this.origin.x > Viewport.area.x2()) {
 			this.move(0, null);
