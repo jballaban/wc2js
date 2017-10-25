@@ -696,7 +696,7 @@ define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/
             this.elements = new Element_3.ElementContainer(256, Viewport_3.Viewport.area);
             Viewport_3.Viewport.reset();
             Viewport_3.Viewport.layers.set("items", new ContextLayer_1.ContextLayer(1 / 8, 2));
-            for (var i = 0; i < 100; i++) {
+            for (var i = 0; i < 200; i++) {
                 this.elements.register(new Thing_1.Thing(Viewport_3.Viewport.layers.get("items"), Color_1.Color.getRandomColor()));
             }
             Viewport_3.Viewport.layers.set("background", new ContextLayer_1.ContextLayer(1 / 2, 1));

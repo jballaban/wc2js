@@ -18,7 +18,7 @@ export class LoadingScreen extends Screen {
 		this.elements = new ElementContainer(256, Viewport.area);
 		Viewport.reset();
 		Viewport.layers.set("items", new ContextLayer(1 / 8, 2));
-		for (var i: number = 0; i < 100; i++) {
+		for (var i: number = 0; i < 200; i++) {
 			this.elements.register(new Thing(Viewport.layers.get("items"), Color.getRandomColor()));
 		}
 		Viewport.layers.set("background", new ContextLayer(1 / 2, 1));
