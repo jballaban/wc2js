@@ -30,7 +30,9 @@ module.exports = function (grunt) {
 					},
 					{
 						src: './src/Asset/**.*',
-						dest: './dist/asset/'
+						dest: './dist/asset/',
+						flatten: true,
+						expand: true
 					},
 					{
 						expand: true,
