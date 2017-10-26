@@ -17,10 +17,14 @@ export class StaticThing extends Element {
 		this._color = color;
 	}
 
+	public canCollide(element: Element): boolean {
+		return element instanceof Mouse;
+	}
+
 	public update(step: number): void {
 		super.update(step);
 		if (this.color === this._color && this.collisions.length > 0) {
-			this.color = "red";
+			this.color = "black";
 			this.requiresRedraw = true;
 		} else if (this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
@@ -32,7 +36,6 @@ export class StaticThing extends Element {
 		if (!super.render()) {
 			return false;
 		}
-		console.log("reder");
 		this.area.render(this.layer.ctx, this.color);
 		return true;
 	}
@@ -46,19 +49,16 @@ export class Thing extends Element {
 	constructor(layer: ContextLayer, color: string) {
 		var origin: Point = new Point(0, 0, null);
 		var shape: IShape = Math.floor(Math.random() * 2) === 0 ?
-			new Rectangle(origin, new Point(Math.floor(Math.random() * 50), Math.floor(Math.random() * 25), origin))
-			: new Circle(origin, Math.floor(Math.random() * 25));
+			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
+			: new Circle(origin, Math.floor(Math.random() * 20));
 		super(origin, shape, layer);
 		this._color = color;
 		this.color = color;
 		this.direction = new Vector(0, 0);
 	}
 
-	public collides(element: Element): boolean {
-		if (element instanceof Thing || element instanceof Mouse) {
-			return super.collides(element);
-		}
-		return false;
+	public canCollide(element: Element): boolean {
+		return element instanceof Thing || element instanceof Mouse;
 	}
 
 	public update(step: number): void {

@@ -5,6 +5,7 @@ import { RegionContainer } from "../Core/Region";
 import { Element, ElementRegion, ElementContainer } from "../Core/Element";
 import { Mouse } from "../IO/Mouse";
 import { Array as ArrayUtil } from "../Util/Array";
+import { Collision } from "../Util/Collision";
 
 export abstract class Screen {
 	protected elements: ElementContainer;
@@ -21,7 +22,11 @@ export abstract class Screen {
 			for (var j = 0; j < elements.length; j++) {
 				var collisions = elements[j].collisions;
 				for (var k = 0; k < collisions.length; k++) {
-					if (!elements[j].collides(collisions[k])) {
+					if (
+						!elements[j].canCollide(collisions[k])
+						|| !collisions[k].canCollide(elements[j])
+						|| !Collision.intersects(elements[j].area, collisions[k].area)
+					) {
 						collisions[k].collisions.splice(ArrayUtil.indexOf<Element>(elements[j], collisions[k].collisions), 1);
 						collisions.splice(k--, 1);
 					}
@@ -36,7 +41,11 @@ export abstract class Screen {
 					if (ArrayUtil.exists<Element>(elements[k], elements[j].collisions)) {
 						continue; // skip if we've already collided
 					}
-					if (elements[j].collides(elements[k])) {
+					if (
+						elements[j].canCollide(elements[k])
+						&& elements[k].canCollide(elements[j])
+						&& Collision.intersects(elements[j].area, elements[k].area)
+					) {
 						elements[j].collisions.push(elements[k]);
 						elements[k].collisions.push(elements[j]);
 					}

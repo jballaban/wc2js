@@ -11,6 +11,10 @@ export class Mouse extends Element {
 		super(origin, new Circle(origin, 10), layer);
 	}
 
+	public canCollide(element: Element): boolean {
+		return true;
+	}
+
 	public render(): boolean {
 		if (!super.render()) {
 			return false;

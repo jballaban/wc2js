@@ -457,9 +457,6 @@ define("Core/Element", ["require", "exports", "Core/Region"], function (require,
             this.area = area;
             this.layer = layer;
         }
-        collides(element) {
-            return this.area.intersects(element.area);
-        }
         inc(offsetx, offsety) {
             this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
         }
@@ -557,6 +554,9 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
             var origin = new Point_3.Point(0, 0, null);
             super(origin, new Circle_2.Circle(origin, 10), layer);
         }
+        canCollide(element) {
+            return true;
+        }
         render() {
             if (!super.render()) {
                 return false;
@@ -568,7 +568,7 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
     }
     exports.Mouse = Mouse;
 });
-define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array"], function (require, exports, Viewport_1, Array_1) {
+define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/Collision"], function (require, exports, Viewport_1, Array_1, Collision_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
@@ -581,7 +581,9 @@ define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array"], funct
                 for (var j = 0; j < elements.length; j++) {
                     var collisions = elements[j].collisions;
                     for (var k = 0; k < collisions.length; k++) {
-                        if (!elements[j].collides(collisions[k])) {
+                        if (!elements[j].canCollide(collisions[k])
+                            || !collisions[k].canCollide(elements[j])
+                            || !Collision_3.Collision.intersects(elements[j].area, collisions[k].area)) {
                             collisions[k].collisions.splice(Array_1.Array.indexOf(elements[j], collisions[k].collisions), 1);
                             collisions.splice(k--, 1);
                         }
@@ -595,7 +597,9 @@ define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array"], funct
                         if (Array_1.Array.exists(elements[k], elements[j].collisions)) {
                             continue;
                         }
-                        if (elements[j].collides(elements[k])) {
+                        if (elements[j].canCollide(elements[k])
+                            && elements[k].canCollide(elements[j])
+                            && Collision_3.Collision.intersects(elements[j].area, elements[k].area)) {
                             elements[j].collisions.push(elements[k]);
                             elements[k].collisions.push(elements[j]);
                         }
@@ -646,10 +650,13 @@ define("UI/Thing", ["require", "exports", "IO/Mouse", "Core/Element", "Core/View
             super(null, rect, layer);
             this._color = color;
         }
+        canCollide(element) {
+            return element instanceof Mouse_1.Mouse;
+        }
         update(step) {
             super.update(step);
             if (this.color === this._color && this.collisions.length > 0) {
-                this.color = "red";
+                this.color = "black";
                 this.requiresRedraw = true;
             }
             else if (this.color !== this._color && this.collisions.length === 0) {
@@ -661,7 +668,6 @@ define("UI/Thing", ["require", "exports", "IO/Mouse", "Core/Element", "Core/View
             if (!super.render()) {
                 return false;
             }
-            console.log("reder");
             this.area.render(this.layer.ctx, this.color);
             return true;
         }
@@ -671,18 +677,15 @@ define("UI/Thing", ["require", "exports", "IO/Mouse", "Core/Element", "Core/View
         constructor(layer, color) {
             var origin = new Point_4.Point(0, 0, null);
             var shape = Math.floor(Math.random() * 2) === 0 ?
-                new Rectangle_3.Rectangle(origin, new Point_4.Point(Math.floor(Math.random() * 50), Math.floor(Math.random() * 25), origin))
-                : new Circle_3.Circle(origin, Math.floor(Math.random() * 25));
+                new Rectangle_3.Rectangle(origin, new Point_4.Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
+                : new Circle_3.Circle(origin, Math.floor(Math.random() * 20));
             super(origin, shape, layer);
             this._color = color;
             this.color = color;
             this.direction = new Vector_1.Vector(0, 0);
         }
-        collides(element) {
-            if (element instanceof Thing || element instanceof Mouse_1.Mouse) {
-                return super.collides(element);
-            }
-            return false;
+        canCollide(element) {
+            return element instanceof Thing || element instanceof Mouse_1.Mouse;
         }
         update(step) {
             super.update(step);
@@ -746,7 +749,7 @@ define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/
             this.elements = new Element_3.ElementContainer(256, Viewport_3.Viewport.area);
             Viewport_3.Viewport.reset();
             Viewport_3.Viewport.layers.set("items", new ContextLayer_1.ContextLayer(1, 2));
-            for (var i = 0; i < 400; i++) {
+            for (var i = 0; i < 600; i++) {
                 var thing = new Thing_1.Thing(Viewport_3.Viewport.layers.get("items"), Color_1.Color.getRandomColor());
                 thing.direction = new Vector_2.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
                 this.elements.register(thing);

@@ -21,9 +21,7 @@ export abstract class Element {
 		this.layer = layer;
 	}
 
-	public collides(element: Element): boolean {
-		return this.area.intersects(element.area);
-	}
+	public abstract canCollide(element: Element): boolean;
 
 	public inc(offsetx: number, offsety: number): void {
 		this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
