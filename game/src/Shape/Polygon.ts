@@ -20,6 +20,4 @@ export class Polygon {
 		return this.points.get(position);
 	}
 
-
-
 }

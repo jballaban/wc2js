@@ -1,12 +1,13 @@
 
 export class Point {
 	// todo: points shouldn't recalculate children.  Only when position is accessed should it recalculate tree positioning
-	public x: number = 0;
-	public y: number = 0;
+	private _x: number = 0;
+	private _y: number = 0;
 	public offsetX: number = null;
 	public offsetY: number = null;
 	public children: Point[] = new Array<Point>();
 	public parent: Point = null;
+	protected dirty: boolean = true;
 
 	constructor(offsetX: number, offsetY: number, parent: Point) {
 		this.parent = parent;
@@ -16,35 +17,43 @@ export class Point {
 		this.move(offsetX, offsetY);
 	}
 
+	public x(): number {
+		this.recalculate();
+		return this._x;
+	}
+
+	public y(): number {
+		this.recalculate();
+		return this._y;
+	}
+
 	public recalculate(): void {
+		if (!this.dirty) { return; }
+		this.dirty = false;
 		var x: number = this.calculate("x");
 		var y: number = this.calculate("y");
-		if (x === this.x && y === this.y) { return; } // if nothing changed then we don't need to invalide dependent points
-		this.x = x;
-		this.y = y;
+		if (x === this._x && y === this._y) { return; } // if nothing changed then we don't need to invalide dependent points
+		this._x = x;
+		this._y = y;
 		for (var child of this.children) { // tell children they may need to reposition themselves since we changed something
-			child.recalculate();
+			child.dirty = true;
 		}
 	}
 
 	public move(offsetX: number, offsetY: number): void {
-		if (
-			(offsetX == null || offsetX === this.offsetX)
-			&& (offsetY == null || offsetY === this.offsetY)
-		) { return; }
 		if (offsetX != null) {
 			this.offsetX = offsetX;
 		}
 		if (offsetY != null) {
 			this.offsetY = offsetY;
 		}
-		this.recalculate();
+		this.dirty = true;
 	}
 
 	private calculate(field: string): number {
 		var result: number = 0;
 		if (this.parent != null) {
-			result = this.parent[field];
+			result = this.parent[field]();
 		}
 		result += this["offset" + field.toUpperCase()];
 		return result;
@@ -69,12 +78,13 @@ export class DynamicPoint extends Point {
 	}
 
 	public recalculate(): void {
+		if (!this.dirty) { return; }
 		switch (this.dimension) {
 			case DynamicDimension.x:
-				this.offsetX = this.p2.x - this.parent.x;
+				this.offsetX = this.p2.x() - this.parent.x();
 				break;
 			case DynamicDimension.y:
-				this.offsetY = this.p2.y - this.parent.y;
+				this.offsetY = this.p2.y() - this.parent.y();
 				break;
 		}
 		super.recalculate();
@@ -94,8 +104,9 @@ export class RatioPoint extends Point {
 	}
 
 	public recalculate(): void {
-		this.offsetX = Math.floor((this.p2.x - this.parent.x) * this.ratio);
-		this.offsetY = Math.floor((this.p2.y - this.parent.y) * this.ratio);
+		if (!this.dirty) { return; }
+		this.offsetX = Math.floor((this.p2.x() - this.parent.x()) * this.ratio);
+		this.offsetY = Math.floor((this.p2.y() - this.parent.y()) * this.ratio);
 		super.recalculate();
 	}
 }

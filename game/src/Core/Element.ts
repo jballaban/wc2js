@@ -4,6 +4,7 @@ import { IShape } from "../Shape/IShape";
 import { Runtime } from "./Runtime";
 import { Region, RegionContainer } from "./Region";
 import { Rectangle } from "../Shape/Rectangle";
+import { Array as ArrayUtil } from "../Util/Array";
 
 export abstract class Element {
 
@@ -29,11 +30,12 @@ export abstract class Element {
 	}
 
 	public move(offsetX: number, offsetY: number): void {
+		if (offsetX == this.origin.offsetX && offsetY == this.origin.offsetY) { return; }
+		this.requiresRedraw = true;
 		this.layer.markForRedraw(this.area);
 		this.origin.move(offsetX, offsetY);
 		this.container.update(this);
 		this.layer.markForRedraw(this.area);
-		this.requiresRedraw = true;
 	}
 
 	public update(step: number): void {
@@ -56,15 +58,20 @@ export class ElementContainer {
 
 	private regions: RegionContainer<ElementRegion>;
 	public elements: Map<Element, ElementRegion[]> = new Map<Element, ElementRegion[]>();
+	public regionsCache: ElementRegion[];
+	public elementsCache: Element[];
 
 	public constructor(regionsize: number, area: Rectangle) {
 		this.regions = new RegionContainer(regionsize, area, ElementRegion);
+		this.regionsCache = Array.from(this.regions.regions.values());
+		this.elementsCache = new Array<Element>();
 	}
 
 	public register(element: Element): void {
 		this.elements.set(element, new Array<ElementRegion>());
 		element.container = this;
 		this.update(element);
+		this.elementsCache.push(element);
 	}
 
 	public deregister(element: Element): void {
@@ -81,6 +88,7 @@ export class ElementContainer {
 	}
 
 	public remove(element: Element, region: ElementRegion): void {
+		region.elements.splice(region.elements.indexOf(element), 1);
 		this.elements.get(element).splice(this.elements.get(element).indexOf(region), 1);
 		region.requiresRedraw = true;
 	}
@@ -106,18 +114,12 @@ export class ElementContainer {
 		}
 	}
 
-	public getRegions(): ElementRegion[] {
-		return Array.from(this.regions.regions.values());
+	public getRegions(area: IShape): ElementRegion[] {
+		var result = [];
+		for (var region of this.regions.regions.keys()) {
+			result.push.apply(result, region);
+		}
+		return result;
 	}
 
-	public getElements(area: IShape): Element[] {
-		if (area == null) {
-			return Array.from(this.elements.keys());
-		}
-		var result = [];
-		for (var region of this.regions.getRegions(area)) {
-			result.push.apply(result, region.elements);
-		}
-		return Array.from(new Set(result));
-	}
 }

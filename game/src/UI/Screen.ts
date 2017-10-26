@@ -4,34 +4,42 @@ import { Logger } from "../Util/Logger";
 import { RegionContainer } from "../Core/Region";
 import { Element, ElementRegion, ElementContainer } from "../Core/Element";
 import { Mouse } from "../IO/Mouse";
+import { Array as ArrayUtil } from "../Util/Array";
 
 export abstract class Screen {
 	protected elements: ElementContainer;
 	public mouse: Mouse;
 
 	public update(step: number): void {
-		for (var element of this.elements.getElements(null)) {
-			element.update(step);
+		// do updates
+		for (var i = 0; i < this.elements.elementsCache.length; i++) {
+			this.elements.elementsCache[i].update(step);
 		}
-		for (var region of this.elements.getRegions()) {
-			for (var el of region.elements) {
-				for (var i: number = 0; i < el.collisions.length; i++) {
-					if (this.elements.elements.get(el.collisions[i]).indexOf(region) == -1
-						|| !el.collides(el.collisions[i])
-					) {
-						el.collisions[i].collisions.splice(el.collisions[i].collisions.indexOf(el), 1);
-						el.collisions.splice(i--, 1);
+		// verify existing collisions are accurate
+		for (var i = 0; i < this.elements.regionsCache.length; i++) {
+			var elements = this.elements.regionsCache[i].elements;
+			for (var j = 0; j < elements.length; j++) {
+				var collisions = elements[j].collisions;
+				for (var k = 0; k < collisions.length; k++) {
+					if (!elements[j].collides(collisions[k])) {
+						collisions[k].collisions.splice(ArrayUtil.indexOf<Element>(elements[j], collisions[k].collisions), 1);
+						collisions.splice(k--, 1);
 					}
 				}
 			}
 		}
 		// look for new collisions
-		for (var element of this.elements.getElements(null)) {
-			for (var sibling of this.elements.getElements(element.area)) {
-				if (sibling == element || element.collisions.indexOf(sibling) > -1) continue;
-				if (element.collides(sibling)) {
-					element.collisions.push(sibling);
-					sibling.collisions.push(element);
+		for (var i = 0; i < this.elements.regionsCache.length; i++) {
+			var elements = this.elements.regionsCache[i].elements;
+			for (var j = 0; j < elements.length - 1; j++) {
+				for (var k = j + 1; k < elements.length; k++) {
+					if (ArrayUtil.exists<Element>(elements[k], elements[j].collisions)) {
+						continue; // skip if we've already collided
+					}
+					if (elements[j].collides(elements[k])) {
+						elements[j].collisions.push(elements[k]);
+						elements[k].collisions.push(elements[j]);
+					}
 				}
 			}
 		}
@@ -41,8 +49,10 @@ export abstract class Screen {
 		for (var layer of Viewport.layers.values()) {
 			layer.renderStart();
 		}
-		for (var el of this.elements.getElements(null)) {
-			el.render();
+		for (var region of this.elements.regionsCache) {
+			for (var el of region.elements) {
+				el.render();
+			}
 		}
 		for (var layer of Viewport.layers.values()) {
 			layer.renderComplete();

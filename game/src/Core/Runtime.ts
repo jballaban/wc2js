@@ -39,11 +39,12 @@ export class Runtime {
 
 	private static frame(now: number): void {
 		Runtime.fps.tickStart();
-		Runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
-		while (Runtime.dt > Runtime.step) {
+		//	Runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
+		Runtime.update(Math.min(1, (now - Runtime.last) / 1000));
+		/* while (Runtime.dt > Runtime.step) {
 			Runtime.dt = Runtime.dt - Runtime.step;
 			Runtime.update(Runtime.step);
-		}
+		} */
 		Runtime.render();
 		Runtime.last = now;
 		Runtime.fps.tick();

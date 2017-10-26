@@ -3,12 +3,21 @@ import { Rectangle } from "./Rectangle";
 import { Point } from "./Point";
 import { Collision } from "../Util/Collision";
 
-export class Circle extends Point implements IShape {
+export class Circle implements IShape {
 	public r: number;
+	public center: Point;
 
 	constructor(point: Point, radius: number) {
-		super(0, 0, point);
+		this.center = point;
 		this.r = radius;
+	}
+
+	public x(): number {
+		return this.center.x();
+	}
+
+	public y(): number {
+		return this.center.y();
 	}
 
 	public intersects(shape: IShape): boolean {
@@ -18,7 +27,7 @@ export class Circle extends Point implements IShape {
 	public render(ctx: CanvasRenderingContext2D, colour: string): void {
 		ctx.fillStyle = colour;
 		ctx.beginPath();
-		ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+		ctx.arc(this.center.x(), this.center.y(), this.r, 0, 2 * Math.PI);
 		ctx.fill();
 	}
 

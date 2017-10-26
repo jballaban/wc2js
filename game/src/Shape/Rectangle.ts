@@ -2,6 +2,7 @@ import { Polygon, Position } from "./Polygon";
 import { Point, MidPoint, DynamicPoint, DynamicDimension } from "./Point";
 import { IShape } from "./IShape";
 import { Collision } from "../Util/Collision";
+import { Logger } from "../Util/Logger";
 
 export class Rectangle extends Polygon implements IShape {
 	public constructor(topleft: Point, bottomright: Point) {
@@ -11,19 +12,19 @@ export class Rectangle extends Polygon implements IShape {
 	}
 
 	public x(): number {
-		return this.getPoint(Position.TopLeft).x;
+		return this.getPoint(Position.TopLeft).x();
 	}
 
 	public y(): number {
-		return this.getPoint(Position.TopLeft).y;
+		return this.getPoint(Position.TopLeft).y();
 	}
 
 	public x2(): number {
-		return this.getPoint(Position.BottomRight).x
+		return this.getPoint(Position.BottomRight).x()
 	}
 
 	public y2(): number {
-		return this.getPoint(Position.BottomRight).y
+		return this.getPoint(Position.BottomRight).y()
 	}
 
 	public width(): number {

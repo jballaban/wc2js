@@ -18,13 +18,13 @@ export class Collision {
 	}
 
 	private static circleCircleIntersect(circle1: Circle, circle2: Circle): boolean {
-		if (circle1.x + circle1.r + circle2.r > circle2.x
-			&& circle1.x < circle2.x + circle1.r + circle2.r
-			&& circle1.y + circle1.r + circle2.r > circle2.y
-			&& circle1.y < circle2.y + circle1.r + circle2.r) {
+		if (circle1.x() + circle1.r + circle2.r > circle2.x()
+			&& circle1.x() < circle2.x() + circle1.r + circle2.r
+			&& circle1.y() + circle1.r + circle2.r > circle2.y()
+			&& circle1.y() < circle2.y() + circle1.r + circle2.r) {
 			var distance: number = Math.sqrt(
-				(circle1.x - circle2.x) * (circle1.x - circle2.x)
-				+ ((circle1.y - circle2.y) * (circle1.y - circle2.y))
+				(circle1.x() - circle2.x()) * (circle1.x() - circle2.x())
+				+ (circle1.y() - circle2.y()) * (circle1.y() - circle2.y())
 			);
 			if (distance < circle1.r + circle2.r) {
 				return true;
@@ -34,8 +34,8 @@ export class Collision {
 	}
 
 	private static rectCircleIntersect(rect: Rectangle, circle: Circle): boolean {
-		var distX: number = Math.abs(circle.x - rect.x() - rect.width() / 2);
-		var distY: number = Math.abs(circle.y - rect.y() - rect.height() / 2);
+		var distX: number = Math.abs(circle.x() - rect.x() - rect.width() / 2);
+		var distY: number = Math.abs(circle.y() - rect.y() - rect.height() / 2);
 
 		if (distX > (rect.width() / 2 + circle.r)) { return false; }
 		if (distY > (rect.height() / 2 + circle.r)) { return false; }
