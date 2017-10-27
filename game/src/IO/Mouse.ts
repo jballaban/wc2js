@@ -1,3 +1,4 @@
+import { Thing } from "../UI/Thing";
 import { Element } from "../Core/Element";
 import { Rectangle, PointRectangle } from "../Shape/Rectangle";
 import { Point } from "../Shape/Point";
@@ -6,6 +7,8 @@ import { Circle } from "../Shape/Circle";
 import { Logger } from "../Util/Logger";
 import { Runtime } from "../Core/Runtime";
 import { Viewport } from "../Core/Viewport";
+import { ElementType } from "../Core/ElementType";
+import { Vector } from "../Core/Vector";
 
 export class Mouse extends Element {
 	private _color: string;
@@ -15,7 +18,7 @@ export class Mouse extends Element {
 
 	public constructor() {
 		var origin: Point = new Point(0, 0, null);
-		super(origin, new Circle(origin, 10), 10);
+		super(ElementType.Mouse, origin, new Circle(origin, 10), 10);
 		this.color = this._color = "white";
 		this.moveX = null;
 		this.moveY = null;

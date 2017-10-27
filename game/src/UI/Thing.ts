@@ -10,17 +10,18 @@ import { Circle } from "../Shape/Circle";
 import { Logger } from "../Util/Logger";
 import { Color } from "../Util/Color";
 import { Runtime } from "../Core/Runtime";
+import { ElementType } from "../Core/ElementType";
 
 export class StaticThing extends Element {
 	private _color: string;
 	private color: string;
 	constructor(color: string, rect: Rectangle) {
-		super(null, rect, 4);
+		super(ElementType.StaticThing, rect.topLeft(), rect, 4);
 		this.color = this._color = color;
 	}
 
 	public canCollide(element: Element): boolean {
-		return element instanceof Mouse;
+		return element.type === ElementType.Mouse;
 	}
 
 	public onCollide(element: Element, on: boolean): void {
@@ -46,21 +47,20 @@ export class Thing extends Element {
 
 	constructor(color: string) {
 		var origin: Point = new Point(0, 0, null);
-		var shape: IShape = Math.random() * 2 === 1 ?
+		var shape: IShape = false ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
 			: new Circle(origin, Math.floor(Math.random() * 20));
-		super(origin, shape, 5);
+		super(ElementType.Thing, origin, shape, 5);
 		this._color = color;
 		this.color = color;
 		this.direction = new Vector(0, 0);
 	}
 
 	public canCollide(element: Element): boolean {
-		return element instanceof Thing || element instanceof Mouse;
+		return element.type === ElementType.Thing || element.type === ElementType.Mouse;
 	}
 
 	public update(step: number): void {
-		super.update(step);
 		if (Math.random() * 2 === 1) { return; }
 		var move: Vector = this.direction.clone().multiply(step);
 		this.inc(move.x, move.y);
@@ -68,6 +68,7 @@ export class Thing extends Element {
 			|| this.origin.y() === 0 || this.origin.y() === Runtime.screen.container.area.height()) {
 			this.direction.multiply(-1);
 		}
+		super.update(step);
 	}
 
 	public onCollide(element: Element, on: boolean): void {
@@ -77,6 +78,12 @@ export class Thing extends Element {
 		} else if (this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
 			Runtime.screen.container.update(this, false);
+		}
+		if (on && element.type === ElementType.Thing) {
+			(element as Thing).direction = new Vector(
+				(element as Thing).origin.x() - this.origin.x(),
+				(element as Thing).origin.y() - this.origin.y()
+			);
 		}
 	}
 

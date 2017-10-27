@@ -21,7 +21,7 @@ export class LoadingScreen extends Screen {
 			var thing: Thing = new Thing(Color.getRandomColor());
 			thing.direction = new Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
 			this.container.register(thing);
-			thing.move(Math.random() * Viewport.area.width(), Math.random() * Viewport.area.height());
+			thing.move(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
 		}
 		this.container.register(new StaticThing(
 			"darkblue",

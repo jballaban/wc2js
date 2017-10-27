@@ -1,20 +1,28 @@
-import { IShape } from "../Shape/IShape";
+import { IShape, ShapeType } from "../Shape/IShape";
 import { Rectangle } from "../Shape/Rectangle";
 import { Circle } from "../Shape/Circle";
 
 export class Collision {
 
 	public static intersects(shape1: IShape, shape2: IShape): boolean {
-		if (shape1 instanceof Rectangle && shape2 instanceof Rectangle) {
-			return Collision.rectRectIntersect(shape1, shape2);
-		} else if (shape1 instanceof Circle && shape2 instanceof Rectangle) {
-			return Collision.rectCircleIntersect(shape2, shape1);
-		} else if (shape1 instanceof Rectangle && shape2 instanceof Circle) {
-			return Collision.rectCircleIntersect(shape1, shape2);
-		} else if (shape1 instanceof Circle && shape2 instanceof Circle) {
-			return Collision.circleCircleIntersect(shape1, shape2);
+		switch (shape1.type) {
+			case ShapeType.Rectangle:
+				switch (shape2.type) {
+					case ShapeType.Rectangle:
+						return Collision.rectRectIntersect(shape1 as Rectangle, shape2 as Rectangle);
+					case ShapeType.Circle:
+						return Collision.rectCircleIntersect(shape1 as Rectangle, shape2 as Circle);
+				}
+				break;
+			case ShapeType.Circle:
+				switch (shape2.type) {
+					case ShapeType.Rectangle:
+						return Collision.rectCircleIntersect(shape2 as Rectangle, shape1 as Circle);
+					case ShapeType.Circle:
+						return Collision.circleCircleIntersect(shape1 as Circle, shape2 as Circle);
+				}
+				break;
 		}
-		throw "Unknown";
 	}
 
 	private static circleCircleIntersect(circle1: Circle, circle2: Circle): boolean {

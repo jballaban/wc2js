@@ -144,12 +144,18 @@ define("Shape/Polygon", ["require", "exports"], function (require, exports) {
 define("Shape/IShape", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var ShapeType;
+    (function (ShapeType) {
+        ShapeType[ShapeType["Circle"] = 0] = "Circle";
+        ShapeType[ShapeType["Rectangle"] = 1] = "Rectangle";
+    })(ShapeType = exports.ShapeType || (exports.ShapeType = {}));
 });
-define("Shape/Circle", ["require", "exports", "Util/Collision"], function (require, exports, Collision_1) {
+define("Shape/Circle", ["require", "exports", "Shape/IShape", "Util/Collision"], function (require, exports, IShape_1, Collision_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Circle {
         constructor(point, radius) {
+            this.type = IShape_1.ShapeType.Circle;
             this.center = point;
             this.r = radius;
         }
@@ -177,24 +183,29 @@ define("Shape/Circle", ["require", "exports", "Util/Collision"], function (requi
     }
     exports.Circle = Circle;
 });
-define("Util/Collision", ["require", "exports", "Shape/Rectangle", "Shape/Circle"], function (require, exports, Rectangle_1, Circle_1) {
+define("Util/Collision", ["require", "exports", "Shape/IShape"], function (require, exports, IShape_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Collision {
         static intersects(shape1, shape2) {
-            if (shape1 instanceof Rectangle_1.Rectangle && shape2 instanceof Rectangle_1.Rectangle) {
-                return Collision.rectRectIntersect(shape1, shape2);
+            switch (shape1.type) {
+                case IShape_2.ShapeType.Rectangle:
+                    switch (shape2.type) {
+                        case IShape_2.ShapeType.Rectangle:
+                            return Collision.rectRectIntersect(shape1, shape2);
+                        case IShape_2.ShapeType.Circle:
+                            return Collision.rectCircleIntersect(shape1, shape2);
+                    }
+                    break;
+                case IShape_2.ShapeType.Circle:
+                    switch (shape2.type) {
+                        case IShape_2.ShapeType.Rectangle:
+                            return Collision.rectCircleIntersect(shape2, shape1);
+                        case IShape_2.ShapeType.Circle:
+                            return Collision.circleCircleIntersect(shape1, shape2);
+                    }
+                    break;
             }
-            else if (shape1 instanceof Circle_1.Circle && shape2 instanceof Rectangle_1.Rectangle) {
-                return Collision.rectCircleIntersect(shape2, shape1);
-            }
-            else if (shape1 instanceof Rectangle_1.Rectangle && shape2 instanceof Circle_1.Circle) {
-                return Collision.rectCircleIntersect(shape1, shape2);
-            }
-            else if (shape1 instanceof Circle_1.Circle && shape2 instanceof Circle_1.Circle) {
-                return Collision.circleCircleIntersect(shape1, shape2);
-            }
-            throw "Unknown";
         }
         static circleCircleIntersect(circle1, circle2) {
             if (circle1.x() + circle1.r + circle2.r > circle2.x()
@@ -312,12 +323,13 @@ define("Util/Logger", ["require", "exports"], function (require, exports) {
     Logger._messagesSkipped = 0;
     exports.Logger = Logger;
 });
-define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point", "Util/Collision"], function (require, exports, Polygon_1, Point_1, Collision_2) {
+define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point", "Shape/IShape", "Util/Collision"], function (require, exports, Polygon_1, Point_1, IShape_3, Collision_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Rectangle extends Polygon_1.Polygon {
         constructor(topleft, bottomright) {
             super();
+            this.type = IShape_3.ShapeType.Rectangle;
             this.points.set(Polygon_1.Position.TopLeft, topleft);
             this.points.set(Polygon_1.Position.BottomRight, bottomright);
         }
@@ -399,7 +411,7 @@ define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point",
     }
     exports.PointRectangle = PointRectangle;
 });
-define("Core/Region", ["require", "exports", "Shape/Rectangle", "Shape/Point"], function (require, exports, Rectangle_2, Point_2) {
+define("Core/Region", ["require", "exports", "Shape/Rectangle", "Shape/Point"], function (require, exports, Rectangle_1, Point_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Region {
@@ -416,7 +428,7 @@ define("Core/Region", ["require", "exports", "Shape/Rectangle", "Shape/Point"], 
                 var width = Math.min(this.area.width(), (x + 1) * len);
                 for (var y = 0; y < ny; y++) {
                     var height = Math.min(this.area.height(), (y + 1) * len);
-                    var rect = new Rectangle_2.Rectangle(new Point_2.Point(x * len, y * len, null), new Point_2.Point(width, height, null));
+                    var rect = new Rectangle_1.Rectangle(new Point_2.Point(x * len, y * len, null), new Point_2.Point(width, height, null));
                     var region = new this.regionType();
                     region.area = rect;
                     this.regions.set(rect, region);
@@ -544,12 +556,23 @@ define("Core/ElementContainer", ["require", "exports", "Core/Region"], function 
     }
     exports.ElementContainer = ElementContainer;
 });
+define("Core/ElementType", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ElementType;
+    (function (ElementType) {
+        ElementType[ElementType["Thing"] = 0] = "Thing";
+        ElementType[ElementType["StaticThing"] = 1] = "StaticThing";
+        ElementType[ElementType["Mouse"] = 2] = "Mouse";
+    })(ElementType = exports.ElementType || (exports.ElementType = {}));
+});
 define("Core/Element", ["require", "exports", "Core/Runtime"], function (require, exports, Runtime_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Element {
-        constructor(origin, area, zIndex) {
+        constructor(type, origin, area, zIndex) {
             this.collisions = new Array();
+            this.type = type;
             this.origin = origin;
             this.area = area;
             this.zIndex = zIndex;
@@ -576,24 +599,131 @@ define("Core/Element", ["require", "exports", "Core/Runtime"], function (require
             else if (this.origin.y() > Runtime_1.Runtime.screen.container.area.y2()) {
                 this.origin.move(null, Runtime_1.Runtime.screen.container.area.y2());
             }
-            Runtime_1.Runtime.screen.container.update(this, true);
         }
         update(step) {
-            if (this.area.changed) {
+        }
+        onPreRender() {
+            if (this.area.changed()) {
                 Runtime_1.Runtime.screen.container.update(this, true);
+                this.area.clearChanged();
             }
-            return;
         }
     }
     exports.Element = Element;
 });
-define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle", "Core/Runtime", "Core/Viewport"], function (require, exports, Element_1, Point_3, Circle_2, Runtime_2, Viewport_1) {
+define("Core/Vector", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class Mouse extends Element_1.Element {
-        constructor() {
+    class Vector {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        clone() {
+            return new Vector(this.x, this.y);
+        }
+        multiply(n) {
+            this.x = this.x * n;
+            this.y = this.y * n;
+            return this;
+        }
+    }
+    exports.Vector = Vector;
+});
+define("Util/Color", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Color {
+        static getRandomColor() {
+            var letters = "0123456789ABCDEF";
+            var color = "#";
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    }
+    exports.Color = Color;
+});
+define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Shape/Point", "Core/Vector", "Shape/Circle", "Core/Runtime", "Core/ElementType"], function (require, exports, Element_1, Rectangle_2, Point_3, Vector_1, Circle_1, Runtime_2, ElementType_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class StaticThing extends Element_1.Element {
+        constructor(color, rect) {
+            super(ElementType_1.ElementType.StaticThing, rect.topLeft(), rect, 4);
+            this.color = this._color = color;
+        }
+        canCollide(element) {
+            return element.type === ElementType_1.ElementType.Mouse;
+        }
+        onCollide(element, on) {
+            if (on && this.color === this._color) {
+                this.color = "gray";
+                Runtime_2.Runtime.screen.container.update(this, false);
+            }
+            else if (!on && this.color !== this._color && this.collisions.length === 0) {
+                this.color = this._color;
+                Runtime_2.Runtime.screen.container.update(this, false);
+            }
+        }
+        render(ctx) {
+            this.area.render(ctx, this.color);
+            var rect = this.area;
+        }
+    }
+    exports.StaticThing = StaticThing;
+    class Thing extends Element_1.Element {
+        constructor(color) {
             var origin = new Point_3.Point(0, 0, null);
-            super(origin, new Circle_2.Circle(origin, 10), 10);
+            var shape = false ?
+                new Rectangle_2.Rectangle(origin, new Point_3.Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
+                : new Circle_1.Circle(origin, Math.floor(Math.random() * 20));
+            super(ElementType_1.ElementType.Thing, origin, shape, 5);
+            this._color = color;
+            this.color = color;
+            this.direction = new Vector_1.Vector(0, 0);
+        }
+        canCollide(element) {
+            return element.type === ElementType_1.ElementType.Thing || element.type === ElementType_1.ElementType.Mouse;
+        }
+        update(step) {
+            if (Math.random() * 2 === 1) {
+                return;
+            }
+            var move = this.direction.clone().multiply(step);
+            this.inc(move.x, move.y);
+            if (this.origin.x() === 0 || this.origin.x() === Runtime_2.Runtime.screen.container.area.width()
+                || this.origin.y() === 0 || this.origin.y() === Runtime_2.Runtime.screen.container.area.height()) {
+                this.direction.multiply(-1);
+            }
+            super.update(step);
+        }
+        onCollide(element, on) {
+            if (this.color === this._color && this.collisions.length > 0) {
+                this.color = "red";
+                Runtime_2.Runtime.screen.container.update(this, false);
+            }
+            else if (this.color !== this._color && this.collisions.length === 0) {
+                this.color = this._color;
+                Runtime_2.Runtime.screen.container.update(this, false);
+            }
+            if (on && element.type === ElementType_1.ElementType.Thing) {
+                element.direction = new Vector_1.Vector(element.origin.x() - this.origin.x(), element.origin.y() - this.origin.y());
+            }
+        }
+        render(ctx) {
+            this.area.render(ctx, this.color);
+        }
+    }
+    exports.Thing = Thing;
+});
+define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle", "Core/Runtime", "Core/Viewport", "Core/ElementType"], function (require, exports, Element_2, Point_4, Circle_2, Runtime_3, Viewport_1, ElementType_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Mouse extends Element_2.Element {
+        constructor() {
+            var origin = new Point_4.Point(0, 0, null);
+            super(ElementType_2.ElementType.Mouse, origin, new Circle_2.Circle(origin, 10), 10);
             this.color = this._color = "white";
             this.moveX = null;
             this.moveY = null;
@@ -604,11 +734,11 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
         onCollide(element, on) {
             if (on && this._color === this.color) {
                 this.color = "red";
-                Runtime_2.Runtime.screen.container.update(this, false);
+                Runtime_3.Runtime.screen.container.update(this, false);
             }
             else if (!on && this._color !== this.color && this.collisions.length === 0) {
                 this.color = this._color;
-                Runtime_2.Runtime.screen.container.update(this, false);
+                Runtime_3.Runtime.screen.container.update(this, false);
             }
         }
         onMove(offsetX, offsetY) {
@@ -635,62 +765,67 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
     }
     exports.Mouse = Mouse;
 });
-define("Util/Color", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Color {
-        static getRandomColor() {
-            var letters = "0123456789ABCDEF";
-            var color = "#";
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-    }
-    exports.Color = Color;
-});
-define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Viewport_2, Array_1, Collision_3, Runtime_3) {
+define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Viewport_2, Array_1, Collision_3, Runtime_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
         onActivate() {
         }
-        update(step) {
-            for (var i = 0; i < this.container.elementsCache.length; i++) {
-                this.container.elementsCache[i].update(step);
-            }
+        update(dt) {
+            this.doUpdates(dt);
+            this.preRender();
             this.checkCollisions();
+        }
+        doUpdates(dt) {
+            for (var i = 0; i < this.container.elementsCache.length; i++) {
+                this.container.elementsCache[i].update(dt);
+            }
+        }
+        preRender() {
+            for (var i = 0; i < this.container.elementsCache.length; i++) {
+                this.container.elementsCache[i].onPreRender();
+            }
         }
         checkCollisions() {
             for (var i = 0; i < this.container.regionsCache.length; i++) {
                 var elements = this.container.regionsCache[i].elements;
                 for (var j = 0; j < elements.length - 1; j++) {
-                    var collisions = elements[j].collisions;
-                    for (var k = 0; k < collisions.length; k++) {
-                        if (!elements[j].canCollide(collisions[k])
-                            || !collisions[k].canCollide(elements[j])
-                            || !Collision_3.Collision.intersects(elements[j].area, collisions[k].area)) {
-                            var other = collisions[k];
-                            other.collisions.splice(Array_1.Array.indexOf(elements[j], other.collisions), 1);
-                            other.onCollide(elements[j], false);
-                            collisions.splice(k--, 1);
-                            elements[j].onCollide(other, false);
-                        }
-                    }
-                    for (var k = j + 1; k < elements.length; k++) {
-                        if (Array_1.Array.exists(elements[k], elements[j].collisions)) {
-                            continue;
-                        }
-                        if (elements[j].canCollide(elements[k])
-                            && elements[k].canCollide(elements[j])
-                            && Collision_3.Collision.intersects(elements[j].area, elements[k].area)) {
-                            elements[j].collisions.push(elements[k]);
-                            elements[k].collisions.push(elements[j]);
-                            elements[j].onCollide(elements[k], true);
-                            elements[k].onCollide(elements[j], true);
-                        }
-                    }
+                    this.checkExistingCollisions(elements[j]);
+                    this.checkForNewCollisions(elements[j], elements, j);
+                }
+            }
+        }
+        checkForNewCollisions(element, elements, startindex) {
+            for (var k = startindex + 1; k < elements.length; k++) {
+                if (!element.area.changed && !elements[k].area.changed) {
+                    continue;
+                }
+                if (Array_1.Array.exists(elements[k], element.collisions)) {
+                    continue;
+                }
+                if (element.canCollide(elements[k])
+                    && elements[k].canCollide(element)
+                    && Collision_3.Collision.intersects(element.area, elements[k].area)) {
+                    element.collisions.push(elements[k]);
+                    elements[k].collisions.push(element);
+                    element.onCollide(elements[k], true);
+                    elements[k].onCollide(element, true);
+                }
+            }
+        }
+        checkExistingCollisions(element) {
+            for (var k = 0; k < element.collisions.length; k++) {
+                if (!element.area.changed && !element.collisions[k].area.changed) {
+                    continue;
+                }
+                if (!element.canCollide(element.collisions[k])
+                    || !element.collisions[k].canCollide(element)
+                    || !Collision_3.Collision.intersects(element.area, element.collisions[k].area)) {
+                    var other = element.collisions[k];
+                    other.collisions.splice(Array_1.Array.indexOf(element, other.collisions), 1);
+                    other.onCollide(element, false);
+                    element.collisions.splice(k--, 1);
+                    element.onCollide(other, false);
                 }
             }
         }
@@ -699,123 +834,35 @@ define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/
                 if (!region.requiresRedraw) {
                     continue;
                 }
-                Runtime_3.Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
-                Runtime_3.Runtime.ctx.ctx.save();
-                Runtime_3.Runtime.ctx.ctx.beginPath();
-                Runtime_3.Runtime.ctx.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
-                Runtime_3.Runtime.ctx.ctx.clip();
+                Runtime_4.Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+                Runtime_4.Runtime.ctx.ctx.save();
+                Runtime_4.Runtime.ctx.ctx.beginPath();
+                Runtime_4.Runtime.ctx.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+                Runtime_4.Runtime.ctx.ctx.clip();
                 for (var i = 0; i < region.elements.length; i++) {
-                    region.elements[i].render(Runtime_3.Runtime.ctx.ctx);
+                    region.elements[i].render(Runtime_4.Runtime.ctx.ctx);
                 }
-                Runtime_3.Runtime.ctx.ctx.restore();
+                Runtime_4.Runtime.ctx.ctx.restore();
                 region.requiresRedraw = false;
             }
         }
     }
     exports.Screen = Screen;
 });
-define("Core/Vector", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Vector {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        clone() {
-            return new Vector(this.x, this.y);
-        }
-        multiply(n) {
-            this.x = this.x * n;
-            this.y = this.y * n;
-            return this;
-        }
-    }
-    exports.Vector = Vector;
-});
-define("UI/Thing", ["require", "exports", "IO/Mouse", "Core/Element", "Shape/Rectangle", "Shape/Point", "Core/Vector", "Shape/Circle", "Core/Runtime"], function (require, exports, Mouse_1, Element_2, Rectangle_3, Point_4, Vector_1, Circle_3, Runtime_4) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class StaticThing extends Element_2.Element {
-        constructor(color, rect) {
-            super(null, rect, 4);
-            this.color = this._color = color;
-        }
-        canCollide(element) {
-            return element instanceof Mouse_1.Mouse;
-        }
-        onCollide(element, on) {
-            if (on && this.color === this._color) {
-                this.color = "gray";
-                Runtime_4.Runtime.screen.container.update(this, false);
-            }
-            else if (!on && this.color !== this._color && this.collisions.length === 0) {
-                this.color = this._color;
-                Runtime_4.Runtime.screen.container.update(this, false);
-            }
-        }
-        render(ctx) {
-            this.area.render(ctx, this.color);
-            var rect = this.area;
-        }
-    }
-    exports.StaticThing = StaticThing;
-    class Thing extends Element_2.Element {
-        constructor(color) {
-            var origin = new Point_4.Point(0, 0, null);
-            var shape = Math.random() * 2 === 1 ?
-                new Rectangle_3.Rectangle(origin, new Point_4.Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
-                : new Circle_3.Circle(origin, Math.floor(Math.random() * 20));
-            super(origin, shape, 5);
-            this._color = color;
-            this.color = color;
-            this.direction = new Vector_1.Vector(0, 0);
-        }
-        canCollide(element) {
-            return element instanceof Thing || element instanceof Mouse_1.Mouse;
-        }
-        update(step) {
-            super.update(step);
-            if (Math.random() * 2 === 1) {
-                return;
-            }
-            var move = this.direction.clone().multiply(step);
-            this.inc(move.x, move.y);
-            if (this.origin.x() === 0 || this.origin.x() === Runtime_4.Runtime.screen.container.area.width()
-                || this.origin.y() === 0 || this.origin.y() === Runtime_4.Runtime.screen.container.area.height()) {
-                this.direction.multiply(-1);
-            }
-        }
-        onCollide(element, on) {
-            if (this.color === this._color && this.collisions.length > 0) {
-                this.color = "red";
-                Runtime_4.Runtime.screen.container.update(this, false);
-            }
-            else if (this.color !== this._color && this.collisions.length === 0) {
-                this.color = this._color;
-                Runtime_4.Runtime.screen.container.update(this, false);
-            }
-        }
-        render(ctx) {
-            this.area.render(ctx, this.color);
-        }
-    }
-    exports.Thing = Thing;
-});
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Core/Viewport", "Shape/Polygon", "Shape/Point", "UI/Thing", "IO/Mouse", "Util/Color", "Core/ElementContainer", "Core/Vector"], function (require, exports, Screen_1, Rectangle_4, Viewport_3, Polygon_2, Point_5, Thing_1, Mouse_2, Color_1, ElementContainer_1, Vector_2) {
+define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Core/Viewport", "Shape/Polygon", "Shape/Point", "UI/Thing", "IO/Mouse", "Util/Color", "Core/ElementContainer", "Core/Vector"], function (require, exports, Screen_1, Rectangle_3, Viewport_3, Polygon_2, Point_5, Thing_1, Mouse_1, Color_1, ElementContainer_1, Vector_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
         onActivate() {
-            this.container = new ElementContainer_1.ElementContainer(256, new Rectangle_4.Rectangle(new Point_5.Point(0, 0, null), new Point_5.Point(1024, 768, null)));
+            this.container = new ElementContainer_1.ElementContainer(256, new Rectangle_3.Rectangle(new Point_5.Point(0, 0, null), new Point_5.Point(1024, 768, null)));
             for (var i = 0; i < 600; i++) {
                 var thing = new Thing_1.Thing(Color_1.Color.getRandomColor());
                 thing.direction = new Vector_2.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
                 this.container.register(thing);
-                thing.move(Math.random() * Viewport_3.Viewport.area.width(), Math.random() * Viewport_3.Viewport.area.height());
+                thing.move(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
             }
-            this.container.register(new Thing_1.StaticThing("darkblue", new Rectangle_4.Rectangle(this.container.area.topLeft(), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center))));
-            this.mouse = new Mouse_2.Mouse();
+            this.container.register(new Thing_1.StaticThing("darkblue", new Rectangle_3.Rectangle(this.container.area.topLeft(), Viewport_3.Viewport.area.getPoint(Polygon_2.Position.Center))));
+            this.mouse = new Mouse_1.Mouse();
             this.container.register(this.mouse);
         }
     }
@@ -910,13 +957,13 @@ define("Core/Runtime", ["require", "exports", "Core/Viewport", "Core/ContextLaye
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });
-define("Core/Viewport", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_6, Runtime_7, Rectangle_5) {
+define("Core/Viewport", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_6, Runtime_7, Rectangle_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Viewport {
         static init() {
             var origin = new Point_6.Point(0, 0, null);
-            Viewport.area = new Rectangle_5.Rectangle(origin, new Point_6.Point(0, 0, origin));
+            Viewport.area = new Rectangle_4.Rectangle(origin, new Point_6.Point(0, 0, origin));
         }
         static move(offsetX, offsetY) {
             Viewport.area.topLeft().move(offsetX, offsetY);

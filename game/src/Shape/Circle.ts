@@ -1,4 +1,4 @@
-import { IShape } from "./IShape";
+import { IShape, ShapeType } from "./IShape";
 import { Rectangle } from "./Rectangle";
 import { Point } from "./Point";
 import { Collision } from "../Util/Collision";
@@ -11,6 +11,8 @@ export class Circle implements IShape {
 		this.center = point;
 		this.r = radius;
 	}
+
+	public type: ShapeType = ShapeType.Circle;
 
 	public changed(): boolean {
 		return this.center.changed;

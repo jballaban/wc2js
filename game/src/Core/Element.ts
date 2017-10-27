@@ -6,6 +6,7 @@ import { Region, RegionContainer } from "./Region";
 import { Rectangle } from "../Shape/Rectangle";
 import { Array as ArrayUtil } from "../Util/Array";
 import { ElementContainer } from "./ElementContainer";
+import { ElementType } from "./ElementType";
 
 export abstract class Element {
 
@@ -13,8 +14,10 @@ export abstract class Element {
 	public area: IShape;
 	public collisions: Element[] = new Array<Element>();
 	public zIndex: number;
+	public type: ElementType;
 
-	constructor(origin: Point, area: IShape, zIndex: number) {
+	constructor(type: ElementType, origin: Point, area: IShape, zIndex: number) {
+		this.type = type;
 		this.origin = origin;
 		this.area = area;
 		this.zIndex = zIndex;
@@ -43,14 +46,17 @@ export abstract class Element {
 		} else if (this.origin.y() > Runtime.screen.container.area.y2()) {
 			this.origin.move(null, Runtime.screen.container.area.y2());
 		}
-		Runtime.screen.container.update(this, true);
 	}
 
 	public update(step: number): void {
-		if (this.area.changed) {
+		// update overrides
+	}
+
+	public onPreRender(): void {
+		if (this.area.changed()) {
 			Runtime.screen.container.update(this, true);
+			this.area.clearChanged();
 		}
-		return;
 	}
 
 	public abstract render(ctx: CanvasRenderingContext2D): void;
