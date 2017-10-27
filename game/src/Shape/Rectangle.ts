@@ -11,6 +11,14 @@ export class Rectangle extends Polygon implements IShape {
 		this.points.set(Position.BottomRight, bottomright);
 	}
 
+	public changed(): boolean {
+		return this.topLeft().changed || this.bottomRight().changed;
+	}
+
+	public clearChanged(): void {
+		this.topLeft().changed = this.bottomRight().changed = false;
+	}
+
 	public x(): number {
 		return this.getPoint(Position.TopLeft).x();
 	}
@@ -20,11 +28,11 @@ export class Rectangle extends Polygon implements IShape {
 	}
 
 	public x2(): number {
-		return this.getPoint(Position.BottomRight).x()
+		return this.getPoint(Position.BottomRight).x();
 	}
 
 	public y2(): number {
-		return this.getPoint(Position.BottomRight).y()
+		return this.getPoint(Position.BottomRight).y();
 	}
 
 	public width(): number {

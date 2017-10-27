@@ -1,6 +1,5 @@
 
 export class Point {
-	// todo: points shouldn't recalculate children.  Only when position is accessed should it recalculate tree positioning
 	private _x: number = 0;
 	private _y: number = 0;
 	public offsetX: number = null;
@@ -8,6 +7,7 @@ export class Point {
 	public children: Point[] = new Array<Point>();
 	public parent: Point = null;
 	protected dirty: boolean = true;
+	public changed: boolean = true;
 
 	constructor(offsetX: number, offsetY: number, parent: Point) {
 		this.parent = parent;
@@ -35,6 +35,7 @@ export class Point {
 		if (x === this._x && y === this._y) { return; } // if nothing changed then we don't need to invalide dependent points
 		this._x = x;
 		this._y = y;
+		this.changed = true;
 		for (var child of this.children) { // tell children they may need to reposition themselves since we changed something
 			child.dirty = true;
 		}

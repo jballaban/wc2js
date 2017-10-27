@@ -8,18 +8,14 @@ export class MouseHandler {
 	public static locked: boolean = false;
 
 	public static init(): void {
-		document.addEventListener('mousemove', MouseHandler.mouseMove);
-		document.addEventListener('pointerlockchange', MouseHandler.lockChanged);
-		document.body.onclick = function () {
-			document.body.requestPointerLock();
-		}
+		document.addEventListener("mousemove", MouseHandler.mouseMove);
+		document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
+		document.body.onclick = document.body.requestPointerLock;
 	}
 
-	public static mouseMove(e): void {
+	public static mouseMove(e: any): void {
 		if (MouseHandler.locked) {
-			MouseHandler.x = Math.min(window.innerWidth, Math.max(0, MouseHandler.x + e.movementX));
-			MouseHandler.y = Math.min(window.innerHeight, Math.max(0, MouseHandler.y + e.movementY));
-			Runtime.screen.mouse.onMove(MouseHandler.x, MouseHandler.y);
+			Runtime.screen.mouse.onMove(e.movementX, e.movementY);
 		}
 	}
 

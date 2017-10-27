@@ -12,6 +12,14 @@ export class Circle implements IShape {
 		this.r = radius;
 	}
 
+	public changed(): boolean {
+		return this.center.changed;
+	}
+
+	public clearChanged(): void {
+		this.center.changed = false;
+	}
+
 	public x(): number {
 		return this.center.x();
 	}
