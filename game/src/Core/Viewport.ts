@@ -13,14 +13,11 @@ export class Viewport {
 		var origin = new Point(0, 0, null);
 		Viewport.area = new Rectangle(origin, new Point(0, 0, origin));
 		Viewport.resize();
-		window.onresize = Viewport.resize;
 	}
 
 	public static move(offsetX: number, offsetY: number) {
 		Viewport.area.topLeft().move(offsetX, offsetY);
 		Viewport.visibleElementRegions = Runtime.screen.elements.getRegions(Viewport.area);
-		console.log(Viewport.area.x() + "," + Viewport.area.y() + "-" + Viewport.area.x2() + "," + Viewport.area.y2());
-		console.log(Viewport.visibleElementRegions.length);
 	}
 
 	public static resize(): void {

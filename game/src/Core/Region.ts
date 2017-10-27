@@ -26,9 +26,6 @@ export class RegionContainer<T extends Region> {
 	}
 
 	public getRegions(area: IShape): Array<T> {
-		if (area == null) {
-			return Array.from(this.regions.values());
-		}
 		var result = new Array<T>();
 		for (var rect of this.regions.keys()) {
 			if (area.intersects(rect)) {

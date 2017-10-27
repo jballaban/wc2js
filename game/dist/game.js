@@ -410,9 +410,6 @@ define("Core/Region", ["require", "exports", "Shape/Rectangle", "Shape/Point"], 
             }
         }
         getRegions(area) {
-            if (area == null) {
-                return Array.from(this.regions.values());
-            }
             var result = new Array();
             for (var rect of this.regions.keys()) {
                 if (area.intersects(rect)) {
@@ -516,9 +513,11 @@ define("Core/Element", ["require", "exports", "Core/Region"], function (require,
                     }
                 }
                 for (var currentregion of currentregions) {
-                    currentregion.requiresRedraw = true;
                     if (oldregions.indexOf(currentregion) === -1) {
                         this.add(element, currentregion);
+                    }
+                    else {
+                        currentregion.requiresRedraw = true;
                     }
                 }
             }
@@ -871,13 +870,10 @@ define("Core/Viewport", ["require", "exports", "Shape/Point", "Core/Runtime", "S
             var origin = new Point_6.Point(0, 0, null);
             Viewport.area = new Rectangle_5.Rectangle(origin, new Point_6.Point(0, 0, origin));
             Viewport.resize();
-            window.onresize = Viewport.resize;
         }
         static move(offsetX, offsetY) {
             Viewport.area.topLeft().move(offsetX, offsetY);
             Viewport.visibleElementRegions = Runtime_4.Runtime.screen.elements.getRegions(Viewport.area);
-            console.log(Viewport.area.x() + "," + Viewport.area.y() + "-" + Viewport.area.x2() + "," + Viewport.area.y2());
-            console.log(Viewport.visibleElementRegions.length);
         }
         static resize() {
             Viewport.area.bottomRight().move(window.innerWidth, window.innerHeight);

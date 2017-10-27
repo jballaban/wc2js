@@ -96,9 +96,10 @@ export class ElementContainer {
 				}
 			}
 			for (var currentregion of currentregions) {
-				currentregion.requiresRedraw = true;
 				if (oldregions.indexOf(currentregion) === -1) {
 					this.add(element, currentregion);
+				} else {
+					currentregion.requiresRedraw = true;
 				}
 			}
 		} else {
