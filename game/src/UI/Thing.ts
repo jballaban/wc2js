@@ -8,36 +8,32 @@ import { Vector } from "../Core/Vector";
 import { IShape } from "../Shape/IShape";
 import { Circle } from "../Shape/Circle";
 import { Logger } from "../Util/Logger";
+import { Color } from "../Util/Color";
 
 export class StaticThing extends Element {
 	private _color: string;
 	private color: string;
-	constructor(layer: ContextLayer, color: string, rect: Rectangle) {
-		super(null, rect, layer);
-		this._color = color;
+	constructor(color: string, rect: Rectangle) {
+		super(null, rect);
+		this.color = this._color = color;
 	}
 
 	public canCollide(element: Element): boolean {
 		return element instanceof Mouse;
 	}
 
-	public update(step: number): void {
-		super.update(step);
-		if (this.color === this._color && this.collisions.length > 0) {
+	public onCollide(element: Element, on: boolean): void {
+		if (on && this.color === this._color) {
 			this.color = "black";
-			this.requiresRedraw = true;
-		} else if (this.color !== this._color && this.collisions.length === 0) {
+			this.container.update(this, false);
+		} else if (!on && this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
-			this.requiresRedraw = true;
+			this.container.update(this, false);
 		}
 	}
 
-	public render(): boolean {
-		if (!super.render()) {
-			return false;
-		}
-		this.area.render(this.layer.ctx, this.color);
-		return true;
+	public render(ctx: CanvasRenderingContext2D): void {
+		this.area.render(ctx, this.color);
 	}
 }
 
@@ -46,12 +42,12 @@ export class Thing extends Element {
 	private color: string;
 	public direction: Vector;
 
-	constructor(layer: ContextLayer, color: string) {
+	constructor(color: string) {
 		var origin: Point = new Point(0, 0, null);
 		var shape: IShape = Math.floor(Math.random() * 2) === 0 ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
 			: new Circle(origin, Math.floor(Math.random() * 20));
-		super(origin, shape, layer);
+		super(origin, shape);
 		this._color = color;
 		this.color = color;
 		this.direction = new Vector(0, 0);
@@ -78,20 +74,19 @@ export class Thing extends Element {
 		if (this.origin.y() < 0) {
 			this.move(null, Viewport.area.y2());
 		}
+	}
+
+	public onCollide(element: Element, on: boolean): void {
 		if (this.color === this._color && this.collisions.length > 0) {
 			this.color = "red";
-			this.requiresRedraw = true;
+			this.container.update(this, false);
 		} else if (this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
-			this.requiresRedraw = true;
+			this.container.update(this, false);
 		}
 	}
 
-	public render(): boolean {
-		if (!super.render()) {
-			return false;
-		}
-		this.area.render(this.layer.ctx, this.color);
-		return true;
+	public render(ctx: CanvasRenderingContext2D): void {
+		this.area.render(ctx, this.color);
 	}
 }

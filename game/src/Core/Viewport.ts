@@ -3,10 +3,11 @@ import { Logger } from "../Util/Logger";
 import { Runtime } from "../Core/Runtime";
 import { Rectangle } from "../Shape/Rectangle";
 import { ContextLayer } from "../Core/ContextLayer";
+import { ElementRegion } from "./Element";
 
 export class Viewport {
 	public static area: Rectangle;
-	public static layers: Map<string, ContextLayer> = new Map<string, ContextLayer>();
+	public static visibleElementRegions: ElementRegion[];
 
 	public static init(): void {
 		var origin = new Point(0, 0, null);
@@ -15,17 +16,14 @@ export class Viewport {
 		window.onresize = Viewport.resize;
 	}
 
-	public static reset(): void {
-		for (var layer of Viewport.layers.values()) {
-			layer.destroy();
-		}
-		Viewport.layers = new Map<string, ContextLayer>();
+	public static move(offsetX: number, offsetY: number) {
+		Viewport.area.topLeft().move(offsetX, offsetY);
+		Viewport.visibleElementRegions = Runtime.screen.elements.getRegions(Viewport.area);
+		console.log(Viewport.area.x() + "," + Viewport.area.y() + "-" + Viewport.area.x2() + "," + Viewport.area.y2());
+		console.log(Viewport.visibleElementRegions.length);
 	}
 
 	public static resize(): void {
-		for (var layer of Viewport.layers.values()) {
-			layer.resize();
-		}
 		Viewport.area.bottomRight().move(window.innerWidth, window.innerHeight);
 	}
 

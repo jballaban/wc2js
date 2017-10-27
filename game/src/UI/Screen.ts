@@ -6,20 +6,26 @@ import { Element, ElementRegion, ElementContainer } from "../Core/Element";
 import { Mouse } from "../IO/Mouse";
 import { Array as ArrayUtil } from "../Util/Array";
 import { Collision } from "../Util/Collision";
+import { ContextLayer } from "../Core/ContextLayer";
+import { Runtime } from "../Core/Runtime";
+import { Color } from "../Util/Color";
 
 export abstract class Screen {
-	protected elements: ElementContainer;
+	public elements: ElementContainer;
 	public mouse: Mouse;
+
+	public onActivate(): void { }
 
 	public update(step: number): void {
 		// do updates
 		for (var i = 0; i < this.elements.elementsCache.length; i++) {
 			this.elements.elementsCache[i].update(step);
 		}
-		// verify existing collisions are accurate
+		// look for new collisions
 		for (var i = 0; i < this.elements.regionsCache.length; i++) {
 			var elements = this.elements.regionsCache[i].elements;
-			for (var j = 0; j < elements.length; j++) {
+			for (var j = 0; j < elements.length - 1; j++) {
+				// verify existing collisions still valid
 				var collisions = elements[j].collisions;
 				for (var k = 0; k < collisions.length; k++) {
 					if (
@@ -27,16 +33,13 @@ export abstract class Screen {
 						|| !collisions[k].canCollide(elements[j])
 						|| !Collision.intersects(elements[j].area, collisions[k].area)
 					) {
-						collisions[k].collisions.splice(ArrayUtil.indexOf<Element>(elements[j], collisions[k].collisions), 1);
+						var other = collisions[k];
+						other.collisions.splice(ArrayUtil.indexOf<Element>(elements[j], other.collisions), 1);
+						other.onCollide(elements[j], false);
 						collisions.splice(k--, 1);
+						elements[j].onCollide(other, false);
 					}
 				}
-			}
-		}
-		// look for new collisions
-		for (var i = 0; i < this.elements.regionsCache.length; i++) {
-			var elements = this.elements.regionsCache[i].elements;
-			for (var j = 0; j < elements.length - 1; j++) {
 				for (var k = j + 1; k < elements.length; k++) {
 					if (ArrayUtil.exists<Element>(elements[k], elements[j].collisions)) {
 						continue; // skip if we've already collided
@@ -48,6 +51,8 @@ export abstract class Screen {
 					) {
 						elements[j].collisions.push(elements[k]);
 						elements[k].collisions.push(elements[j]);
+						elements[j].onCollide(elements[k], true);
+						elements[k].onCollide(elements[j], true);
 					}
 				}
 			}
@@ -55,16 +60,18 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		for (var layer of Viewport.layers.values()) {
-			layer.renderStart();
-		}
-		for (var region of this.elements.regionsCache) {
+		for (var region of Viewport.visibleElementRegions) {
+			if (!region.requiresRedraw) { continue; }
+			Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+			Runtime.ctx.ctx.save();
+			// Clip a rectangular area
+			Runtime.ctx.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+			Runtime.ctx.ctx.clip();
 			for (var el of region.elements) {
-				el.render();
+				el.render(Runtime.ctx.ctx);
 			}
-		}
-		for (var layer of Viewport.layers.values()) {
-			layer.renderComplete();
+			Runtime.ctx.ctx.restore();
+			region.requiresRedraw = false;
 		}
 	}
 

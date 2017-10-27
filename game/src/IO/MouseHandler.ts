@@ -19,7 +19,7 @@ export class MouseHandler {
 		if (MouseHandler.locked) {
 			MouseHandler.x = Math.min(window.innerWidth, Math.max(0, MouseHandler.x + e.movementX));
 			MouseHandler.y = Math.min(window.innerHeight, Math.max(0, MouseHandler.y + e.movementY));
-			Runtime.screen.mouse.move(MouseHandler.x, MouseHandler.y);
+			Runtime.screen.mouse.onMove(MouseHandler.x, MouseHandler.y);
 		}
 	}
 

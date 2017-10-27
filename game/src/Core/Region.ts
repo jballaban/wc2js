@@ -2,10 +2,8 @@ import { Rectangle } from "../Shape/Rectangle";
 import { Point } from "../Shape/Point";
 import { IShape } from "../Shape/IShape";
 
-export abstract class Region { }
-
-export class BooleanRegion extends Region {
-	public value: boolean = false;
+export abstract class Region {
+	public area: Rectangle;
 }
 
 export class RegionContainer<T extends Region> {
@@ -19,10 +17,10 @@ export class RegionContainer<T extends Region> {
 			var width = Math.min(this.area.width(), (x + 1) * len);
 			for (var y = 0; y < ny; y++) {
 				var height = Math.min(this.area.height(), (y + 1) * len);
-				this.regions.set(
-					new Rectangle(new Point(x * len, y * len, null), new Point(width, height, null)),
-					new this.regionType()
-				);
+				var rect = new Rectangle(new Point(x * len, y * len, null), new Point(width, height, null));
+				var region = new this.regionType();
+				region.area = rect;
+				this.regions.set(rect, region);
 			}
 		}
 	}

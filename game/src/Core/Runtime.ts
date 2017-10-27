@@ -10,17 +10,35 @@ export class Runtime {
 	private static dt: number = 0;
 	private static last: number;
 	private static step: number = 1 / 60;
-	public static screen: Screen;
+	private static _screen: Screen;
 	private static fps: FPSMeter;
+	public static ctx: ContextLayer;
 
 	public static init(): void {
+		Runtime.ctx = new ContextLayer(1);
 		Viewport.init();
+		window.onresize = Runtime.onWindowResize;
 		Runtime.fps = new FPSMeter(null, {
 			decimals: 0,
 			graph: 1,
 			left: "5px"
 		});
 		MouseHandler.init();
+	}
+
+	public static onWindowResize(): void {
+		Viewport.resize();
+		Runtime.ctx.resize();
+	}
+
+	public static get screen(): Screen {
+		return Runtime._screen;
+	}
+
+	public static set screen(screen: Screen) {
+		Runtime._screen = screen;
+		screen.onActivate();
+		Viewport.move(0, 0);
 	}
 
 	public static start(startscreen: Screen): void {

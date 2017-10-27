@@ -10,18 +10,17 @@ export abstract class Element {
 
 	public origin: Point;
 	public area: IShape;
-	public layer: ContextLayer;
 	public container: ElementContainer;
 	public collisions: Element[] = new Array<Element>();
-	protected requiresRedraw: boolean = true;
 
-	constructor(origin: Point, area: IShape, layer: ContextLayer) {
+	constructor(origin: Point, area: IShape) {
 		this.origin = origin;
 		this.area = area;
-		this.layer = layer;
 	}
 
 	public abstract canCollide(element: Element): boolean;
+
+	public onCollide(element: Element, on: boolean): void { }
 
 	public inc(offsetx: number, offsety: number): void {
 		this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
@@ -29,22 +28,15 @@ export abstract class Element {
 
 	public move(offsetX: number, offsetY: number): void {
 		if (offsetX == this.origin.offsetX && offsetY == this.origin.offsetY) { return; }
-		this.requiresRedraw = true;
-		this.layer.markForRedraw(this.area);
 		this.origin.move(offsetX, offsetY);
-		this.container.update(this);
-		this.layer.markForRedraw(this.area);
+		this.container.update(this, true);
 	}
 
 	public update(step: number): void {
 		return;
 	}
 
-	public render(): boolean {
-		var result: boolean = this.requiresRedraw || this.layer.shouldRedraw(this.area);
-		this.requiresRedraw = false;
-		return result;
-	}
+	public abstract render(ctx: CanvasRenderingContext2D): void;
 }
 
 export class ElementRegion extends Region {
@@ -57,18 +49,20 @@ export class ElementContainer {
 	private regions: RegionContainer<ElementRegion>;
 	public elements: Map<Element, ElementRegion[]> = new Map<Element, ElementRegion[]>();
 	public regionsCache: ElementRegion[];
+	public areasCache: Rectangle[];
 	public elementsCache: Element[];
 
 	public constructor(regionsize: number, area: Rectangle) {
 		this.regions = new RegionContainer(regionsize, area, ElementRegion);
 		this.regionsCache = Array.from(this.regions.regions.values());
+		this.areasCache = Array.from(this.regions.regions.keys());
 		this.elementsCache = new Array<Element>();
 	}
 
 	public register(element: Element): void {
 		this.elements.set(element, new Array<ElementRegion>());
 		element.container = this;
-		this.update(element);
+		this.update(element, true);
 		this.elementsCache.push(element);
 	}
 
@@ -76,6 +70,7 @@ export class ElementContainer {
 		for (var region of this.elements.get(element)) {
 			this.remove(element, region);
 		}
+		this.elementsCache.splice(this.elementsCache.indexOf(element), 1);
 		this.elements.delete(element);
 	}
 
@@ -91,31 +86,34 @@ export class ElementContainer {
 		region.requiresRedraw = true;
 	}
 
-	public update(element: Element) {
-		var oldregions = this.elements.get(element);
+	public update(element: Element, position: boolean) {
 		var currentregions = this.regions.getRegions(element.area);
-		for (var oldregion of oldregions) {
-			if (currentregions.indexOf(oldregion) === -1) {
-				this.remove(element, oldregion);
+		if (position) {
+			var oldregions = this.elements.get(element);
+			for (var oldregion of oldregions) {
+				if (currentregions.indexOf(oldregion) === -1) {
+					this.remove(element, oldregion);
+				}
 			}
-		}
-		for (var currentregion of currentregions) {
-			if (oldregions.indexOf(currentregion) === -1) {
-				this.add(element, currentregion);
+			for (var currentregion of currentregions) {
+				currentregion.requiresRedraw = true;
+				if (oldregions.indexOf(currentregion) === -1) {
+					this.add(element, currentregion);
+				}
 			}
-		}
-	}
-
-	public renderComplete(): void {
-		for (var region of this.regions.getRegions(null)) {
-			region.requiresRedraw = false;
+		} else {
+			for (var i = 0; i < currentregions.length; i++) {
+				currentregions[i].requiresRedraw = true;
+			}
 		}
 	}
 
 	public getRegions(area: IShape): ElementRegion[] {
 		var result = [];
-		for (var region of this.regions.regions.keys()) {
-			result.push.apply(result, region);
+		for (var i = 0; i < this.areasCache.length; i++) {
+			if (area.intersects(this.areasCache[i])) {
+				result.push(this.regions.regions.get(this.areasCache[i]));
+			}
 		}
 		return result;
 	}
