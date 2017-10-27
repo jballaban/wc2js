@@ -854,8 +854,8 @@ define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
         onActivate() {
-            this.container = new ElementContainer_1.ElementContainer(256, new Rectangle_3.Rectangle(new Point_5.Point(0, 0, null), new Point_5.Point(1024, 768, null)));
-            for (var i = 0; i < 600; i++) {
+            this.container = new ElementContainer_1.ElementContainer(256 * 2, new Rectangle_3.Rectangle(new Point_5.Point(0, 0, null), new Point_5.Point(1024 * 2, 768 * 2, null)));
+            for (var i = 0; i < 800; i++) {
                 var thing = new Thing_1.Thing(Color_1.Color.getRandomColor());
                 thing.direction = new Vector_2.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
                 this.container.register(thing);
