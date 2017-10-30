@@ -24,7 +24,7 @@ export class Mouse extends Element {
 		this.color = this._color = "white";
 		this.moveX = null;
 		this.moveY = null;
-		this.light = new Light(new Circle(origin, 200), 360, "rgba(255,255,255,0.1)");
+		this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,0.1)");
 	}
 
 	public canCollide(element: Element): boolean {

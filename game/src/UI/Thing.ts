@@ -46,7 +46,7 @@ export class Thing extends Element {
 
 	constructor(color: string) {
 		var origin: Point = new Point(0, 0, null);
-		var shape: IShape = true ?
+		var shape: IShape = false ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
 			: new Circle(origin, Math.floor(Math.random() * 20));
 		super(ElementType.Thing, origin, shape, 5);

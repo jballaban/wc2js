@@ -1,6 +1,8 @@
 import { IShape, ShapeType } from "../Shape/IShape";
 import { Rectangle } from "../Shape/Rectangle";
 import { Circle } from "../Shape/Circle";
+import { Point } from "../Shape/Point";
+import { Line } from "../Shape/Line";
 
 export class Collision {
 
@@ -22,6 +24,118 @@ export class Collision {
 						return Collision.circleCircleIntersect(shape1 as Circle, shape2 as Circle);
 				}
 				break;
+		}
+	}
+
+	public static getIntersectionLineAtX(line: Line, x: number): Point {
+		throw "Untested";
+		/* 	// y = mx + b
+			return new Point(x,
+				(
+					(line.p2.y() - line.p1.y())
+					/
+					(line.p2.x() - line.p1.x())
+				)
+				* (x - line.p1.x())
+				+ line.p1.y()
+				, null);
+				*/
+	}
+
+	public static getIntersectionLineAtY(line: Line, y: number): Point {
+		throw "Untested";
+		/* 	// x = (y-b)/m
+			return new Point(
+				(
+					y - line.p1.y()
+				)
+				/
+				(
+					(line.p2.y() - line.p1.y())
+					/
+					(line.p2.x() - line.p1.x())
+				)
+				+ line.p1.x()
+				, y, null); */
+	}
+
+	public static getIntersectionLineLine(line1: Line, line2: Line): Point {
+		throw "Untested";
+		/* if (
+			((line1.p1.x() - line1.p2.x()) * (line2.p1.y() - line2.p2.y()))
+			-
+			((line1.p1.y() - line1.p2.y()) * (line2.p1.x() - line2.p2.x()))
+			=== 0) {
+			return null;
+		}
+		return new Point(
+			(
+				(
+					(line1.p1.x() * line1.p2.y() - line1.p1.y() * line1.p2.x()) * (line2.p1.x() - line2.p2.x())
+				)
+				- (
+					(line1.p1.x() - line1.p2.x()) * (line2.p1.x() * line2.p2.y() - line2.p1.y() * line2.p2.x())
+				)
+			)
+			/ (
+				(
+					(line1.p1.x() - line1.p2.x()) * (line2.p1.y() - line2.p2.y()))
+				- (
+					(line1.p1.y() - line1.p2.y()) * (line2.p1.x() - line2.p2.x())
+				)
+			),
+			(
+				(
+					(line1.p1.x() * line1.p2.y() - line1.p1.y() * line1.p2.x()) * (line2.p1.y() - line2.p2.y())
+				)
+				- (
+					(line1.p1.y() - line1.p2.y()) * (line2.p1.x() * line2.p2.y() - line2.p1.y() * line2.p2.x())
+				)
+			)
+			/ (
+				(
+					(line1.p1.x() - line1.p2.x()) * (line2.p1.y() - line2.p2.y()))
+				- (
+					(line1.p1.y() - line1.p2.y()) * (line2.p1.x() - line2.p2.x())
+				)
+			), null); */
+	}
+
+	public static getDistance(p1: Point, p2: Point): number {
+		return Math.abs(Math.sqrt(Math.pow(p2.x() - p1.x(), 2) + Math.pow(p2.y() - p1.y(), 2)));
+	}
+
+	public static getIntersectionLineCircle(line: Line, circle: Circle): Point {
+		// https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+		var d: Point = new Point(
+			(line.p2.x() - line.p1.x()) / this.getDistance(line.p1, line.p2),
+			(line.p2.y() - line.p1.y()) / this.getDistance(line.p1, line.p2),
+			null
+		);
+		var t: number = d.x() * (circle.center.x() - line.p1.x()) + d.y() * (circle.center.y() - line.p1.y());
+		var e: Point = new Point(
+			t * d.x() + line.p1.x(),
+			t * d.y() + line.p1.y(),
+			null
+		);
+		var dist: number = Math.sqrt(Math.pow(e.x() - circle.x(), 2) + Math.pow(e.y() - circle.y(), 2));
+		if (dist < circle.r) {
+			var dt: number = Math.sqrt(Math.pow(circle.r, 2) - dist);
+			var f: Point = new Point(
+				(t - dt) * d.x() + line.p1.x(),
+				(t - dt) * d.y() + line.p1.y(),
+				null
+			);
+			var g: Point = new Point(
+				(t + dt) * d.x() + line.p1.x(),
+				(t + dt) * d.y() + line.p1.y(),
+				null
+			);
+			return g;
+		} else if (dist === circle.r) {
+			return e;
+		} else {
+			return null;
 		}
 	}
 

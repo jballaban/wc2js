@@ -6,43 +6,41 @@ import { Rectangle } from "../Shape/Rectangle";
 import { Vector } from "../Core/Vector";
 import { ShapeType } from "../Shape/IShape";
 import { Logger } from "../Util/Logger";
+import { Collision } from "../Util/Collision";
+import { Line } from "../Shape/Line";
 
 export class Light {
-	private angle: number;
-	private paths: Vector[];
-	private addTo: number;
+	private paths: Point[];
 
 	constructor(private area: Circle, private spread: number, private color: string) {
-		this.angle = Math.random() * 180;
-		this.addTo = 1 / this.area.r;
 	}
 
-	public update() {
-		this.paths = new Array<Vector>();
-		for (var curAngle = this.angle - (this.spread / 2); curAngle < this.angle + (this.spread / 2); curAngle += (this.addTo * (180 / Math.PI)) * 2) {
-			var ray: Distance = new Distance(this.area, this.area.r);
-			for (var i = 0; i < Runtime.screen.mouse.collisions.length; i++) {
-				if (Runtime.screen.mouse.collisions[i].area.type === ShapeType.Rectangle) {
-					ray.calcDistance(Runtime.screen.mouse.collisions[i].area as Rectangle, curAngle);
+	public update(): void {
+		this.paths = new Array<Point>();
+		var ray: Line = new Line(this.area.center, new Point(0, 0, this.area.center));
+		for (var angle: number = 0; angle < 360; angle++) {
+			var p: Point = new Point(this.spread * Math.cos(Math.PI * angle / 180.0), this.spread * Math.sin(Math.PI * angle / 180.0), ray.p1);
+			for (var i: number = 0; i < Runtime.screen.mouse.collisions.length; i++) {
+				if (Runtime.screen.mouse.collisions[i].area.type === ShapeType.Circle) {
+					var point: Point = Collision.getIntersectionLineCircle(
+						new Line(ray.p1, p),
+						Runtime.screen.mouse.collisions[i].area as Circle
+					);
+					if (point != null) {
+						p = point;
+					}
 				}
 			}
-
-			var rads = curAngle * (Math.PI / 180),
-				end = new Vector(this.area.x(), this.area.y());
-
-			end.x += Math.cos(rads) * ray.rLen;
-			end.y += Math.sin(rads) * ray.rLen;
-			this.paths.push(this.area.center.vector);
-			this.paths.push(end);
+			this.paths.push(p);
 		}
 	}
 
-	public draw(ctx) {
+	public draw(ctx: CanvasRenderingContext2D): void {
 		ctx.strokeStyle = this.color;
-		for (var i = 0; i < this.paths.length; i += 2) {
+		for (var i: number = 0; i < this.paths.length; i++) {
 			ctx.beginPath();
-			ctx.moveTo(this.paths[i].x, this.paths[i].y);
-			ctx.lineTo(this.paths[i + 1].x, this.paths[i + 1].y);
+			ctx.moveTo(this.area.center.x(), this.area.center.y());
+			ctx.lineTo(this.paths[i].x(), this.paths[i].y());
 			ctx.closePath();
 			// ctx.clip();
 			ctx.stroke();

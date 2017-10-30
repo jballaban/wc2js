@@ -12,14 +12,17 @@ export class Distance {
 		this.rLen = length;
 	}
 
-	public calcDistance(area: Rectangle, angle: number) {
-		var y = (area.y() + area.height() / 2) - this.source.y(),
-			x = (area.x() + area.width() / 2) - this.source.x(),
-			dist = Math.sqrt((y * y) + (x * x));
+
+
+
+	public calcDistance(area: Rectangle, angle: number): void {
+		var y: number = (area.y() + area.height() / 2) - this.source.y(),
+			x: number = (area.x() + area.width() / 2) - this.source.x(),
+			dist: number = Math.sqrt((y * y) + (x * x));
 
 		if (this.source.r >= dist) {
-			var rads = angle * (Math.PI / 180),
-				pointPos = new Vector(this.source.x(), this.source.y());
+			var rads: number = angle * (Math.PI / 180),
+				pointPos: Vector = new Vector(this.source.x(), this.source.y());
 
 			pointPos.x += Math.cos(rads) * dist;
 			pointPos.y += Math.sin(rads) * dist;
