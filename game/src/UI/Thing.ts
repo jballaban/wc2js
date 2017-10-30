@@ -36,7 +36,6 @@ export class StaticThing extends Element {
 
 	public render(ctx: CanvasRenderingContext2D): void {
 		this.area.render(ctx, this.color);
-		var rect: Rectangle = this.area as Rectangle;
 	}
 }
 
@@ -47,7 +46,7 @@ export class Thing extends Element {
 
 	constructor(color: string) {
 		var origin: Point = new Point(0, 0, null);
-		var shape: IShape = false ?
+		var shape: IShape = true ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
 			: new Circle(origin, Math.floor(Math.random() * 20));
 		super(ElementType.Thing, origin, shape, 5);

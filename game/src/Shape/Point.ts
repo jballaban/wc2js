@@ -1,7 +1,8 @@
+import { Vector } from "../Core/Vector";
+
 
 export class Point {
-	private _x: number = 0;
-	private _y: number = 0;
+	public vector: Vector;
 	public offsetX: number = null;
 	public offsetY: number = null;
 	public children: Point[] = new Array<Point>();
@@ -10,6 +11,7 @@ export class Point {
 	public changed: boolean = true;
 
 	constructor(offsetX: number, offsetY: number, parent: Point) {
+		this.vector = new Vector(0, 0);
 		this.parent = parent;
 		if (this.parent != null) {
 			this.parent.children.push(this); // self register
@@ -19,12 +21,12 @@ export class Point {
 
 	public x(): number {
 		this.recalculate();
-		return this._x;
+		return this.vector.x;
 	}
 
 	public y(): number {
 		this.recalculate();
-		return this._y;
+		return this.vector.y;
 	}
 
 	public recalculate(): void {
@@ -32,9 +34,9 @@ export class Point {
 		this.dirty = false;
 		var x: number = this.calculate("x");
 		var y: number = this.calculate("y");
-		if (x === this._x && y === this._y) { return; } // if nothing changed then we don't need to invalide dependent points
-		this._x = x;
-		this._y = y;
+		if (x === this.vector.x && y === this.vector.y) { return; } // if nothing changed then we don't need to invalide dependent points
+		this.vector.x = x;
+		this.vector.y = y;
 		this.changed = true;
 		for (var child of this.children) { // tell children they may need to reposition themselves since we changed something
 			child.dirty = true;

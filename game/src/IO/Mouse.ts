@@ -9,19 +9,22 @@ import { Runtime } from "../Core/Runtime";
 import { Viewport } from "../Core/Viewport";
 import { ElementType } from "../Core/ElementType";
 import { Vector } from "../Core/Vector";
+import { Light } from "../UI/Light";
 
 export class Mouse extends Element {
 	private _color: string;
 	private color: string;
 	private moveX: number;
 	private moveY: number;
+	private light: Light;
 
 	public constructor() {
 		var origin: Point = new Point(0, 0, null);
-		super(ElementType.Mouse, origin, new Circle(origin, 10), 10);
+		super(ElementType.Mouse, origin, new Circle(origin, 200), 10);
 		this.color = this._color = "white";
 		this.moveX = null;
 		this.moveY = null;
+		this.light = new Light(new Circle(origin, 200), 360, "rgba(255,255,255,0.1)");
 	}
 
 	public canCollide(element: Element): boolean {
@@ -56,10 +59,12 @@ export class Mouse extends Element {
 			this.moveX = 0;
 			this.moveY = 0;
 		}
+		this.light.update();
 	}
 
 	public render(ctx: CanvasRenderingContext2D): void {
-		this.area.render(ctx, this.color);
+		//	this.area.render(ctx, this.color);
+		this.light.draw(ctx);
 	}
 
 }
