@@ -17,7 +17,7 @@ export class LoadingScreen extends Screen {
 	public onActivate(): void {
 		this.container = new ElementContainer(256 * 2, new Rectangle(new Point(0, 0, null), new Point(1024 * 2, 768 * 2, null)));
 
-		for (var i: number = 0; i < 100; i++) {
+		for (var i: number = 0; i < 20; i++) {
 			var thing: Thing = new Thing(Color.getRandomColor());
 			thing.direction = new Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
 			this.container.register(thing);

@@ -212,104 +212,6 @@ define("Shape/Line", ["require", "exports"], function (require, exports) {
     }
     exports.Line = Line;
 });
-define("Util/Collision", ["require", "exports", "Shape/IShape", "Shape/Point"], function (require, exports, IShape_2, Point_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Collision {
-        static intersects(shape1, shape2) {
-            switch (shape1.type) {
-                case IShape_2.ShapeType.Rectangle:
-                    switch (shape2.type) {
-                        case IShape_2.ShapeType.Rectangle:
-                            return Collision.rectRectIntersect(shape1, shape2);
-                        case IShape_2.ShapeType.Circle:
-                            return Collision.rectCircleIntersect(shape1, shape2);
-                    }
-                    break;
-                case IShape_2.ShapeType.Circle:
-                    switch (shape2.type) {
-                        case IShape_2.ShapeType.Rectangle:
-                            return Collision.rectCircleIntersect(shape2, shape1);
-                        case IShape_2.ShapeType.Circle:
-                            return Collision.circleCircleIntersect(shape1, shape2);
-                    }
-                    break;
-            }
-        }
-        static getIntersectionLineAtX(line, x) {
-            throw "Untested";
-        }
-        static getIntersectionLineAtY(line, y) {
-            throw "Untested";
-        }
-        static getIntersectionLineLine(line1, line2) {
-            throw "Untested";
-        }
-        static getDistance(p1, p2) {
-            return Math.abs(Math.sqrt(Math.pow(p2.x() - p1.x(), 2) + Math.pow(p2.y() - p1.y(), 2)));
-        }
-        static getIntersectionLineCircle(line, circle) {
-            var d = new Point_1.Point((line.p2.x() - line.p1.x()) / this.getDistance(line.p1, line.p2), (line.p2.y() - line.p1.y()) / this.getDistance(line.p1, line.p2), null);
-            var t = d.x() * (circle.center.x() - line.p1.x()) + d.y() * (circle.center.y() - line.p1.y());
-            var e = new Point_1.Point(t * d.x() + line.p1.x(), t * d.y() + line.p1.y(), null);
-            var dist = Math.sqrt(Math.pow(e.x() - circle.x(), 2) + Math.pow(e.y() - circle.y(), 2));
-            if (dist < circle.r) {
-                var dt = Math.sqrt(Math.pow(circle.r, 2) - dist);
-                var f = new Point_1.Point((t - dt) * d.x() + line.p1.x(), (t - dt) * d.y() + line.p1.y(), null);
-                var g = new Point_1.Point((t + dt) * d.x() + line.p1.x(), (t + dt) * d.y() + line.p1.y(), null);
-                return g;
-            }
-            else if (dist === circle.r) {
-                return e;
-            }
-            else {
-                return null;
-            }
-        }
-        static circleCircleIntersect(circle1, circle2) {
-            if (circle1.x() + circle1.r + circle2.r > circle2.x()
-                && circle1.x() < circle2.x() + circle1.r + circle2.r
-                && circle1.y() + circle1.r + circle2.r > circle2.y()
-                && circle1.y() < circle2.y() + circle1.r + circle2.r) {
-                var distance = Math.sqrt((circle1.x() - circle2.x()) * (circle1.x() - circle2.x())
-                    + (circle1.y() - circle2.y()) * (circle1.y() - circle2.y()));
-                if (distance < circle1.r + circle2.r) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        static rectCircleIntersect(rect, circle) {
-            var distX = Math.abs(circle.x() - rect.x() - rect.width() / 2);
-            var distY = Math.abs(circle.y() - rect.y() - rect.height() / 2);
-            if (distX > (rect.width() / 2 + circle.r)) {
-                return false;
-            }
-            if (distY > (rect.height() / 2 + circle.r)) {
-                return false;
-            }
-            if (distX <= (rect.width() / 2)) {
-                return true;
-            }
-            if (distY <= (rect.height() / 2)) {
-                return true;
-            }
-            var dx = distX - rect.width() / 2;
-            var dy = distY - rect.height() / 2;
-            return (dx * dx + dy * dy <= (circle.r * circle.r));
-        }
-        static rectRectIntersect(rect1, rect2) {
-            if (rect2.x() > rect1.x2() || rect2.x2() < rect1.x()) {
-                return false;
-            }
-            if (rect2.y() > rect1.y2() || rect2.y2() < rect1.y()) {
-                return false;
-            }
-            return true;
-        }
-    }
-    exports.Collision = Collision;
-});
 define("Util/Logger", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -381,6 +283,106 @@ define("Util/Logger", ["require", "exports"], function (require, exports) {
     Logger._messagesSent = 0;
     Logger._messagesSkipped = 0;
     exports.Logger = Logger;
+});
+define("Util/Collision", ["require", "exports", "Shape/IShape", "Shape/Point"], function (require, exports, IShape_2, Point_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Collision {
+        static intersects(shape1, shape2) {
+            switch (shape1.type) {
+                case IShape_2.ShapeType.Rectangle:
+                    switch (shape2.type) {
+                        case IShape_2.ShapeType.Rectangle:
+                            return Collision.rectRectIntersect(shape1, shape2);
+                        case IShape_2.ShapeType.Circle:
+                            return Collision.rectCircleIntersect(shape1, shape2);
+                    }
+                    break;
+                case IShape_2.ShapeType.Circle:
+                    switch (shape2.type) {
+                        case IShape_2.ShapeType.Rectangle:
+                            return Collision.rectCircleIntersect(shape2, shape1);
+                        case IShape_2.ShapeType.Circle:
+                            return Collision.circleCircleIntersect(shape1, shape2);
+                    }
+                    break;
+            }
+        }
+        static getIntersectionLineAtX(line, x) {
+            throw "Untested";
+        }
+        static getIntersectionLineAtY(line, y) {
+            throw "Untested";
+        }
+        static getIntersectionLineLine(line1, line2) {
+            throw "Untested";
+        }
+        static getDistance(p1, p2) {
+            return Math.sqrt(Math.pow(p2.x() - p1.x(), 2) + Math.pow(p2.y() - p1.y(), 2));
+        }
+        static getIntersectionLineCircle(line, circle) {
+            var len = this.getDistance(line.p1, line.p2);
+            var d = new Point_1.Point((line.p2.x() - line.p1.x()) / len, (line.p2.y() - line.p1.y()) / len, null);
+            var t = d.x() * (circle.center.x() - line.p1.x()) + d.y() * (circle.center.y() - line.p1.y());
+            var e = new Point_1.Point(t * d.x() + line.p1.x(), t * d.y() + line.p1.y(), null);
+            var dist = Math.sqrt(Math.pow(e.x() - circle.x(), 2) + Math.pow(e.y() - circle.y(), 2));
+            if (dist < circle.r) {
+                var dt = Math.sqrt(Math.pow(circle.r, 2) - Math.pow(dist, 2));
+                if (t - dt >= 0 && t - dt <= len) {
+                    return new Point_1.Point((t - dt) * d.x() + line.p1.x(), (t - dt) * d.y() + line.p1.y(), null);
+                }
+                else if (t + dt >= 0 && t - dt <= len) {
+                    return new Point_1.Point((t + dt) * d.x() + line.p1.x(), (t + dt) * d.y() + line.p1.y(), null);
+                }
+            }
+            else if (dist === circle.r) {
+                return e;
+            }
+            return null;
+        }
+        static circleCircleIntersect(circle1, circle2) {
+            if (circle1.x() + circle1.r + circle2.r > circle2.x()
+                && circle1.x() < circle2.x() + circle1.r + circle2.r
+                && circle1.y() + circle1.r + circle2.r > circle2.y()
+                && circle1.y() < circle2.y() + circle1.r + circle2.r) {
+                var distance = Math.sqrt((circle1.x() - circle2.x()) * (circle1.x() - circle2.x())
+                    + (circle1.y() - circle2.y()) * (circle1.y() - circle2.y()));
+                if (distance < circle1.r + circle2.r) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        static rectCircleIntersect(rect, circle) {
+            var distX = Math.abs(circle.x() - rect.x() - rect.width() / 2);
+            var distY = Math.abs(circle.y() - rect.y() - rect.height() / 2);
+            if (distX > (rect.width() / 2 + circle.r)) {
+                return false;
+            }
+            if (distY > (rect.height() / 2 + circle.r)) {
+                return false;
+            }
+            if (distX <= (rect.width() / 2)) {
+                return true;
+            }
+            if (distY <= (rect.height() / 2)) {
+                return true;
+            }
+            var dx = distX - rect.width() / 2;
+            var dy = distY - rect.height() / 2;
+            return (dx * dx + dy * dy <= (circle.r * circle.r));
+        }
+        static rectRectIntersect(rect1, rect2) {
+            if (rect2.x() > rect1.x2() || rect2.x2() < rect1.x()) {
+                return false;
+            }
+            if (rect2.y() > rect1.y2() || rect2.y2() < rect1.y()) {
+                return false;
+            }
+            return true;
+        }
+    }
+    exports.Collision = Collision;
 });
 define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point", "Shape/IShape", "Util/Collision"], function (require, exports, Polygon_1, Point_2, IShape_3, Collision_2) {
     "use strict";
@@ -808,6 +810,7 @@ define("UI/Light", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/
                 }
                 this.paths.push(p);
             }
+            Runtime_3.Runtime.screen.container.update(Runtime_3.Runtime.screen.mouse, false);
         }
         draw(ctx) {
             ctx.strokeStyle = this.color;
@@ -832,7 +835,7 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
             this.color = this._color = "white";
             this.moveX = null;
             this.moveY = null;
-            this.light = new Light_1.Light(new Circle_2.Circle(origin, 200), 200, "rgba(255,255,255,0.1)");
+            this.light = new Light_1.Light(new Circle_2.Circle(origin, 200), 200, "rgba(255,255,255,1)");
         }
         canCollide(element) {
             return true;
@@ -962,7 +965,7 @@ define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/
     class LoadingScreen extends Screen_1.Screen {
         onActivate() {
             this.container = new ElementContainer_1.ElementContainer(256 * 2, new Rectangle_3.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(1024 * 2, 768 * 2, null)));
-            for (var i = 0; i < 100; i++) {
+            for (var i = 0; i < 20; i++) {
                 var thing = new Thing_1.Thing(Color_1.Color.getRandomColor());
                 thing.direction = new Vector_4.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
                 this.container.register(thing);

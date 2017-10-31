@@ -3,6 +3,7 @@ import { Rectangle } from "../Shape/Rectangle";
 import { Circle } from "../Shape/Circle";
 import { Point } from "../Shape/Point";
 import { Line } from "../Shape/Line";
+import { Logger } from "./Logger";
 
 export class Collision {
 
@@ -102,14 +103,15 @@ export class Collision {
 	}
 
 	public static getDistance(p1: Point, p2: Point): number {
-		return Math.abs(Math.sqrt(Math.pow(p2.x() - p1.x(), 2) + Math.pow(p2.y() - p1.y(), 2)));
+		return Math.sqrt(Math.pow(p2.x() - p1.x(), 2) + Math.pow(p2.y() - p1.y(), 2));
 	}
 
 	public static getIntersectionLineCircle(line: Line, circle: Circle): Point {
 		// https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
+		var len = this.getDistance(line.p1, line.p2);
 		var d: Point = new Point(
-			(line.p2.x() - line.p1.x()) / this.getDistance(line.p1, line.p2),
-			(line.p2.y() - line.p1.y()) / this.getDistance(line.p1, line.p2),
+			(line.p2.x() - line.p1.x()) / len,
+			(line.p2.y() - line.p1.y()) / len,
 			null
 		);
 		var t: number = d.x() * (circle.center.x() - line.p1.x()) + d.y() * (circle.center.y() - line.p1.y());
@@ -120,23 +122,24 @@ export class Collision {
 		);
 		var dist: number = Math.sqrt(Math.pow(e.x() - circle.x(), 2) + Math.pow(e.y() - circle.y(), 2));
 		if (dist < circle.r) {
-			var dt: number = Math.sqrt(Math.pow(circle.r, 2) - dist);
-			var f: Point = new Point(
-				(t - dt) * d.x() + line.p1.x(),
-				(t - dt) * d.y() + line.p1.y(),
-				null
-			);
-			var g: Point = new Point(
-				(t + dt) * d.x() + line.p1.x(),
-				(t + dt) * d.y() + line.p1.y(),
-				null
-			);
-			return g;
+			var dt: number = Math.sqrt(Math.pow(circle.r, 2) - Math.pow(dist, 2));
+			if (t - dt >= 0 && t - dt <= len) {
+				return new Point(
+					(t - dt) * d.x() + line.p1.x(),
+					(t - dt) * d.y() + line.p1.y(),
+					null
+				);
+			} else if (t + dt >= 0 && t - dt <= len) {
+				return new Point(
+					(t + dt) * d.x() + line.p1.x(),
+					(t + dt) * d.y() + line.p1.y(),
+					null
+				);
+			}
 		} else if (dist === circle.r) {
 			return e;
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	private static circleCircleIntersect(circle1: Circle, circle2: Circle): boolean {

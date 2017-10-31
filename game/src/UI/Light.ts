@@ -33,6 +33,7 @@ export class Light {
 			}
 			this.paths.push(p);
 		}
+		Runtime.screen.container.update(Runtime.screen.mouse, false);
 	}
 
 	public draw(ctx: CanvasRenderingContext2D): void {
