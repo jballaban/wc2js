@@ -6,24 +6,24 @@ import { ContextLayer } from "../Core/ContextLayer";
 import { ElementRegion } from "./ElementContainer";
 
 export class Camera {
-	public static area: Rectangle;
-	public static visibleElementRegions: ElementRegion[];
+	public area: Rectangle;
+	public visibleElementRegions: ElementRegion[];
 
-	public static init(): void {
+	public constructor() {
 		var origin: Point = new Point(0, 0, null);
-		Camera.area = new Rectangle(origin, new Point(0, 0, origin));
+		this.area = new Rectangle(origin, new Point(0, 0, origin));
 	}
 
-	public static move(offsetX: number, offsetY: number): void {
-		Camera.area.topLeft().move(offsetX, offsetY);
-		Camera.resize();
+	public move(offsetX: number, offsetY: number): void {
+		this.area.topLeft().move(offsetX, offsetY);
+		this.resize();
 	}
 
-	public static resize(): void {
-		Camera.area.bottomRight().move(window.innerWidth, window.innerHeight);
-		Camera.visibleElementRegions = Runtime.screen.container.getRegions(Camera.area);
-		for (var i: number = 0; i < Camera.visibleElementRegions.length; i++) {
-			Camera.visibleElementRegions[i].requiresRedraw = true;
+	public resize(): void {
+		this.area.bottomRight().move(window.innerWidth, window.innerHeight);
+		this.visibleElementRegions = Runtime.screen.container.getRegions(this.area);
+		for (var i: number = 0; i < this.visibleElementRegions.length; i++) {
+			this.visibleElementRegions[i].requiresRedraw = true;
 		}
 	}
 

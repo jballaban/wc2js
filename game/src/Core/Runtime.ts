@@ -4,6 +4,7 @@ import { Screen } from "../UI/Screen";
 import { Camera } from "./Camera";
 import { ContextLayer } from "./ContextLayer";
 import { MouseHandler } from "../IO/MouseHandler";
+import { EventHandler } from "./EventHandler";
 
 export class Runtime {
 
@@ -16,7 +17,6 @@ export class Runtime {
 
 	public static init(): void {
 		Runtime.ctx = new ContextLayer(1);
-		Camera.init();
 		window.onresize = Runtime.onWindowResize;
 		Runtime.fps = new FPSMeter(null, {
 			decimals: 0,
@@ -27,7 +27,7 @@ export class Runtime {
 	}
 
 	public static onWindowResize(): void {
-		Camera.resize();
+		Runtime.screen.onResize();
 		Runtime.ctx.resize();
 	}
 
@@ -38,7 +38,6 @@ export class Runtime {
 	public static set screen(screen: Screen) {
 		Runtime._screen = screen;
 		screen.onActivate();
-		Camera.move(0, 0);
 	}
 
 	public static start(startscreen: Screen): void {

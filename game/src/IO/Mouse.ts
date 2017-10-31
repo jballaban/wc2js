@@ -40,11 +40,11 @@ export class Mouse extends Element {
 		super.update(step);
 		if (this.moveX !== 0 || this.moveY !== 0) {
 			this.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
-			if (this.origin.x() > Camera.area.width()) {
-				this.move(Camera.area.width(), null);
+			if (this.origin.x() > Runtime.screen.camera.area.width()) {
+				this.move(Runtime.screen.camera.area.width(), null);
 			}
-			if (this.origin.y() > Camera.area.height()) {
-				this.move(null, Camera.area.height());
+			if (this.origin.y() > Runtime.screen.camera.area.height()) {
+				this.move(null, Runtime.screen.camera.area.height());
 			}
 			this.moveX = 0;
 			this.moveY = 0;

@@ -10,7 +10,7 @@ export class Point {
 	protected dirty: boolean = true;
 	public changed: boolean = true;
 
-	constructor(offsetX: number, offsetY: number, parent: Point) {
+	constructor(offsetX: number, offsetY: number, parent?: Point) {
 		this.vector = new Vector(0, 0);
 		this.parent = parent;
 		if (this.parent != null) {

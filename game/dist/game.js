@@ -820,7 +820,7 @@ define("UI/Light", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/
     }
     exports.Light = Light;
 });
-define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle", "Core/Camera", "Core/ElementType"], function (require, exports, Element_2, Point_6, Circle_2, Camera_1, ElementType_2) {
+define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle", "Core/Runtime", "Core/ElementType"], function (require, exports, Element_2, Point_6, Circle_2, Runtime_4, ElementType_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Mouse extends Element_2.Element {
@@ -842,11 +842,11 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
             super.update(step);
             if (this.moveX !== 0 || this.moveY !== 0) {
                 this.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
-                if (this.origin.x() > Camera_1.Camera.area.width()) {
-                    this.move(Camera_1.Camera.area.width(), null);
+                if (this.origin.x() > Runtime_4.Runtime.screen.camera.area.width()) {
+                    this.move(Runtime_4.Runtime.screen.camera.area.width(), null);
                 }
-                if (this.origin.y() > Camera_1.Camera.area.height()) {
-                    this.move(null, Camera_1.Camera.area.height());
+                if (this.origin.y() > Runtime_4.Runtime.screen.camera.area.height()) {
+                    this.move(null, Runtime_4.Runtime.screen.camera.area.height());
                 }
                 this.moveX = 0;
                 this.moveY = 0;
@@ -858,11 +858,18 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
     }
     exports.Mouse = Mouse;
 });
-define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Camera_2, Array_1, Collision_4, Runtime_4) {
+define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Camera_1, Array_1, Collision_4, Runtime_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
+        constructor() {
+            this.camera = new Camera_1.Camera();
+        }
         onActivate() {
+            this.camera.move(0, 0);
+        }
+        onResize() {
+            this.camera.resize();
         }
         update(dt) {
             this.doUpdates(dt);
@@ -923,19 +930,19 @@ define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Co
             }
         }
         render() {
-            for (var region of Camera_2.Camera.visibleElementRegions) {
+            for (var region of Runtime_5.Runtime.screen.camera.visibleElementRegions) {
                 if (!region.requiresRedraw) {
                     continue;
                 }
-                Runtime_4.Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
-                Runtime_4.Runtime.ctx.ctx.save();
-                Runtime_4.Runtime.ctx.ctx.beginPath();
-                Runtime_4.Runtime.ctx.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
-                Runtime_4.Runtime.ctx.ctx.clip();
+                Runtime_5.Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+                Runtime_5.Runtime.ctx.ctx.save();
+                Runtime_5.Runtime.ctx.ctx.beginPath();
+                Runtime_5.Runtime.ctx.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+                Runtime_5.Runtime.ctx.ctx.clip();
                 for (var i = 0; i < region.elements.length; i++) {
-                    region.elements[i].render(Runtime_4.Runtime.ctx.ctx);
+                    region.elements[i].render(Runtime_5.Runtime.ctx.ctx);
                 }
-                Runtime_4.Runtime.ctx.ctx.restore();
+                Runtime_5.Runtime.ctx.ctx.restore();
                 region.requiresRedraw = false;
             }
         }
@@ -956,11 +963,12 @@ define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/
             }
             this.mouse = new Mouse_1.Mouse();
             this.container.register(this.mouse);
+            super.onActivate();
         }
     }
     exports.LoadingScreen = LoadingScreen;
 });
-define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loading/LoadingScreen"], function (require, exports, Runtime_5, logger_1, LoadingScreen_1) {
+define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loading/LoadingScreen"], function (require, exports, Runtime_6, logger_1, LoadingScreen_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Game {
@@ -968,14 +976,14 @@ define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loadi
             logger_1.Logger.level = logger_1.Level.Debug;
             logger_1.Logger.log("Game: Version " + ver);
             logger_1.Logger.log("Game: Log " + logger_1.Level[logger_1.Logger.level]);
-            Runtime_5.Runtime.init();
+            Runtime_6.Runtime.init();
             var startscreen = new LoadingScreen_1.LoadingScreen();
-            Runtime_5.Runtime.start(startscreen);
+            Runtime_6.Runtime.start(startscreen);
         }
     }
     exports.Game = Game;
 });
-define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (require, exports, Runtime_6) {
+define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (require, exports, Runtime_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class MouseHandler {
@@ -986,7 +994,7 @@ define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (requ
         }
         static mouseMove(e) {
             if (MouseHandler.locked) {
-                Runtime_6.Runtime.screen.mouse.onMove(e.movementX, e.movementY);
+                Runtime_7.Runtime.screen.mouse.onMove(e.movementX, e.movementY);
             }
         }
         static lockChanged() {
@@ -998,13 +1006,31 @@ define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (requ
     MouseHandler.locked = false;
     exports.MouseHandler = MouseHandler;
 });
-define("Core/Runtime", ["require", "exports", "Core/Camera", "Core/ContextLayer", "IO/MouseHandler"], function (require, exports, Camera_3, ContextLayer_1, MouseHandler_1) {
+define("Core/EventHandler", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class EventHandler {
+        constructor() {
+            this._mappings = new Map();
+        }
+        fire(name) {
+            var values = this._mappings.get(name);
+            if (values == null) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                values[i]();
+            }
+        }
+    }
+    exports.EventHandler = EventHandler;
+});
+define("Core/Runtime", ["require", "exports", "Core/ContextLayer", "IO/MouseHandler"], function (require, exports, ContextLayer_1, MouseHandler_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Runtime {
         static init() {
             Runtime.ctx = new ContextLayer_1.ContextLayer(1);
-            Camera_3.Camera.init();
             window.onresize = Runtime.onWindowResize;
             Runtime.fps = new FPSMeter(null, {
                 decimals: 0,
@@ -1014,7 +1040,7 @@ define("Core/Runtime", ["require", "exports", "Core/Camera", "Core/ContextLayer"
             MouseHandler_1.MouseHandler.init();
         }
         static onWindowResize() {
-            Camera_3.Camera.resize();
+            Runtime.screen.onResize();
             Runtime.ctx.resize();
         }
         static get screen() {
@@ -1023,7 +1049,6 @@ define("Core/Runtime", ["require", "exports", "Core/Camera", "Core/ContextLayer"
         static set screen(screen) {
             Runtime._screen = screen;
             screen.onActivate();
-            Camera_3.Camera.move(0, 0);
         }
         static start(startscreen) {
             Runtime.screen = startscreen;
@@ -1049,23 +1074,23 @@ define("Core/Runtime", ["require", "exports", "Core/Camera", "Core/ContextLayer"
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });
-define("Core/Camera", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_8, Runtime_7, Rectangle_4) {
+define("Core/Camera", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_8, Runtime_8, Rectangle_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Camera {
-        static init() {
+        constructor() {
             var origin = new Point_8.Point(0, 0, null);
-            Camera.area = new Rectangle_4.Rectangle(origin, new Point_8.Point(0, 0, origin));
+            this.area = new Rectangle_4.Rectangle(origin, new Point_8.Point(0, 0, origin));
         }
-        static move(offsetX, offsetY) {
-            Camera.area.topLeft().move(offsetX, offsetY);
-            Camera.resize();
+        move(offsetX, offsetY) {
+            this.area.topLeft().move(offsetX, offsetY);
+            this.resize();
         }
-        static resize() {
-            Camera.area.bottomRight().move(window.innerWidth, window.innerHeight);
-            Camera.visibleElementRegions = Runtime_7.Runtime.screen.container.getRegions(Camera.area);
-            for (var i = 0; i < Camera.visibleElementRegions.length; i++) {
-                Camera.visibleElementRegions[i].requiresRedraw = true;
+        resize() {
+            this.area.bottomRight().move(window.innerWidth, window.innerHeight);
+            this.visibleElementRegions = Runtime_8.Runtime.screen.container.getRegions(this.area);
+            for (var i = 0; i < this.visibleElementRegions.length; i++) {
+                this.visibleElementRegions[i].requiresRedraw = true;
             }
         }
     }

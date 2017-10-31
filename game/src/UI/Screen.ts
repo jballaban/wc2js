@@ -14,9 +14,18 @@ import { ElementContainer } from "../Core/ElementContainer";
 export abstract class Screen {
 	public container: ElementContainer;
 	public mouse: Mouse;
+	public camera: Camera;
+
+	constructor() {
+		this.camera = new Camera();
+	}
 
 	public onActivate(): void {
-		// to implement
+		this.camera.move(0, 0);
+	}
+
+	public onResize() {
+		this.camera.resize();
 	}
 
 	public update(dt: number): void {
@@ -92,7 +101,7 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		for (var region of Camera.visibleElementRegions) {
+		for (var region of Runtime.screen.camera.visibleElementRegions) {
 			if (!region.requiresRedraw) { continue; }
 			Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			Runtime.ctx.ctx.save();

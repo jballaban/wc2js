@@ -15,6 +15,7 @@ import { Vector } from "../../Core/Vector";
 export class LoadingScreen extends Screen {
 
 	public onActivate(): void {
+
 		this.container = new ElementContainer(256 * 2, new Rectangle(new Point(0, 0, null), new Point(1024 * 2, 768 * 2, null)));
 
 		for (var i: number = 0; i < 20; i++) {
@@ -32,6 +33,7 @@ export class LoadingScreen extends Screen {
 			)); */
 		this.mouse = new Mouse();
 		this.container.register(this.mouse);
+		super.onActivate();
 	}
 
 }
