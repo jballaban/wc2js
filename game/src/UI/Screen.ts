@@ -1,5 +1,5 @@
 import { Rectangle } from "../Shape/Rectangle";
-import { Viewport } from "../Core/Viewport";
+import { Camera } from "../Core/Camera";
 import { Logger } from "../Util/Logger";
 import { RegionContainer } from "../Core/Region";
 import { Element } from "../Core/Element";
@@ -92,7 +92,7 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		for (var region of Viewport.visibleElementRegions) {
+		for (var region of Camera.visibleElementRegions) {
 			if (!region.requiresRedraw) { continue; }
 			Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			Runtime.ctx.ctx.save();

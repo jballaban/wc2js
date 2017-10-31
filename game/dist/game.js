@@ -133,6 +133,78 @@ define("Shape/Point", ["require", "exports", "Core/Vector"], function (require, 
     }
     exports.MidPoint = MidPoint;
 });
+define("Util/Logger", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class BrowserConsole {
+        debug(str) {
+            console.log("[DEBUG] " + str);
+        }
+        log(str) {
+            console.log(str);
+        }
+        error(str) {
+            console.error(str);
+        }
+    }
+    exports.BrowserConsole = BrowserConsole;
+    var Level;
+    (function (Level) {
+        Level[Level["Debug"] = 0] = "Debug";
+        Level[Level["Log"] = 1] = "Log";
+        Level[Level["Error"] = 2] = "Error";
+    })(Level = exports.Level || (exports.Level = {}));
+    class Logger {
+        static debug(str) {
+            this.write(this.output.debug, str, Level.Debug);
+        }
+        static log(str) {
+            this.write(this.output.log, str, Level.Log);
+        }
+        static error(str) {
+            this.write(this.output.error, str, Level.Error);
+        }
+        static write(fn, str, lvl) {
+            if (this.shouldWrite(str, lvl)) {
+                if (this.elapsed() >= 1) {
+                    if (this._messagesSkipped > 0) {
+                        this.output.debug("Skipped " + this._messagesSkipped + " messages");
+                    }
+                    this._messagesSent = 1;
+                    this._messagesSkipped = 0;
+                    this._messagesStart = new Date();
+                }
+                else {
+                    this._messagesSent++;
+                }
+                fn(str);
+            }
+        }
+        static elapsed() {
+            return (new Date().getTime() - this._messagesStart.getTime()) / 1000;
+        }
+        static shouldWrite(str, lvl) {
+            var result = (this.output != null
+                && (this.filter === "" || str.indexOf(this.filter) > -1)
+                && lvl >= this.level);
+            if (result && this.elapsed() <= 1) {
+                result = lvl === Level.Error || this._messagesSent < this.messagesPerSecond;
+                if (!result) {
+                    this._messagesSkipped++;
+                }
+            }
+            return result;
+        }
+    }
+    Logger.output = new BrowserConsole();
+    Logger.filter = "";
+    Logger.level = Level.Log;
+    Logger.messagesPerSecond = 5;
+    Logger._messagesStart = new Date();
+    Logger._messagesSent = 0;
+    Logger._messagesSkipped = 0;
+    exports.Logger = Logger;
+});
 define("Shape/Polygon", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -211,78 +283,6 @@ define("Shape/Line", ["require", "exports"], function (require, exports) {
         }
     }
     exports.Line = Line;
-});
-define("Util/Logger", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class BrowserConsole {
-        debug(str) {
-            console.log("[DEBUG] " + str);
-        }
-        log(str) {
-            console.log(str);
-        }
-        error(str) {
-            console.error(str);
-        }
-    }
-    exports.BrowserConsole = BrowserConsole;
-    var Level;
-    (function (Level) {
-        Level[Level["Debug"] = 0] = "Debug";
-        Level[Level["Log"] = 1] = "Log";
-        Level[Level["Error"] = 2] = "Error";
-    })(Level = exports.Level || (exports.Level = {}));
-    class Logger {
-        static debug(str) {
-            this.write(this.output.debug, str, Level.Debug);
-        }
-        static log(str) {
-            this.write(this.output.log, str, Level.Log);
-        }
-        static error(str) {
-            this.write(this.output.error, str, Level.Error);
-        }
-        static write(fn, str, lvl) {
-            if (this.shouldWrite(str, lvl)) {
-                if (this.elapsed() >= 1) {
-                    if (this._messagesSkipped > 0) {
-                        this.output.debug("Skipped " + this._messagesSkipped + " messages");
-                    }
-                    this._messagesSent = 1;
-                    this._messagesSkipped = 0;
-                    this._messagesStart = new Date();
-                }
-                else {
-                    this._messagesSent++;
-                }
-                fn(str);
-            }
-        }
-        static elapsed() {
-            return (new Date().getTime() - this._messagesStart.getTime()) / 1000;
-        }
-        static shouldWrite(str, lvl) {
-            var result = (this.output != null
-                && (this.filter === "" || str.indexOf(this.filter) > -1)
-                && lvl >= this.level);
-            if (result && this.elapsed() <= 1) {
-                result = lvl === Level.Error || this._messagesSent < this.messagesPerSecond;
-                if (!result) {
-                    this._messagesSkipped++;
-                }
-            }
-            return result;
-        }
-    }
-    Logger.output = new BrowserConsole();
-    Logger.filter = "";
-    Logger.level = Level.Log;
-    Logger.messagesPerSecond = 5;
-    Logger._messagesStart = new Date();
-    Logger._messagesSent = 0;
-    Logger._messagesSkipped = 0;
-    exports.Logger = Logger;
 });
 define("Util/Collision", ["require", "exports", "Shape/IShape", "Shape/Point"], function (require, exports, IShape_2, Point_1) {
     "use strict";
@@ -508,6 +508,42 @@ define("Core/Region", ["require", "exports", "Shape/Rectangle", "Shape/Point"], 
     }
     exports.RegionContainer = RegionContainer;
 });
+define("Util/Color", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Color {
+        static getRandomColor() {
+            var letters = "0123456789ABCDEF";
+            var color = "#";
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    }
+    exports.Color = Color;
+});
+define("Core/ContextLayer", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class ContextLayer {
+        constructor(zindex) {
+            var canv = document.createElement("canvas");
+            canv.style.setProperty("z-index", zindex.toString());
+            document.body.appendChild(canv);
+            this.ctx = canv.getContext("2d");
+            this.resize();
+        }
+        destroy() {
+            document.body.removeChild(this.ctx.canvas);
+        }
+        resize() {
+            this.ctx.canvas.width = window.innerWidth;
+            this.ctx.canvas.height = window.innerHeight;
+        }
+    }
+    exports.ContextLayer = ContextLayer;
+});
 define("Util/Array", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -672,21 +708,6 @@ define("Core/Element", ["require", "exports", "Core/Runtime"], function (require
     }
     exports.Element = Element;
 });
-define("Util/Color", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Color {
-        static getRandomColor() {
-            var letters = "0123456789ABCDEF";
-            var color = "#";
-            for (var i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-    }
-    exports.Color = Color;
-});
 define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Shape/Point", "Core/Vector", "Shape/Circle", "Core/Runtime", "Core/ElementType"], function (require, exports, Element_1, Rectangle_2, Point_4, Vector_2, Circle_1, Runtime_2, ElementType_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -758,34 +779,6 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
     }
     exports.Thing = Thing;
 });
-define("Util/Distance", ["require", "exports", "Core/Vector"], function (require, exports, Vector_3) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Distance {
-        constructor(source, length) {
-            this.source = source;
-            this.start = true;
-            this.shortest = 0;
-            this.rLen = length;
-        }
-        calcDistance(area, angle) {
-            var y = (area.y() + area.height() / 2) - this.source.y(), x = (area.x() + area.width() / 2) - this.source.x(), dist = Math.sqrt((y * y) + (x * x));
-            if (this.source.r >= dist) {
-                var rads = angle * (Math.PI / 180), pointPos = new Vector_3.Vector(this.source.x(), this.source.y());
-                pointPos.x += Math.cos(rads) * dist;
-                pointPos.y += Math.sin(rads) * dist;
-                if (pointPos.x > area.x() && pointPos.x < area.x() + area.width() && pointPos.y > area.y() && pointPos.y < area.y() + area.height()) {
-                    if (this.start || dist < this.shortest) {
-                        this.start = false;
-                        this.shortest = dist;
-                        this.rLen = dist;
-                    }
-                }
-            }
-        }
-    }
-    exports.Distance = Distance;
-});
 define("UI/Light", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/IShape", "Util/Collision", "Shape/Line"], function (require, exports, Point_5, Runtime_3, IShape_4, Collision_3, Line_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -827,7 +820,7 @@ define("UI/Light", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/
     }
     exports.Light = Light;
 });
-define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle", "Core/Viewport", "Core/ElementType"], function (require, exports, Element_2, Point_6, Circle_2, Viewport_1, ElementType_2) {
+define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/Circle", "Core/Camera", "Core/ElementType"], function (require, exports, Element_2, Point_6, Circle_2, Camera_1, ElementType_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Mouse extends Element_2.Element {
@@ -849,11 +842,11 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
             super.update(step);
             if (this.moveX !== 0 || this.moveY !== 0) {
                 this.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
-                if (this.origin.x() > Viewport_1.Viewport.area.width()) {
-                    this.move(Viewport_1.Viewport.area.width(), null);
+                if (this.origin.x() > Camera_1.Camera.area.width()) {
+                    this.move(Camera_1.Camera.area.width(), null);
                 }
-                if (this.origin.y() > Viewport_1.Viewport.area.height()) {
-                    this.move(null, Viewport_1.Viewport.area.height());
+                if (this.origin.y() > Camera_1.Camera.area.height()) {
+                    this.move(null, Camera_1.Camera.area.height());
                 }
                 this.moveX = 0;
                 this.moveY = 0;
@@ -865,7 +858,7 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
     }
     exports.Mouse = Mouse;
 });
-define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Viewport_2, Array_1, Collision_4, Runtime_4) {
+define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Camera_2, Array_1, Collision_4, Runtime_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
@@ -930,7 +923,7 @@ define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/
             }
         }
         render() {
-            for (var region of Viewport_2.Viewport.visibleElementRegions) {
+            for (var region of Camera_2.Camera.visibleElementRegions) {
                 if (!region.requiresRedraw) {
                     continue;
                 }
@@ -949,7 +942,7 @@ define("UI/Screen", ["require", "exports", "Core/Viewport", "Util/Array", "Util/
     }
     exports.Screen = Screen;
 });
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Shape/Point", "UI/Thing", "IO/Mouse", "Util/Color", "Core/ElementContainer", "Core/Vector"], function (require, exports, Screen_1, Rectangle_3, Point_7, Thing_1, Mouse_1, Color_1, ElementContainer_1, Vector_4) {
+define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Shape/Point", "UI/Thing", "IO/Mouse", "Util/Color", "Core/ElementContainer", "Core/Vector"], function (require, exports, Screen_1, Rectangle_3, Point_7, Thing_1, Mouse_1, Color_1, ElementContainer_1, Vector_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
@@ -957,7 +950,7 @@ define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/
             this.container = new ElementContainer_1.ElementContainer(256 * 2, new Rectangle_3.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(1024 * 2, 768 * 2, null)));
             for (var i = 0; i < 20; i++) {
                 var thing = new Thing_1.Thing(Color_1.Color.getRandomColor());
-                thing.direction = new Vector_4.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
+                thing.direction = new Vector_3.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
                 this.container.register(thing);
                 thing.move(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
             }
@@ -1005,13 +998,13 @@ define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (requ
     MouseHandler.locked = false;
     exports.MouseHandler = MouseHandler;
 });
-define("Core/Runtime", ["require", "exports", "Core/Viewport", "Core/ContextLayer", "IO/MouseHandler"], function (require, exports, Viewport_3, ContextLayer_1, MouseHandler_1) {
+define("Core/Runtime", ["require", "exports", "Core/Camera", "Core/ContextLayer", "IO/MouseHandler"], function (require, exports, Camera_3, ContextLayer_1, MouseHandler_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Runtime {
         static init() {
             Runtime.ctx = new ContextLayer_1.ContextLayer(1);
-            Viewport_3.Viewport.init();
+            Camera_3.Camera.init();
             window.onresize = Runtime.onWindowResize;
             Runtime.fps = new FPSMeter(null, {
                 decimals: 0,
@@ -1021,7 +1014,7 @@ define("Core/Runtime", ["require", "exports", "Core/Viewport", "Core/ContextLaye
             MouseHandler_1.MouseHandler.init();
         }
         static onWindowResize() {
-            Viewport_3.Viewport.resize();
+            Camera_3.Camera.resize();
             Runtime.ctx.resize();
         }
         static get screen() {
@@ -1030,7 +1023,7 @@ define("Core/Runtime", ["require", "exports", "Core/Viewport", "Core/ContextLaye
         static set screen(screen) {
             Runtime._screen = screen;
             screen.onActivate();
-            Viewport_3.Viewport.move(0, 0);
+            Camera_3.Camera.move(0, 0);
         }
         static start(startscreen) {
             Runtime.screen = startscreen;
@@ -1056,48 +1049,27 @@ define("Core/Runtime", ["require", "exports", "Core/Viewport", "Core/ContextLaye
     Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });
-define("Core/Viewport", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_8, Runtime_7, Rectangle_4) {
+define("Core/Camera", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_8, Runtime_7, Rectangle_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class Viewport {
+    class Camera {
         static init() {
             var origin = new Point_8.Point(0, 0, null);
-            Viewport.area = new Rectangle_4.Rectangle(origin, new Point_8.Point(0, 0, origin));
+            Camera.area = new Rectangle_4.Rectangle(origin, new Point_8.Point(0, 0, origin));
         }
         static move(offsetX, offsetY) {
-            Viewport.area.topLeft().move(offsetX, offsetY);
-            Viewport.resize();
+            Camera.area.topLeft().move(offsetX, offsetY);
+            Camera.resize();
         }
         static resize() {
-            Viewport.area.bottomRight().move(window.innerWidth, window.innerHeight);
-            Viewport.visibleElementRegions = Runtime_7.Runtime.screen.container.getRegions(Viewport.area);
-            for (var i = 0; i < Viewport.visibleElementRegions.length; i++) {
-                Viewport.visibleElementRegions[i].requiresRedraw = true;
+            Camera.area.bottomRight().move(window.innerWidth, window.innerHeight);
+            Camera.visibleElementRegions = Runtime_7.Runtime.screen.container.getRegions(Camera.area);
+            for (var i = 0; i < Camera.visibleElementRegions.length; i++) {
+                Camera.visibleElementRegions[i].requiresRedraw = true;
             }
         }
     }
-    exports.Viewport = Viewport;
-});
-define("Core/ContextLayer", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class ContextLayer {
-        constructor(zindex) {
-            var canv = document.createElement("canvas");
-            canv.style.setProperty("z-index", zindex.toString());
-            document.body.appendChild(canv);
-            this.ctx = canv.getContext("2d");
-            this.resize();
-        }
-        destroy() {
-            document.body.removeChild(this.ctx.canvas);
-        }
-        resize() {
-            this.ctx.canvas.width = window.innerWidth;
-            this.ctx.canvas.height = window.innerHeight;
-        }
-    }
-    exports.ContextLayer = ContextLayer;
+    exports.Camera = Camera;
 });
 define("Unused/DI", ["require", "exports"], function (require, exports) {
     "use strict";

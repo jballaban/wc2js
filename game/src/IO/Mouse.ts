@@ -6,7 +6,7 @@ import { ContextLayer } from "../Core/ContextLayer";
 import { Circle } from "../Shape/Circle";
 import { Logger } from "../Util/Logger";
 import { Runtime } from "../Core/Runtime";
-import { Viewport } from "../Core/Viewport";
+import { Camera } from "../Core/Camera";
 import { ElementType } from "../Core/ElementType";
 import { Vector } from "../Core/Vector";
 import { Light } from "../UI/Light";
@@ -40,11 +40,11 @@ export class Mouse extends Element {
 		super.update(step);
 		if (this.moveX !== 0 || this.moveY !== 0) {
 			this.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
-			if (this.origin.x() > Viewport.area.width()) {
-				this.move(Viewport.area.width(), null);
+			if (this.origin.x() > Camera.area.width()) {
+				this.move(Camera.area.width(), null);
 			}
-			if (this.origin.y() > Viewport.area.height()) {
-				this.move(null, Viewport.area.height());
+			if (this.origin.y() > Camera.area.height()) {
+				this.move(null, Camera.area.height());
 			}
 			this.moveX = 0;
 			this.moveY = 0;

@@ -1,5 +1,4 @@
 import { Point } from "../Shape/Point";
-import { Distance } from "../Util/Distance";
 import { Circle } from "../Shape/Circle";
 import { Runtime } from "../Core/Runtime";
 import { Rectangle } from "../Shape/Rectangle";

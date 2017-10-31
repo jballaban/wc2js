@@ -1,7 +1,7 @@
 import { Logger, Level } from "../Util/Logger";
 import { Game } from "../Game";
 import { Screen } from "../UI/Screen";
-import { Viewport } from "./Viewport";
+import { Camera } from "./Camera";
 import { ContextLayer } from "./ContextLayer";
 import { MouseHandler } from "../IO/MouseHandler";
 
@@ -16,7 +16,7 @@ export class Runtime {
 
 	public static init(): void {
 		Runtime.ctx = new ContextLayer(1);
-		Viewport.init();
+		Camera.init();
 		window.onresize = Runtime.onWindowResize;
 		Runtime.fps = new FPSMeter(null, {
 			decimals: 0,
@@ -27,7 +27,7 @@ export class Runtime {
 	}
 
 	public static onWindowResize(): void {
-		Viewport.resize();
+		Camera.resize();
 		Runtime.ctx.resize();
 	}
 
@@ -38,7 +38,7 @@ export class Runtime {
 	public static set screen(screen: Screen) {
 		Runtime._screen = screen;
 		screen.onActivate();
-		Viewport.move(0, 0);
+		Camera.move(0, 0);
 	}
 
 	public static start(startscreen: Screen): void {

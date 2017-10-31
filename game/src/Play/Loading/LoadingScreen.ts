@@ -1,6 +1,6 @@
 import { Screen } from "UI/Screen";
 import { Rectangle } from "../../Shape/Rectangle";
-import { Viewport } from "../../Core/Viewport";
+import { Camera } from "../../Core/Camera";
 import { Runtime } from "Core/Runtime";
 import { Logger } from "Util/Logger";
 import { Position } from "../../Shape/Polygon";

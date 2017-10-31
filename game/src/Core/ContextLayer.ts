@@ -1,5 +1,5 @@
 import { Rectangle } from "../Shape/Rectangle";
-import { Viewport } from "../Core/Viewport";
+import { Camera } from "../Core/Camera";
 import { MidPoint, Point } from "../Shape/Point";
 import { Position } from "../Shape/Polygon";
 import { Logger } from "../Util/Logger";

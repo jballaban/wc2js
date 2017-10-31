@@ -1,6 +1,6 @@
 import { Mouse } from "../IO/Mouse";
 import { Element } from "../Core/Element";
-import { Viewport } from "../Core/Viewport";
+import { Camera } from "../Core/Camera";
 import { Rectangle } from "../Shape/Rectangle";
 import { ContextLayer } from "../Core/ContextLayer";
 import { Point } from "../Shape/Point";
