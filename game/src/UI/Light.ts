@@ -18,7 +18,7 @@ export class Light {
 	public update(): void {
 		this.paths = new Array<Point>();
 		var ray: Line = new Line(this.area.center, new Point(0, 0, this.area.center));
-		for (var angle: number = 0; angle < 360; angle++) {
+		for (var angle: number = 0; angle < 360; angle += 5) {
 			var p: Point = new Point(this.spread * Math.cos(Math.PI * angle / 180.0), this.spread * Math.sin(Math.PI * angle / 180.0), ray.p1);
 			for (var i: number = 0; i < Runtime.screen.mouse.collisions.length; i++) {
 				if (Runtime.screen.mouse.collisions[i].area.type === ShapeType.Circle) {
@@ -37,14 +37,19 @@ export class Light {
 	}
 
 	public draw(ctx: CanvasRenderingContext2D): void {
-		ctx.strokeStyle = this.color;
-		for (var i: number = 0; i < this.paths.length; i++) {
-			ctx.beginPath();
-			ctx.moveTo(this.area.center.x(), this.area.center.y());
+		var gr = ctx.createRadialGradient(this.area.center.x(), this.area.center.y(), 5, this.area.center.x(), this.area.center.y(), this.area.r);
+
+		// Add the color stops.
+		gr.addColorStop(0, 'rgba(255,255,255,0.5)');
+		gr.addColorStop(1, 'rgba(255,255,255,0)');
+		ctx.fillStyle = gr;
+		ctx.beginPath();
+		ctx.moveTo(this.paths[0].x(), this.paths[0].y());
+		for (var i: number = 1; i < this.paths.length; i++) {
 			ctx.lineTo(this.paths[i].x(), this.paths[i].y());
-			ctx.closePath();
+			//ctx.closePath();
 			// ctx.clip();
-			ctx.stroke();
 		}
+		ctx.fill();
 	}
 }

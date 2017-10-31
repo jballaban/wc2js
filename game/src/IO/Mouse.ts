@@ -16,29 +16,19 @@ export class Mouse extends Element {
 	private color: string;
 	private moveX: number;
 	private moveY: number;
-	private light: Light;
+	//	private light: Light;
 
 	public constructor() {
 		var origin: Point = new Point(0, 0, null);
-		super(ElementType.Mouse, origin, new Circle(origin, 200), 10);
-		this.color = this._color = "white";
+		super(ElementType.Mouse, origin, new Circle(origin, 4), 10);
+		this.color = this._color = "rgba(255,255,255,0.5)";
 		this.moveX = null;
 		this.moveY = null;
-		this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,1)");
+		//this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,0.1)");
 	}
 
 	public canCollide(element: Element): boolean {
 		return true;
-	}
-
-	public onCollide(element: Element, on: boolean): void {
-		if (on && this._color === this.color) {
-			this.color = "red";
-			Runtime.screen.container.update(this, false);
-		} else if (!on && this._color !== this.color && this.collisions.length === 0) {
-			this.color = this._color;
-			Runtime.screen.container.update(this, false);
-		}
 	}
 
 	public onMove(offsetX: number, offsetY: number): void {
@@ -59,12 +49,12 @@ export class Mouse extends Element {
 			this.moveX = 0;
 			this.moveY = 0;
 		}
-		this.light.update();
+		//this.light.update();
 	}
 
 	public render(ctx: CanvasRenderingContext2D): void {
-		//	this.area.render(ctx, this.color);
-		this.light.draw(ctx);
+		this.area.render(ctx, this.color);
+		//this.light.draw(ctx);
 	}
 
 }
