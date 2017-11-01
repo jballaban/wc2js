@@ -6,9 +6,11 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-bump');
+	grunt.loadNpmTasks("grunt-aws");
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		aws: grunt.file.readJSON("aws-credentials.json"),
 		connect: {
 			server: {
 				options: {
@@ -72,10 +74,23 @@ module.exports = function (grunt) {
 				push: false,
 				createTag: false
 			}
+		},
+		s3: {
+			options: {
+				accessKeyId: "<%= aws.accessKeyId %>",
+				secretAccessKey: "<%= aws.secretAccessKey %>",
+				bucket: "beta.wc2js.com"
+			},
+			dev: {
+				cwd: "./dist",
+				src: "**"
+			}
 		}
+
 	});
 	grunt.registerTask('readpkg', 'Read in the package.json file', function () {
 		grunt.config.set('pkg', grunt.file.readJSON('./package.json'));
 	});
 	grunt.registerTask('default', ['connect', 'open', 'watch']);
+	grunt.registerTask('deploy', ['s3:dev']);
 }
