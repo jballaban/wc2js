@@ -1006,25 +1006,6 @@ define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (requ
     MouseHandler.locked = false;
     exports.MouseHandler = MouseHandler;
 });
-define("Core/EventHandler", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class EventHandler {
-        constructor() {
-            this._mappings = new Map();
-        }
-        fire(name) {
-            var values = this._mappings.get(name);
-            if (values == null) {
-                return;
-            }
-            for (var i = 0; i < values.length; i++) {
-                values[i]();
-            }
-        }
-    }
-    exports.EventHandler = EventHandler;
-});
 define("Core/Runtime", ["require", "exports", "Core/ContextLayer", "IO/MouseHandler"], function (require, exports, ContextLayer_1, MouseHandler_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -1070,8 +1051,6 @@ define("Core/Runtime", ["require", "exports", "Core/ContextLayer", "IO/MouseHand
             requestAnimationFrame(Runtime.frame);
         }
     }
-    Runtime.dt = 0;
-    Runtime.step = 1 / 60;
     exports.Runtime = Runtime;
 });
 define("Core/Camera", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_8, Runtime_8, Rectangle_4) {
@@ -1147,5 +1126,24 @@ define("Unused/DI", ["require", "exports"], function (require, exports) {
     }
     DI._map = {};
     exports.DI = DI;
+});
+define("Unused/EventHandler", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class EventHandler {
+        constructor() {
+            this._mappings = new Map();
+        }
+        fire(name) {
+            var values = this._mappings.get(name);
+            if (values == null) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                values[i]();
+            }
+        }
+    }
+    exports.EventHandler = EventHandler;
 });
 //# sourceMappingURL=game.js.map

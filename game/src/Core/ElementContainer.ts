@@ -32,7 +32,6 @@ export class ElementContainer {
 		this.elements.set(element, new Array<ElementRegion>());
 		this.update(element, true);
 		this.insertSorted(element, this.elementsCache);
-		// this.elementsCache.push(element);
 	}
 
 	public deregister(element: Element): void {
@@ -45,7 +44,6 @@ export class ElementContainer {
 
 	public add(element: Element, region: ElementRegion): void {
 		this.insertSorted(element, region.elements);
-		// region.elements.push(element);
 		this.elements.get(element).push(region);
 		region.requiresRedraw = true;
 	}

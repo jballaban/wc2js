@@ -4,13 +4,10 @@ import { Screen } from "../UI/Screen";
 import { Camera } from "./Camera";
 import { ContextLayer } from "./ContextLayer";
 import { MouseHandler } from "../IO/MouseHandler";
-import { EventHandler } from "./EventHandler";
 
 export class Runtime {
 
-	private static dt: number = 0;
 	private static last: number;
-	private static step: number = 1 / 60;
 	private static _screen: Screen;
 	private static fps: FPSMeter;
 	public static ctx: ContextLayer;
