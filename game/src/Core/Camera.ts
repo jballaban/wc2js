@@ -16,11 +16,14 @@ export class Camera {
 
 	public move(offsetX: number, offsetY: number): void {
 		this.area.topLeft().move(offsetX, offsetY);
-		this.resize();
 	}
 
 	public resize(): void {
 		this.area.bottomRight().move(window.innerWidth, window.innerHeight);
+	}
+
+	public render(): void {
+
 	}
 
 }

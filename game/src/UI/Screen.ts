@@ -24,6 +24,17 @@ export abstract class Screen {
 		this.container.register(this.mouse);
 	}
 
+	public moveCamera(offsetX: number, offsetY: number) {
+		if (this.camera.area.width() + offsetX > this.container.area.x2()) {
+			offsetX = this.container.area.x2() - this.camera.area.width();
+		}
+		if (this.camera.area.height() + offsetY > this.container.area.y2()) {
+			offsetY = this.container.area.y2() - this.camera.area.height();
+		}
+		this.camera.move(offsetX, offsetY);
+		this.container.recalculateVisibleRegions(this.camera.area);
+	}
+
 	public onResize() {
 		this.camera.resize();
 		this.container.recalculateVisibleRegions(this.camera.area);
@@ -34,6 +45,7 @@ export abstract class Screen {
 	}
 
 	public update(dt: number): void {
+		this.moveCamera(this.camera.area.topLeft().x() + 1, null);
 		this.doUpdates(dt);
 		this.preRender();
 		this.checkCollisions();

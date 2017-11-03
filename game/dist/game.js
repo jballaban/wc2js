@@ -900,6 +900,16 @@ define("UI/Screen", ["require", "exports", "Core/Camera", "IO/Mouse", "Util/Arra
             this.mouse = new Mouse_1.Mouse();
             this.container.register(this.mouse);
         }
+        moveCamera(offsetX, offsetY) {
+            if (this.camera.area.width() + offsetX > this.container.area.x2()) {
+                offsetX = this.container.area.x2() - this.camera.area.width();
+            }
+            if (this.camera.area.height() + offsetY > this.container.area.y2()) {
+                offsetY = this.container.area.y2() - this.camera.area.height();
+            }
+            this.camera.move(offsetX, offsetY);
+            this.container.recalculateVisibleRegions(this.camera.area);
+        }
         onResize() {
             this.camera.resize();
             this.container.recalculateVisibleRegions(this.camera.area);
@@ -908,6 +918,7 @@ define("UI/Screen", ["require", "exports", "Core/Camera", "IO/Mouse", "Util/Arra
             this.onResize();
         }
         update(dt) {
+            this.moveCamera(this.camera.area.topLeft().x() + 1, null);
             this.doUpdates(dt);
             this.preRender();
             this.checkCollisions();
@@ -1099,10 +1110,11 @@ define("Core/Camera", ["require", "exports", "Shape/Point", "Shape/Rectangle"], 
         }
         move(offsetX, offsetY) {
             this.area.topLeft().move(offsetX, offsetY);
-            this.resize();
         }
         resize() {
             this.area.bottomRight().move(window.innerWidth, window.innerHeight);
+        }
+        render() {
         }
     }
     exports.Camera = Camera;
