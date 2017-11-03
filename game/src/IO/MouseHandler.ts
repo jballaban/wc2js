@@ -9,6 +9,7 @@ export class MouseHandler {
 
 	public static init(): void {
 		document.addEventListener("mousemove", MouseHandler.mouseMove);
+		document.addEventListener("touchmove", MouseHandler.mouseMove, false);
 		document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
 		document.body.onclick = document.body.requestPointerLock;
 	}

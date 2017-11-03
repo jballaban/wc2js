@@ -10,22 +10,27 @@ import { ContextLayer } from "../Core/ContextLayer";
 import { Runtime } from "../Core/Runtime";
 import { Color } from "../Util/Color";
 import { ElementContainer } from "../Core/ElementContainer";
+import { EventHandler } from "../Core/EventHandler";
 
 export abstract class Screen {
 	public container: ElementContainer;
 	public mouse: Mouse;
 	public camera: Camera;
 
-	constructor() {
+	constructor(regionsize: number, area: Rectangle) {
 		this.camera = new Camera();
-	}
-
-	public onActivate(): void {
-		this.camera.move(0, 0);
+		this.container = new ElementContainer(regionsize, area);
+		this.mouse = new Mouse();
+		this.container.register(this.mouse);
 	}
 
 	public onResize() {
 		this.camera.resize();
+		this.container.recalculateVisibleRegions(this.camera.area);
+	}
+
+	public onActivate() {
+		this.onResize();
 	}
 
 	public update(dt: number): void {
@@ -101,7 +106,7 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		for (var region of Runtime.screen.camera.visibleElementRegions) {
+		for (var region of Runtime.screen.container.visibleRegionCache) {
 			if (!region.requiresRedraw) { continue; }
 			Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			Runtime.ctx.ctx.save();

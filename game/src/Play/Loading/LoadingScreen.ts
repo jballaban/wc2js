@@ -14,15 +14,12 @@ import { Vector } from "../../Core/Vector";
 
 export class LoadingScreen extends Screen {
 
-	public onActivate(): void {
-
-		this.container = new ElementContainer(256 * 2, new Rectangle(new Point(0, 0, null), new Point(1024 * 2, 768 * 2, null)));
-
-		for (var i: number = 0; i < 20; i++) {
+	public constructor() {
+		super(256, new Rectangle(new Point(0, 0, null), new Point(1024, 768, null)));
+		for (var i: number = 0; i < 600; i++) {
 			var thing: Thing = new Thing(Color.getRandomColor());
 			thing.direction = new Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
 			this.container.register(thing);
-			thing.move(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
 		}
 		/* 	this.container.register(new StaticThing(
 				"darkblue",
@@ -31,9 +28,7 @@ export class LoadingScreen extends Screen {
 					Viewport.area.getPoint(Position.Center)
 				)
 			)); */
-		this.mouse = new Mouse();
-		this.container.register(this.mouse);
-		super.onActivate();
+
 	}
 
 }

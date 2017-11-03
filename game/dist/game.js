@@ -580,6 +580,13 @@ define("Core/ElementContainer", ["require", "exports", "Core/Region"], function 
             this.regionsCache = Array.from(this.regions.regions.values());
             this.areasCache = Array.from(this.regions.regions.keys());
             this.elementsCache = new Array();
+            this.visibleRegionCache = new Array();
+        }
+        recalculateVisibleRegions(area) {
+            this.visibleRegionCache = this.getRegions(area);
+            for (var i = 0; i < this.visibleRegionCache.length; i++) {
+                this.visibleRegionCache[i].requiresRedraw = true;
+            }
         }
         get area() {
             return this.regions.area;
@@ -736,8 +743,8 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
     exports.StaticThing = StaticThing;
     class Thing extends Element_1.Element {
         constructor(color) {
-            var origin = new Point_4.Point(0, 0, null);
-            var shape = false ?
+            var origin = new Point_4.Point(Math.random() * 1024, Math.random() * 768, null);
+            var shape = Math.floor(Math.random() * 2) == 1 ?
                 new Rectangle_2.Rectangle(origin, new Point_4.Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
                 : new Circle_1.Circle(origin, Math.floor(Math.random() * 20));
             super(ElementType_1.ElementType.Thing, origin, shape, 5);
@@ -754,8 +761,8 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
             }
             var move = this.direction.clone().multiply(step);
             this.inc(move.x, move.y);
-            if (this.origin.x() === 0 || this.origin.x() === Runtime_2.Runtime.screen.container.area.width()
-                || this.origin.y() === 0 || this.origin.y() === Runtime_2.Runtime.screen.container.area.height()) {
+            if (this.origin.x() <= 0 || this.origin.x() >= Runtime_2.Runtime.screen.container.area.width()
+                || this.origin.y() <= 0 || this.origin.y() >= Runtime_2.Runtime.screen.container.area.height()) {
                 this.direction.multiply(-1);
             }
             super.update(step);
@@ -858,18 +865,47 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
     }
     exports.Mouse = Mouse;
 });
-define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Collision", "Core/Runtime"], function (require, exports, Camera_1, Array_1, Collision_4, Runtime_5) {
+define("Core/EventHandler", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class EventHandler {
+        constructor() {
+            this._mappings = new Map();
+        }
+        fire(name, data) {
+            var values = this._mappings.get(name);
+            if (values == null) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                values[i](data);
+            }
+        }
+        listen(name, fn) {
+            if (this._mappings.get(name) == null) {
+                this._mappings.set(name, new Array());
+            }
+            this._mappings.get(name).push(fn);
+        }
+    }
+    exports.EventHandler = EventHandler;
+});
+define("UI/Screen", ["require", "exports", "Core/Camera", "IO/Mouse", "Util/Array", "Util/Collision", "Core/Runtime", "Core/ElementContainer"], function (require, exports, Camera_1, Mouse_1, Array_1, Collision_4, Runtime_5, ElementContainer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
-        constructor() {
+        constructor(regionsize, area) {
             this.camera = new Camera_1.Camera();
-        }
-        onActivate() {
-            this.camera.move(0, 0);
+            this.container = new ElementContainer_1.ElementContainer(regionsize, area);
+            this.mouse = new Mouse_1.Mouse();
+            this.container.register(this.mouse);
         }
         onResize() {
             this.camera.resize();
+            this.container.recalculateVisibleRegions(this.camera.area);
+        }
+        onActivate() {
+            this.onResize();
         }
         update(dt) {
             this.doUpdates(dt);
@@ -930,7 +966,7 @@ define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Co
             }
         }
         render() {
-            for (var region of Runtime_5.Runtime.screen.camera.visibleElementRegions) {
+            for (var region of Runtime_5.Runtime.screen.container.visibleRegionCache) {
                 if (!region.requiresRedraw) {
                     continue;
                 }
@@ -949,21 +985,17 @@ define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Co
     }
     exports.Screen = Screen;
 });
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Shape/Point", "UI/Thing", "IO/Mouse", "Util/Color", "Core/ElementContainer", "Core/Vector"], function (require, exports, Screen_1, Rectangle_3, Point_7, Thing_1, Mouse_1, Color_1, ElementContainer_1, Vector_3) {
+define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Shape/Point", "UI/Thing", "Util/Color", "Core/Vector"], function (require, exports, Screen_1, Rectangle_3, Point_7, Thing_1, Color_1, Vector_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class LoadingScreen extends Screen_1.Screen {
-        onActivate() {
-            this.container = new ElementContainer_1.ElementContainer(256 * 2, new Rectangle_3.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(1024 * 2, 768 * 2, null)));
-            for (var i = 0; i < 20; i++) {
+        constructor() {
+            super(256, new Rectangle_3.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(1024, 768, null)));
+            for (var i = 0; i < 600; i++) {
                 var thing = new Thing_1.Thing(Color_1.Color.getRandomColor());
                 thing.direction = new Vector_3.Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
                 this.container.register(thing);
-                thing.move(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
             }
-            this.mouse = new Mouse_1.Mouse();
-            this.container.register(this.mouse);
-            super.onActivate();
         }
     }
     exports.LoadingScreen = LoadingScreen;
@@ -989,6 +1021,7 @@ define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (requ
     class MouseHandler {
         static init() {
             document.addEventListener("mousemove", MouseHandler.mouseMove);
+            document.addEventListener("touchmove", MouseHandler.mouseMove, false);
             document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
             document.body.onclick = document.body.requestPointerLock;
         }
@@ -1019,21 +1052,20 @@ define("Core/Runtime", ["require", "exports", "Core/ContextLayer", "IO/MouseHand
                 left: "5px"
             });
             MouseHandler_1.MouseHandler.init();
+            Runtime.play = false;
         }
         static onWindowResize() {
             Runtime.screen.onResize();
             Runtime.ctx.resize();
         }
-        static get screen() {
-            return Runtime._screen;
-        }
-        static set screen(screen) {
-            Runtime._screen = screen;
-            screen.onActivate();
-        }
         static start(startscreen) {
+            while (Runtime.screen != null) {
+                Runtime.play = false;
+            }
             Runtime.screen = startscreen;
+            Runtime.screen.onActivate();
             Runtime.last = window.performance.now();
+            Runtime.play = true;
             requestAnimationFrame(Runtime.frame);
         }
         static update(step) {
@@ -1043,6 +1075,10 @@ define("Core/Runtime", ["require", "exports", "Core/ContextLayer", "IO/MouseHand
             Runtime.screen.render();
         }
         static frame(now) {
+            if (!Runtime.play) {
+                Runtime.screen = null;
+                return;
+            }
             Runtime.fps.tickStart();
             Runtime.update(Math.min(1, (now - Runtime.last) / 1000));
             Runtime.render();
@@ -1053,7 +1089,7 @@ define("Core/Runtime", ["require", "exports", "Core/ContextLayer", "IO/MouseHand
     }
     exports.Runtime = Runtime;
 });
-define("Core/Camera", ["require", "exports", "Shape/Point", "Core/Runtime", "Shape/Rectangle"], function (require, exports, Point_8, Runtime_8, Rectangle_4) {
+define("Core/Camera", ["require", "exports", "Shape/Point", "Shape/Rectangle"], function (require, exports, Point_8, Rectangle_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Camera {
@@ -1067,10 +1103,6 @@ define("Core/Camera", ["require", "exports", "Shape/Point", "Core/Runtime", "Sha
         }
         resize() {
             this.area.bottomRight().move(window.innerWidth, window.innerHeight);
-            this.visibleElementRegions = Runtime_8.Runtime.screen.container.getRegions(this.area);
-            for (var i = 0; i < this.visibleElementRegions.length; i++) {
-                this.visibleElementRegions[i].requiresRedraw = true;
-            }
         }
     }
     exports.Camera = Camera;
@@ -1126,24 +1158,5 @@ define("Unused/DI", ["require", "exports"], function (require, exports) {
     }
     DI._map = {};
     exports.DI = DI;
-});
-define("Unused/EventHandler", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class EventHandler {
-        constructor() {
-            this._mappings = new Map();
-        }
-        fire(name) {
-            var values = this._mappings.get(name);
-            if (values == null) {
-                return;
-            }
-            for (var i = 0; i < values.length; i++) {
-                values[i]();
-            }
-        }
-    }
-    exports.EventHandler = EventHandler;
 });
 //# sourceMappingURL=game.js.map

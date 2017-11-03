@@ -8,9 +8,10 @@ import { MouseHandler } from "../IO/MouseHandler";
 export class Runtime {
 
 	private static last: number;
-	private static _screen: Screen;
+	public static screen: Screen;
 	private static fps: FPSMeter;
 	public static ctx: ContextLayer;
+	public static play: boolean;
 
 	public static init(): void {
 		Runtime.ctx = new ContextLayer(1);
@@ -21,6 +22,7 @@ export class Runtime {
 			left: "5px"
 		});
 		MouseHandler.init();
+		Runtime.play = false;
 	}
 
 	public static onWindowResize(): void {
@@ -28,18 +30,14 @@ export class Runtime {
 		Runtime.ctx.resize();
 	}
 
-	public static get screen(): Screen {
-		return Runtime._screen;
-	}
-
-	public static set screen(screen: Screen) {
-		Runtime._screen = screen;
-		screen.onActivate();
-	}
-
 	public static start(startscreen: Screen): void {
+		while (Runtime.screen != null) { // wait for previous screen to finish up their frame
+			Runtime.play = false;
+		}
 		Runtime.screen = startscreen;
+		Runtime.screen.onActivate();
 		Runtime.last = window.performance.now();
+		Runtime.play = true;
 		requestAnimationFrame(Runtime.frame);
 	}
 
@@ -52,6 +50,10 @@ export class Runtime {
 	}
 
 	private static frame(now: number): void {
+		if (!Runtime.play) {
+			Runtime.screen = null;
+			return;
+		}
 		Runtime.fps.tickStart();
 		//	Runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
 		Runtime.update(Math.min(1, (now - Runtime.last) / 1000));

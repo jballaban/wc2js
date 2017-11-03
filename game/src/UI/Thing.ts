@@ -45,8 +45,8 @@ export class Thing extends Element {
 	public direction: Vector;
 
 	constructor(color: string) {
-		var origin: Point = new Point(0, 0, null);
-		var shape: IShape = false ?
+		var origin: Point = new Point(Math.random() * 1024, Math.random() * 768, null);
+		var shape: IShape = Math.floor(Math.random() * 2) == 1 ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
 			: new Circle(origin, Math.floor(Math.random() * 20));
 		super(ElementType.Thing, origin, shape, 5);
@@ -63,8 +63,8 @@ export class Thing extends Element {
 		if (Math.random() * 2 === 1) { return; }
 		var move: Vector = this.direction.clone().multiply(step);
 		this.inc(move.x, move.y);
-		if (this.origin.x() === 0 || this.origin.x() === Runtime.screen.container.area.width()
-			|| this.origin.y() === 0 || this.origin.y() === Runtime.screen.container.area.height()) {
+		if (this.origin.x() <= 0 || this.origin.x() >= Runtime.screen.container.area.width()
+			|| this.origin.y() <= 0 || this.origin.y() >= Runtime.screen.container.area.height()) {
 			this.direction.multiply(-1);
 		}
 		super.update(step);
