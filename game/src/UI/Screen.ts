@@ -16,15 +16,29 @@ export abstract class Screen {
 	public container: ElementContainer;
 	public mouse: Mouse;
 	public camera: Camera;
+	private static _current: Screen;
 
-	constructor(regionsize: number, area: Rectangle) {
+	constructor(mouse: Mouse) {
 		this.camera = new Camera();
-		this.container = new ElementContainer(regionsize, area);
-		this.mouse = new Mouse();
-		this.container.register(this.mouse);
+		this.mouse = mouse;
 	}
 
-	public moveCamera(offsetX: number, offsetY: number) {
+	public static get current(): Screen {
+		return Screen._current;
+	}
+
+	public static set current(screen: Screen) {
+		this._current = screen;
+	}
+
+	public init(regionsize: number, area: Rectangle): void {
+		this.container = new ElementContainer(regionsize, area);
+		if (this.mouse != null) {
+			this.container.register(this.mouse);
+		}
+	}
+
+	public moveCamera(offsetX: number, offsetY: number): void {
 		if (this.camera.area.width() + offsetX > this.container.area.x2()) {
 			offsetX = this.container.area.x2() - this.camera.area.width();
 		}
@@ -35,17 +49,17 @@ export abstract class Screen {
 		this.container.recalculateVisibleRegions(this.camera.area);
 	}
 
-	public onResize() {
+	public onResize(): void {
 		this.camera.resize();
 		this.container.recalculateVisibleRegions(this.camera.area);
 	}
 
-	public onActivate() {
+	public onActivate(): void {
 		this.onResize();
 	}
 
 	public update(dt: number): void {
-		//	this.moveCamera(this.camera.area.topLeft().x() + 1, null);
+		// this.moveCamera(this.camera.area.topLeft().x() + 1, null);
 		this.doUpdates(dt);
 		this.preRender();
 		this.checkCollisions();

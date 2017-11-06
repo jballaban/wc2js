@@ -1,7 +1,7 @@
 import { Runtime } from "./Core/Runtime";
 import { Logger, Level } from "./Util/logger";
 import { Screen } from "./UI/Screen";
-import { LoadingScreen } from "./Play/Loading/LoadingScreen";
+import { PlayScreen } from "./Screen/PlayScreen";
 
 export class Game {
 	public static init(ver: string): void {
@@ -9,7 +9,7 @@ export class Game {
 		Logger.log("Game: Version " + ver);
 		Logger.log("Game: Log " + Level[Logger.level]);
 		Runtime.init();
-		var startscreen: LoadingScreen = new LoadingScreen();
+		var startscreen: PlayScreen = new PlayScreen();
 		Runtime.start(startscreen);
 	}
 }

@@ -7,4 +7,16 @@ export class Color {
 		}
 		return color;
 	}
+
+	public static getRandomRGB(): string {
+		return "rgb("
+			+ (Math.floor(Math.random() * 256)) + ","
+			+ (Math.floor(Math.random() * 256)) + ","
+			+ (Math.floor(Math.random() * 256))
+			+ ")";
+	}
+
+	public static makeRGBA(rgb: string, a: number): string {
+		return rgb.replace("rgb", "rgba").replace(/\)$/, "," + a + ")");
+	}
 }

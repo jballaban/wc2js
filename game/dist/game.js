@@ -520,6 +520,16 @@ define("Util/Color", ["require", "exports"], function (require, exports) {
             }
             return color;
         }
+        static getRandomRGB() {
+            return "rgb("
+                + (Math.floor(Math.random() * 256)) + ","
+                + (Math.floor(Math.random() * 256)) + ","
+                + (Math.floor(Math.random() * 256))
+                + ")";
+        }
+        static makeRGBA(rgb, a) {
+            return rgb.replace("rgb", "rgba").replace(/\)$/, "," + a + ")");
+        }
     }
     exports.Color = Color;
 });
@@ -744,7 +754,7 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
     class Thing extends Element_1.Element {
         constructor(color) {
             var origin = new Point_4.Point(Math.random() * 1024, Math.random() * 768, null);
-            var shape = Math.floor(Math.random() * 2) == 1 ?
+            var shape = Math.floor(Math.random() * 2) === 1 ?
                 new Rectangle_2.Rectangle(origin, new Point_4.Point(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), origin))
                 : new Circle_1.Circle(origin, Math.floor(Math.random() * 10));
             super(ElementType_1.ElementType.Thing, origin, shape, 5);
@@ -770,16 +780,16 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
         }
         onCollide(element, on) {
             if (this.color === this._color && this.collisions.length > 0) {
-                this.color = "red";
+                this.color = "rgba(255,0,0,0.8)";
                 Runtime_2.Runtime.screen.container.update(this, false);
             }
             else if (this.color !== this._color && this.collisions.length === 0) {
                 this.color = this._color;
                 Runtime_2.Runtime.screen.container.update(this, false);
             }
-            if (on && element.type === ElementType_1.ElementType.Mouse) {
+            if (on && (element.type === ElementType_1.ElementType.Mouse)) {
                 this.direction = new Vector_2.Vector(this.origin.x() - element.origin.x(), this.origin.y() - element.origin.y());
-                this.speed = this.maxSpeed;
+                this.speed = Math.ceil(Math.random() * this.maxSpeed / 2) + this.maxSpeed / 2;
             }
         }
         render(ctx) {
@@ -896,15 +906,25 @@ define("Core/EventHandler", ["require", "exports"], function (require, exports) 
     }
     exports.EventHandler = EventHandler;
 });
-define("UI/Screen", ["require", "exports", "Core/Camera", "IO/Mouse", "Util/Array", "Util/Collision", "Core/Runtime", "Core/ElementContainer"], function (require, exports, Camera_1, Mouse_1, Array_1, Collision_4, Runtime_5, ElementContainer_1) {
+define("UI/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Collision", "Core/Runtime", "Core/ElementContainer"], function (require, exports, Camera_1, Array_1, Collision_4, Runtime_5, ElementContainer_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Screen {
-        constructor(regionsize, area) {
+        constructor(mouse) {
             this.camera = new Camera_1.Camera();
+            this.mouse = mouse;
+        }
+        static get current() {
+            return Screen._current;
+        }
+        static set current(screen) {
+            this._current = screen;
+        }
+        init(regionsize, area) {
             this.container = new ElementContainer_1.ElementContainer(regionsize, area);
-            this.mouse = new Mouse_1.Mouse();
-            this.container.register(this.mouse);
+            if (this.mouse != null) {
+                this.container.register(this.mouse);
+            }
         }
         moveCamera(offsetX, offsetY) {
             if (this.camera.area.width() + offsetX > this.container.area.x2()) {
@@ -1001,26 +1021,29 @@ define("UI/Screen", ["require", "exports", "Core/Camera", "IO/Mouse", "Util/Arra
     }
     exports.Screen = Screen;
 });
-define("Play/Loading/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Core/Runtime", "Shape/Polygon", "Shape/Point", "UI/Thing", "Util/Color", "Core/Vector", "Shape/Circle"], function (require, exports, Screen_1, Rectangle_3, Runtime_6, Polygon_2, Point_7, Thing_1, Color_1, Vector_3, Circle_3) {
+define("Screen/PlayScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Core/Runtime", "Shape/Polygon", "Shape/Point", "UI/Thing", "IO/Mouse", "Util/Color", "Shape/Circle"], function (require, exports, Screen_1, Rectangle_3, Runtime_6, Polygon_2, Point_7, Thing_1, Mouse_1, Color_1, Circle_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class LoadingScreen extends Screen_1.Screen {
+    class PlayScreen extends Screen_1.Screen {
         constructor() {
-            super(256, new Rectangle_3.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(1024, 768, null)));
+            super(new Mouse_1.Mouse());
+        }
+        init() {
+            super.init(256, new Rectangle_3.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(1024, 768, null)));
         }
         onActivate() {
+            this.init();
             super.onActivate();
             for (var i = 0; i < 1800; i++) {
-                var thing = new Thing_1.Thing(Color_1.Color.getRandomColor());
-                thing.direction = new Vector_3.Vector(0, 0);
+                var thing = new Thing_1.Thing(Color_1.Color.makeRGBA(Color_1.Color.getRandomRGB(), 0.8));
                 this.container.register(thing);
             }
             this.container.register(new Thing_1.StaticThing("darkblue", Runtime_6.Runtime.screen.camera.area.getPoint(Polygon_2.Position.Center), new Circle_3.Circle(Runtime_6.Runtime.screen.camera.area.getPoint(Polygon_2.Position.Center), 300)));
         }
     }
-    exports.LoadingScreen = LoadingScreen;
+    exports.PlayScreen = PlayScreen;
 });
-define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loading/LoadingScreen"], function (require, exports, Runtime_7, logger_1, LoadingScreen_1) {
+define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Screen/PlayScreen"], function (require, exports, Runtime_7, logger_1, PlayScreen_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Game {
@@ -1029,7 +1052,7 @@ define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Play/Loadi
             logger_1.Logger.log("Game: Version " + ver);
             logger_1.Logger.log("Game: Log " + logger_1.Level[logger_1.Logger.level]);
             Runtime_7.Runtime.init();
-            var startscreen = new LoadingScreen_1.LoadingScreen();
+            var startscreen = new PlayScreen_1.PlayScreen();
             Runtime_7.Runtime.start(startscreen);
         }
     }
@@ -1133,6 +1156,20 @@ define("Core/Camera", ["require", "exports", "Shape/Point", "Shape/Rectangle"], 
         }
     }
     exports.Camera = Camera;
+});
+define("Screen/LoadingScreen", ["require", "exports", "UI/Screen", "Shape/Rectangle", "Shape/Point"], function (require, exports, Screen_2, Rectangle_5, Point_9) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class LoadingScreen extends Screen_2.Screen {
+        constructor() {
+            super(null);
+            this.init(256, new Rectangle_5.Rectangle(new Point_9.Point(0, 0, null), new Point_9.Point(1024, 768, null)));
+        }
+        update(dt) {
+            super.update(dt);
+        }
+    }
+    exports.LoadingScreen = LoadingScreen;
 });
 define("Unused/DI", ["require", "exports"], function (require, exports) {
     "use strict";

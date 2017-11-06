@@ -49,7 +49,7 @@ export class Thing extends Element {
 
 	constructor(color: string) {
 		var origin: Point = new Point(Math.random() * 1024, Math.random() * 768, null);
-		var shape: IShape = Math.floor(Math.random() * 2) == 1 ?
+		var shape: IShape = Math.floor(Math.random() * 2) === 1 ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), origin))
 			: new Circle(origin, Math.floor(Math.random() * 10));
 		super(ElementType.Thing, origin, shape, 5);
@@ -78,19 +78,20 @@ export class Thing extends Element {
 
 	public onCollide(element: Element, on: boolean): void {
 		if (this.color === this._color && this.collisions.length > 0) {
-			this.color = "red";
+			this.color = "rgba(255,0,0,0.8)";
 			Runtime.screen.container.update(this, false);
 		} else if (this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
 			Runtime.screen.container.update(this, false);
 		}
-		if (on && element.type === ElementType.Mouse) {
+		if (on && (
+			element.type === ElementType.Mouse
+		)) {
 			this.direction = new Vector(
 				this.origin.x() - element.origin.x(),
 				this.origin.y() - element.origin.y()
-			)
-			//(element as Thing).direction = (element as Thing).direction.multiply(-1.1);
-			this.speed = this.maxSpeed;
+			);
+			this.speed = Math.ceil(Math.random() * this.maxSpeed / 2) + this.maxSpeed / 2;
 		}
 	}
 
