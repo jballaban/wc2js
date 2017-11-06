@@ -15,13 +15,13 @@ import { ElementType } from "../Core/ElementType";
 export class StaticThing extends Element {
 	private _color: string;
 	private color: string;
-	constructor(color: string, rect: Rectangle) {
-		super(ElementType.StaticThing, rect.topLeft(), rect, 4);
+	constructor(color: string, origin: Point, area: Circle) {
+		super(ElementType.StaticThing, origin, area, 4);
 		this.color = this._color = color;
 	}
 
 	public canCollide(element: Element): boolean {
-		return element.type === ElementType.Mouse;
+		return element.type === ElementType.Thing;
 	}
 
 	public onCollide(element: Element, on: boolean): void {
@@ -43,25 +43,31 @@ export class Thing extends Element {
 	private _color: string;
 	private color: string;
 	public direction: Vector;
+	public speed: number;
+	public minSpeed: number;
+	public maxSpeed: number;
 
 	constructor(color: string) {
 		var origin: Point = new Point(Math.random() * 1024, Math.random() * 768, null);
 		var shape: IShape = Math.floor(Math.random() * 2) == 1 ?
-			new Rectangle(origin, new Point(Math.floor(Math.random() * 20), Math.floor(Math.random() * 20), origin))
-			: new Circle(origin, Math.floor(Math.random() * 20));
+			new Rectangle(origin, new Point(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), origin))
+			: new Circle(origin, Math.floor(Math.random() * 10));
 		super(ElementType.Thing, origin, shape, 5);
 		this._color = color;
 		this.color = color;
 		this.direction = new Vector(0, 0);
+		this.minSpeed = this.speed = 0;
+		this.maxSpeed = 20;
 	}
 
 	public canCollide(element: Element): boolean {
-		return element.type === ElementType.Thing || element.type === ElementType.Mouse;
+		return element.type === ElementType.StaticThing || element.type === ElementType.Mouse;
 	}
 
 	public update(step: number): void {
-		if (Math.random() * 2 === 1) { return; }
-		var move: Vector = this.direction.clone().multiply(step);
+		this.speed -= .5;
+		this.speed = Math.max(this.minSpeed, this.speed);
+		var move: Vector = this.direction.clone().multiply(step * this.speed);
 		this.inc(move.x, move.y);
 		if (this.origin.x() <= 0 || this.origin.x() >= Runtime.screen.container.area.width()
 			|| this.origin.y() <= 0 || this.origin.y() >= Runtime.screen.container.area.height()) {
@@ -78,11 +84,13 @@ export class Thing extends Element {
 			this.color = this._color;
 			Runtime.screen.container.update(this, false);
 		}
-		if (on && element.type === ElementType.Thing) {
-			(element as Thing).direction = new Vector(
-				(element as Thing).origin.x() - this.origin.x(),
-				(element as Thing).origin.y() - this.origin.y()
-			);
+		if (on && element.type === ElementType.Mouse) {
+			this.direction = new Vector(
+				this.origin.x() - element.origin.x(),
+				this.origin.y() - element.origin.y()
+			)
+			//(element as Thing).direction = (element as Thing).direction.multiply(-1.1);
+			this.speed = this.maxSpeed;
 		}
 	}
 

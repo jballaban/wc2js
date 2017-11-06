@@ -11,24 +11,29 @@ import { Mouse } from "../../IO/Mouse";
 import { Color } from "../../Util/Color";
 import { ElementContainer } from "../../Core/ElementContainer";
 import { Vector } from "../../Core/Vector";
+import { Circle } from "../../Shape/Circle";
 
 export class LoadingScreen extends Screen {
 
 	public constructor() {
 		super(256, new Rectangle(new Point(0, 0, null), new Point(1024, 768, null)));
-		for (var i: number = 0; i < 600; i++) {
+
+	}
+
+	public onActivate() {
+		super.onActivate();
+		for (var i: number = 0; i < 1800; i++) {
 			var thing: Thing = new Thing(Color.getRandomColor());
-			thing.direction = new Vector(Math.random() * 40 - 20, Math.random() * 40 - 20);
+			thing.direction = new Vector(0, 0);
 			this.container.register(thing);
 		}
-		/* 	this.container.register(new StaticThing(
-				"darkblue",
-				new Rectangle(
-					this.container.area.topLeft(),
-					Viewport.area.getPoint(Position.Center)
-				)
-			)); */
-
+		this.container.register(new StaticThing(
+			"darkblue",
+			Runtime.screen.camera.area.getPoint(Position.Center),
+			new Circle(
+				Runtime.screen.camera.area.getPoint(Position.Center), 300
+			)
+		));
 	}
 
 }

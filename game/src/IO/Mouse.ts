@@ -20,8 +20,8 @@ export class Mouse extends Element {
 
 	public constructor() {
 		var origin: Point = new Point(0, 0, null);
-		super(ElementType.Mouse, origin, new Circle(origin, 4), 10);
-		this.color = this._color = "rgba(255,255,255,0.5)";
+		super(ElementType.Mouse, origin, new Circle(origin, 50), 10);
+		this.color = this._color = "rgba(255,255,255,1)";
 		this.moveX = null;
 		this.moveY = null;
 		//this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,0.1)");

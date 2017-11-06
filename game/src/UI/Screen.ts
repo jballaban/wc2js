@@ -45,7 +45,7 @@ export abstract class Screen {
 	}
 
 	public update(dt: number): void {
-		this.moveCamera(this.camera.area.topLeft().x() + 1, null);
+		//	this.moveCamera(this.camera.area.topLeft().x() + 1, null);
 		this.doUpdates(dt);
 		this.preRender();
 		this.checkCollisions();

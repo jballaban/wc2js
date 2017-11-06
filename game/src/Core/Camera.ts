@@ -22,7 +22,7 @@ export class Camera {
 		this.area.bottomRight().move(window.innerWidth, window.innerHeight);
 	}
 
-	public render(): void {
+	public project(): void {
 
 	}
 
