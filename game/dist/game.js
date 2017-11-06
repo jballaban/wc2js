@@ -843,19 +843,23 @@ define("IO/Mouse", ["require", "exports", "Core/Element", "Shape/Point", "Shape/
         canCollide(element) {
             return true;
         }
-        onMove(offsetX, offsetY) {
+        inc(offsetX, offsetY) {
             this.moveX += offsetX;
             this.moveY += offsetY;
+        }
+        move(x, y) {
+            this.moveX = x - this.origin.x();
+            this.moveY = y - this.origin.y();
         }
         update(step) {
             super.update(step);
             if (this.moveX !== 0 || this.moveY !== 0) {
-                this.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
+                super.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
                 if (this.origin.x() > Runtime_4.Runtime.screen.camera.area.width()) {
-                    this.move(Runtime_4.Runtime.screen.camera.area.width(), null);
+                    super.move(Runtime_4.Runtime.screen.camera.area.width(), null);
                 }
                 if (this.origin.y() > Runtime_4.Runtime.screen.camera.area.height()) {
-                    this.move(null, Runtime_4.Runtime.screen.camera.area.height());
+                    super.move(null, Runtime_4.Runtime.screen.camera.area.height());
                 }
                 this.moveX = 0;
                 this.moveY = 0;
@@ -1036,14 +1040,20 @@ define("IO/MouseHandler", ["require", "exports", "Core/Runtime"], function (requ
     Object.defineProperty(exports, "__esModule", { value: true });
     class MouseHandler {
         static init() {
-            document.addEventListener("mousemove", MouseHandler.mouseMove);
-            document.addEventListener("touchmove", MouseHandler.mouseMove, false);
+            document.addEventListener("mousemove", MouseHandler.onMouseMove);
+            document.addEventListener("touchstart", MouseHandler.onTouch);
+            document.addEventListener("touchmove", MouseHandler.onTouch);
             document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
             document.body.onclick = document.body.requestPointerLock;
         }
-        static mouseMove(e) {
+        static onTouch(e) {
+            e.preventDefault();
+            Runtime_8.Runtime.screen.mouse.move(e.touches[0].screenX, e.touches[0].screenY);
+        }
+        static onMouseMove(e) {
+            e.preventDefault();
             if (MouseHandler.locked) {
-                Runtime_8.Runtime.screen.mouse.onMove(e.movementX, e.movementY);
+                Runtime_8.Runtime.screen.mouse.inc(e.movementX, e.movementY);
             }
         }
         static lockChanged() {

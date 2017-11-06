@@ -16,7 +16,7 @@ export class Mouse extends Element {
 	private color: string;
 	private moveX: number;
 	private moveY: number;
-	//	private light: Light;
+	// private light: Light;
 
 	public constructor() {
 		var origin: Point = new Point(0, 0, null);
@@ -24,37 +24,42 @@ export class Mouse extends Element {
 		this.color = this._color = "rgba(255,255,255,1)";
 		this.moveX = null;
 		this.moveY = null;
-		//this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,0.1)");
+		// this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,0.1)");
 	}
 
 	public canCollide(element: Element): boolean {
 		return true;
 	}
 
-	public onMove(offsetX: number, offsetY: number): void {
+	public inc(offsetX: number, offsetY: number): void {
 		this.moveX += offsetX;
 		this.moveY += offsetY;
+	}
+
+	public move(x: number, y: number): void {
+		this.moveX = x - this.origin.x();
+		this.moveY = y - this.origin.y();
 	}
 
 	public update(step: number): void {
 		super.update(step);
 		if (this.moveX !== 0 || this.moveY !== 0) {
-			this.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
+			super.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
 			if (this.origin.x() > Runtime.screen.camera.area.width()) {
-				this.move(Runtime.screen.camera.area.width(), null);
+				super.move(Runtime.screen.camera.area.width(), null);
 			}
 			if (this.origin.y() > Runtime.screen.camera.area.height()) {
-				this.move(null, Runtime.screen.camera.area.height());
+				super.move(null, Runtime.screen.camera.area.height());
 			}
 			this.moveX = 0;
 			this.moveY = 0;
 		}
-		//this.light.update();
+		// this.light.update();
 	}
 
 	public render(ctx: CanvasRenderingContext2D): void {
 		this.area.render(ctx, this.color);
-		//this.light.draw(ctx);
+		// this.light.draw(ctx);
 	}
 
 }

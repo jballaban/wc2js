@@ -66,7 +66,7 @@ module.exports = function (grunt) {
 		},
 		watch: {
 			files: ['./src/**/*.ts', './src/**/*.html.ejs'],
-			'tasks': ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup']
+			'tasks': ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup', 'deploy']
 		},
 		bump: {
 			options: {
@@ -91,6 +91,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('readpkg', 'Read in the package.json file', function () {
 		grunt.config.set('pkg', grunt.file.readJSON('./package.json'));
 	});
-	grunt.registerTask('default', ['connect', 'open', 'watch']);
 	grunt.registerTask('deploy', ['s3:dev']);
+	grunt.registerTask('default', ['connect', 'open', 'watch']);
+
 }
