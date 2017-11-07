@@ -11,15 +11,23 @@ import { Runtime } from "../Core/Runtime";
 import { Color } from "../Util/Color";
 import { ElementContainer } from "../Core/ElementContainer";
 import { EventHandler } from "../Core/EventHandler";
+import { Viewport } from "../Core/Viewport";
 
 export abstract class Screen {
+
+	public getMouse(): Mouse {
+		return this.mouse;
+	}
+
 	public container: ElementContainer;
 	public mouse: Mouse;
 	public camera: Camera;
+	public viewport: Viewport;
 	private static _current: Screen;
 
 	constructor(mouse: Mouse) {
-		this.camera = new Camera();
+		this.viewport = new Viewport();
+		this.camera = new Camera(this.viewport);
 		this.mouse = mouse;
 	}
 
@@ -28,7 +36,9 @@ export abstract class Screen {
 	}
 
 	public static set current(screen: Screen) {
-		this._current = screen;
+		Screen._current = screen;
+		Viewport.current = screen.viewport;
+		screen.onActivate();
 	}
 
 	public init(regionsize: number, area: Rectangle): void {
@@ -38,28 +48,19 @@ export abstract class Screen {
 		}
 	}
 
-	public moveCamera(offsetX: number, offsetY: number): void {
-		if (this.camera.area.width() + offsetX > this.container.area.x2()) {
-			offsetX = this.container.area.x2() - this.camera.area.width();
-		}
-		if (this.camera.area.height() + offsetY > this.container.area.y2()) {
-			offsetY = this.container.area.y2() - this.camera.area.height();
-		}
-		this.camera.move(offsetX, offsetY);
-		this.container.recalculateVisibleRegions(this.camera.area);
-	}
-
 	public onResize(): void {
-		this.camera.resize();
 		this.container.recalculateVisibleRegions(this.camera.area);
 	}
 
 	public onActivate(): void {
-		this.onResize();
+		// to implement
 	}
 
 	public update(dt: number): void {
 		// this.moveCamera(this.camera.area.topLeft().x() + 1, null);
+		this.viewport.update();
+		this.camera.update();
+		Logger.log(this.viewport.area.bottomRight().x().toString());
 		this.doUpdates(dt);
 		this.preRender();
 		this.checkCollisions();
@@ -132,7 +133,7 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		for (var region of Runtime.screen.container.visibleRegionCache) {
+		for (var region of Screen.current.container.visibleRegionCache) {
 			if (!region.requiresRedraw) { continue; }
 			Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			Runtime.ctx.ctx.save();

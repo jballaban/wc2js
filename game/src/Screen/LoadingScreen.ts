@@ -12,11 +12,12 @@ import { Color } from "../Util/Color";
 import { ElementContainer } from "../Core/ElementContainer";
 import { Vector } from "../Core/Vector";
 import { Circle } from "../Shape/Circle";
+import { NoMouse } from "../IO/NoMouse";
 
 export class LoadingScreen extends Screen {
 
 	public constructor() {
-		super(null);
+		super(new NoMouse());
 		this.init(256, new Rectangle(new Point(0, 0, null), new Point(1024, 768, null)));
 	}
 

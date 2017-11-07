@@ -1,5 +1,5 @@
 import { Mouse } from "./Mouse";
-import { Runtime } from "../Core/Runtime";
+import { Screen } from "../UI/Screen";
 
 export class MouseHandler {
 
@@ -17,13 +17,13 @@ export class MouseHandler {
 
 	public static onTouch(e: TouchEvent): void {
 		e.preventDefault();
-		Runtime.screen.mouse.move(e.touches[0].screenX, e.touches[0].screenY);
+		Screen.current.getMouse().move(e.touches[0].screenX, e.touches[0].screenY);
 	}
 
 	public static onMouseMove(e: MouseEvent): void {
 		e.preventDefault();
 		if (MouseHandler.locked) {
-			Runtime.screen.mouse.inc(e.movementX, e.movementY);
+			Screen.current.getMouse().inc(e.movementX, e.movementY);
 		}
 	}
 

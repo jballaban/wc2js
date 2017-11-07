@@ -12,11 +12,12 @@ import { Color } from "../Util/Color";
 import { ElementContainer } from "../Core/ElementContainer";
 import { Vector } from "../Core/Vector";
 import { Circle } from "../Shape/Circle";
+import { BasicMouse } from "../IO/BasicMouse";
 
 export class PlayScreen extends Screen {
 
 	public constructor() {
-		super(new Mouse());
+		super(new BasicMouse());
 	}
 
 	public init(): void {
@@ -32,9 +33,9 @@ export class PlayScreen extends Screen {
 		}
 		this.container.register(new StaticThing(
 			"darkblue",
-			Runtime.screen.camera.area.getPoint(Position.Center),
+			Screen.current.camera.area.getPoint(Position.Center),
 			new Circle(
-				Runtime.screen.camera.area.getPoint(Position.Center), 300
+				Screen.current.camera.area.getPoint(Position.Center), 300
 			)
 		));
 	}

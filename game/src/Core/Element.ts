@@ -7,6 +7,7 @@ import { Rectangle } from "../Shape/Rectangle";
 import { Array as ArrayUtil } from "../Util/Array";
 import { ElementContainer } from "./ElementContainer";
 import { ElementType } from "./ElementType";
+import { Screen } from "../UI/Screen";
 
 export abstract class Element {
 
@@ -38,13 +39,13 @@ export abstract class Element {
 		this.origin.move(offsetX, offsetY);
 		if (this.origin.x() < 0) {
 			this.origin.move(0, null);
-		} else if (this.origin.x() > Runtime.screen.container.area.x2()) {
-			this.origin.move(Runtime.screen.container.area.x2(), null);
+		} else if (this.origin.x() > Screen.current.container.area.x2()) {
+			this.origin.move(Screen.current.container.area.x2(), null);
 		}
 		if (this.origin.y() < 0) {
 			this.origin.move(null, 0);
-		} else if (this.origin.y() > Runtime.screen.container.area.y2()) {
-			this.origin.move(null, Runtime.screen.container.area.y2());
+		} else if (this.origin.y() > Screen.current.container.area.y2()) {
+			this.origin.move(null, Screen.current.container.area.y2());
 		}
 	}
 
@@ -54,7 +55,7 @@ export abstract class Element {
 
 	public onPreRender(): void {
 		if (this.area.changed()) {
-			Runtime.screen.container.update(this, true);
+			Screen.current.container.update(this, true);
 			this.area.clearChanged();
 		}
 	}

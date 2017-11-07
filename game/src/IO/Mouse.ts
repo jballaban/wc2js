@@ -1,65 +1,31 @@
-import { Thing } from "../UI/Thing";
 import { Element } from "../Core/Element";
-import { Rectangle, PointRectangle } from "../Shape/Rectangle";
-import { Point } from "../Shape/Point";
-import { ContextLayer } from "../Core/ContextLayer";
-import { Circle } from "../Shape/Circle";
-import { Logger } from "../Util/Logger";
-import { Runtime } from "../Core/Runtime";
-import { Camera } from "../Core/Camera";
-import { ElementType } from "../Core/ElementType";
-import { Vector } from "../Core/Vector";
-import { Light } from "../UI/Light";
 
-export class Mouse extends Element {
-	private _color: string;
-	private color: string;
-	private moveX: number;
-	private moveY: number;
-	// private light: Light;
+export abstract class Mouse extends Element {
+	private moveX: number = null;
+	private moveY: number = null;
 
-	public constructor() {
-		var origin: Point = new Point(0, 0, null);
-		super(ElementType.Mouse, origin, new Circle(origin, 50), 10);
-		this.color = this._color = "rgba(255,255,255,1)";
-		this.moveX = null;
-		this.moveY = null;
-		// this.light = new Light(new Circle(origin, 200), 200, "rgba(255,255,255,0.1)");
-	}
+	public abstract canCollide(element: Element): boolean;
 
-	public canCollide(element: Element): boolean {
-		return true;
-	}
-
-	public inc(offsetX: number, offsetY: number): void {
-		this.moveX += offsetX;
-		this.moveY += offsetY;
+	public inc(x: number, y: number): void {
+		this.move(
+			(this.moveX == null ? this.origin.x() : this.moveX) + x,
+			(this.moveY == null ? this.origin.y() : this.moveY) + y
+		);
 	}
 
 	public move(x: number, y: number): void {
-		this.moveX = x - this.origin.x();
-		this.moveY = y - this.origin.y();
+		this.moveX = x;
+		this.moveY = y;
 	}
 
 	public update(step: number): void {
 		super.update(step);
-		if (this.moveX !== 0 || this.moveY !== 0) {
-			super.move(this.origin.x() + this.moveX, this.origin.y() + this.moveY);
-			if (this.origin.x() > Runtime.screen.camera.area.width()) {
-				super.move(Runtime.screen.camera.area.width(), null);
-			}
-			if (this.origin.y() > Runtime.screen.camera.area.height()) {
-				super.move(null, Runtime.screen.camera.area.height());
-			}
-			this.moveX = 0;
-			this.moveY = 0;
+		if (this.moveX != null || this.moveY != null) {
+			super.move(this.moveX, this.moveY);
+			this.moveX = this.moveY = null;
 		}
-		// this.light.update();
 	}
 
-	public render(ctx: CanvasRenderingContext2D): void {
-		this.area.render(ctx, this.color);
-		// this.light.draw(ctx);
-	}
+	public abstract render(ctx: CanvasRenderingContext2D): void;
 
 }

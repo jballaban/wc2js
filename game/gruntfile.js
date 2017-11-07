@@ -7,10 +7,16 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks("grunt-aws");
+	grunt.loadNpmTasks('grunt-gitinfo');
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		aws: grunt.file.readJSON("aws-credentials.json"),
+		gitinfo: {
+			options: {
+				cwd: "../"
+			}
+		},
 		connect: {
 			server: {
 				options: {
@@ -83,7 +89,8 @@ module.exports = function (grunt) {
 			},
 			dev: {
 				cwd: "./dist",
-				src: "**"
+				src: "**",
+				dest: "<%= gitinfo.local.branch.current.name %>/"
 			}
 		}
 
@@ -91,7 +98,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('readpkg', 'Read in the package.json file', function () {
 		grunt.config.set('pkg', grunt.file.readJSON('./package.json'));
 	});
-	grunt.registerTask('deploy', ['s3:dev']);
+	grunt.registerTask('deploy', ['gitinfo', 's3:dev']);
 	grunt.registerTask('default', ['connect', 'open', 'watch']);
 
 }
