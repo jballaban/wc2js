@@ -11,6 +11,7 @@ import { Logger } from "../Util/Logger";
 import { Color } from "../Util/Color";
 import { Runtime } from "../Core/Runtime";
 import { ElementType } from "../Core/ElementType";
+import { Screen } from "../UI/Screen";
 
 export class StaticThing extends Element {
 	private _color: string;
@@ -27,10 +28,10 @@ export class StaticThing extends Element {
 	public onCollide(element: Element, on: boolean): void {
 		if (on && this.color === this._color) {
 			this.color = "gray";
-			Runtime.screen.container.update(this, false);
+			Screen.current.container.update(this, false);
 		} else if (!on && this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
-			Runtime.screen.container.update(this, false);
+			Screen.current.container.update(this, false);
 		}
 	}
 
@@ -49,7 +50,7 @@ export class Thing extends Element {
 
 	constructor(color: string) {
 		var origin: Point = new Point(Math.random() * 1024, Math.random() * 768, null);
-		var shape: IShape = Math.floor(Math.random() * 2) == 1 ?
+		var shape: IShape = Math.floor(Math.random() * 2) === 1 ?
 			new Rectangle(origin, new Point(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), origin))
 			: new Circle(origin, Math.floor(Math.random() * 10));
 		super(ElementType.Thing, origin, shape, 5);
@@ -69,8 +70,8 @@ export class Thing extends Element {
 		this.speed = Math.max(this.minSpeed, this.speed);
 		var move: Vector = this.direction.clone().multiply(step * this.speed);
 		this.inc(move.x, move.y);
-		if (this.origin.x() <= 0 || this.origin.x() >= Runtime.screen.container.area.width()
-			|| this.origin.y() <= 0 || this.origin.y() >= Runtime.screen.container.area.height()) {
+		if (this.origin.x() <= 0 || this.origin.x() >= Screen.current.container.area.width()
+			|| this.origin.y() <= 0 || this.origin.y() >= Screen.current.container.area.height()) {
 			this.direction.multiply(-1);
 		}
 		super.update(step);
@@ -78,19 +79,20 @@ export class Thing extends Element {
 
 	public onCollide(element: Element, on: boolean): void {
 		if (this.color === this._color && this.collisions.length > 0) {
-			this.color = "red";
-			Runtime.screen.container.update(this, false);
+			this.color = "rgba(255,0,0,0.8)";
+			Screen.current.container.update(this, false);
 		} else if (this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
-			Runtime.screen.container.update(this, false);
+			Screen.current.container.update(this, false);
 		}
-		if (on && element.type === ElementType.Mouse) {
+		if (on && (
+			element.type === ElementType.Mouse
+		)) {
 			this.direction = new Vector(
 				this.origin.x() - element.origin.x(),
 				this.origin.y() - element.origin.y()
-			)
-			//(element as Thing).direction = (element as Thing).direction.multiply(-1.1);
-			this.speed = this.maxSpeed;
+			);
+			this.speed = Math.ceil(Math.random() * this.maxSpeed / 2) + this.maxSpeed / 2;
 		}
 	}
 

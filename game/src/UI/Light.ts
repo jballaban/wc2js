@@ -7,6 +7,7 @@ import { ShapeType } from "../Shape/IShape";
 import { Logger } from "../Util/Logger";
 import { Collision } from "../Util/Collision";
 import { Line } from "../Shape/Line";
+import { Screen } from "../UI/Screen";
 
 export class Light {
 	private paths: Point[];
@@ -19,11 +20,11 @@ export class Light {
 		var ray: Line = new Line(this.area.center, new Point(0, 0, this.area.center));
 		for (var angle: number = 0; angle < 360; angle += 5) {
 			var p: Point = new Point(this.spread * Math.cos(Math.PI * angle / 180.0), this.spread * Math.sin(Math.PI * angle / 180.0), ray.p1);
-			for (var i: number = 0; i < Runtime.screen.mouse.collisions.length; i++) {
-				if (Runtime.screen.mouse.collisions[i].area.type === ShapeType.Circle) {
+			for (var i: number = 0; i < Screen.current.mouse.collisions.length; i++) {
+				if (Screen.current.mouse.collisions[i].area.type === ShapeType.Circle) {
 					var point: Point = Collision.getIntersectionLineCircle(
 						new Line(ray.p1, p),
-						Runtime.screen.mouse.collisions[i].area as Circle
+						Screen.current.mouse.collisions[i].area as Circle
 					);
 					if (point != null) {
 						p = point;
@@ -32,7 +33,7 @@ export class Light {
 			}
 			this.paths.push(p);
 		}
-		Runtime.screen.container.update(Runtime.screen.mouse, false);
+		Screen.current.container.update(Screen.current.mouse, false);
 	}
 
 	public draw(ctx: CanvasRenderingContext2D): void {

@@ -1,5 +1,5 @@
 import { Mouse } from "./Mouse";
-import { Runtime } from "../Core/Runtime";
+import { Screen } from "../UI/Screen";
 
 export class MouseHandler {
 
@@ -8,15 +8,22 @@ export class MouseHandler {
 	public static locked: boolean = false;
 
 	public static init(): void {
-		document.addEventListener("mousemove", MouseHandler.mouseMove);
-		document.addEventListener("touchmove", MouseHandler.mouseMove, false);
+		document.addEventListener("mousemove", MouseHandler.onMouseMove);
+		document.addEventListener("touchstart", MouseHandler.onTouch);
+		document.addEventListener("touchmove", MouseHandler.onTouch);
 		document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
 		document.body.onclick = document.body.requestPointerLock;
 	}
 
-	public static mouseMove(e: any): void {
+	public static onTouch(e: TouchEvent): void {
+		e.preventDefault();
+		Screen.current.getMouse().move(e.touches[0].screenX, e.touches[0].screenY);
+	}
+
+	public static onMouseMove(e: MouseEvent): void {
+		e.preventDefault();
 		if (MouseHandler.locked) {
-			Runtime.screen.mouse.onMove(e.movementX, e.movementY);
+			Screen.current.getMouse().inc(e.movementX, e.movementY);
 		}
 	}
 
