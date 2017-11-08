@@ -1,4 +1,4 @@
-import { Point } from "../Shape/Point";
+/* import { Point } from "../Shape/Point";
 import { Circle } from "../Shape/Circle";
 import { Runtime } from "../Core/Runtime";
 import { Rectangle } from "../Shape/Rectangle";
@@ -7,7 +7,7 @@ import { ShapeType } from "../Shape/IShape";
 import { Logger } from "../Util/Logger";
 import { Collision } from "../Util/Collision";
 import { Line } from "../Shape/Line";
-import { Screen } from "../UI/Screen";
+import { Screen } from "../Core/Screen";
 
 export class Light {
 	private paths: Point[];
@@ -52,4 +52,4 @@ export class Light {
 		}
 		ctx.fill();
 	}
-}
+} */

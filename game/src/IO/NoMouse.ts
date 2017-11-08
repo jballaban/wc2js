@@ -9,7 +9,6 @@ import { Runtime } from "../Core/Runtime";
 import { Camera } from "../Core/Camera";
 import { ElementType } from "../Core/ElementType";
 import { Vector } from "../Core/Vector";
-import { Light } from "../UI/Light";
 import { Mouse } from "./Mouse";
 
 export class NoMouse extends Mouse {

@@ -19,13 +19,17 @@ export class Viewport {
 
 	public static set current(viewport: Viewport) {
 		Viewport._current = viewport;
-		window.onresize = viewport.resize;
+		window.onresize = viewport.resize.bind(viewport);
 		viewport.resize();
 	}
 
 	public resize(): void {
 		this.resizeX = window.innerWidth;
 		this.resizeY = window.innerHeight;
+	}
+
+	public onPreRender(): void {
+		this.area.clearChanged();
 	}
 
 	public update(): void {

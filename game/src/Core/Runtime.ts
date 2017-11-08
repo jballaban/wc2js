@@ -1,6 +1,6 @@
 import { Logger, Level } from "../Util/Logger";
 import { Game } from "../Game";
-import { Screen } from "../UI/Screen";
+import { Screen } from "../Core/Screen";
 import { Camera } from "./Camera";
 import { ContextLayer } from "./ContextLayer";
 import { MouseHandler } from "../IO/MouseHandler";
@@ -46,6 +46,7 @@ export class Runtime {
 		Runtime.fps.tickStart();
 		if (Screen.current != null) {
 			// runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
+			MouseHandler.update();
 			Screen.current.update(Math.min(1, (now - Runtime.last) / 1000));
 			/* while (Runtime.dt > Runtime.step) {
 				Runtime.dt = Runtime.dt - Runtime.step;

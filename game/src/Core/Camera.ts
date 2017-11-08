@@ -6,20 +6,22 @@ import { ContextLayer } from "../Core/ContextLayer";
 import { ElementRegion } from "./ElementContainer";
 import { EventHandler } from "./EventHandler";
 import { Viewport } from "./Viewport";
+import { Screen } from "../Core/Screen";
 
 export class Camera {
 	public area: Rectangle;
-	private viewportWatcher: Point;
+	private viewport: Viewport;
 
 	public constructor(viewport: Viewport) {
-		this.viewportWatcher = new Point(0, 0, viewport.area.bottomRight());
 		var origin: Point = new Point(0, 0);
-		this.area = new Rectangle(origin, new Point(viewport.area.bottomRight().x(), viewport.area.bottomRight().y(), origin));
+		this.viewport = viewport;
+		this.area = new Rectangle(origin, new Point(viewport.area.width(), viewport.area.height(), origin));
 	}
 
 	public update(): void {
-		if (this.viewportWatcher.changed) {
-			this.area.bottomRight().move(this.viewportWatcher.x(), this.viewportWatcher.y());
+		if (this.viewport.area.changed()) {
+			this.area.bottomRight().move(this.viewport.area.width(), this.viewport.area.height());
+			Screen.current.container.recalculateVisibleRegions(this.area);
 		}
 	}
 

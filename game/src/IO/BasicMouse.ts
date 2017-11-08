@@ -9,15 +9,14 @@ import { Runtime } from "../Core/Runtime";
 import { Camera } from "../Core/Camera";
 import { ElementType } from "../Core/ElementType";
 import { Vector } from "../Core/Vector";
-import { Light } from "../UI/Light";
 import { Mouse } from "./Mouse";
 
 export class BasicMouse extends Mouse {
 	private _color: string;
 	private color: string;
 
-	public constructor() {
-		var origin: Point = new Point(0, 0, null);
+	public constructor(x: number, y: number) {
+		var origin: Point = new Point(x, y);
 		super(ElementType.Mouse, origin, new Circle(origin, 50), 10);
 		this.color = this._color = "rgba(255,255,255,1)";
 	}

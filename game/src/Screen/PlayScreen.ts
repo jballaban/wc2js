@@ -1,4 +1,4 @@
-import { Screen } from "UI/Screen";
+import { Screen } from "../Core/Screen";
 import { Rectangle } from "../Shape/Rectangle";
 import { Camera } from "../Core/Camera";
 import { Runtime } from "Core/Runtime";
@@ -17,7 +17,7 @@ import { BasicMouse } from "../IO/BasicMouse";
 export class PlayScreen extends Screen {
 
 	public constructor() {
-		super(new BasicMouse());
+		super();
 	}
 
 	public init(): void {

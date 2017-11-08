@@ -11,7 +11,7 @@ import { Logger } from "../Util/Logger";
 import { Color } from "../Util/Color";
 import { Runtime } from "../Core/Runtime";
 import { ElementType } from "../Core/ElementType";
-import { Screen } from "../UI/Screen";
+import { Screen } from "../Core/Screen";
 
 export class StaticThing extends Element {
 	private _color: string;

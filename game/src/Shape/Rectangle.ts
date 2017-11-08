@@ -53,6 +53,10 @@ export class Rectangle extends Polygon implements IShape {
 		return this.points.get(Position.BottomRight);
 	}
 
+	public toString(): string {
+		return "[" + this.x() + "," + this.y() + "] - [" + this.x2() + "," + this.y2() + "]";
+	}
+
 	public getPoint(position: Position): Point {
 		var result: Point = super.getPoint(position);
 		if (result == null) {

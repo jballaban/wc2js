@@ -7,7 +7,7 @@ import { Rectangle } from "../Shape/Rectangle";
 import { Array as ArrayUtil } from "../Util/Array";
 import { ElementContainer } from "./ElementContainer";
 import { ElementType } from "./ElementType";
-import { Screen } from "../UI/Screen";
+import { Screen } from "../Core/Screen";
 
 export abstract class Element {
 

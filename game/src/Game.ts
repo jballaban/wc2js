@@ -1,6 +1,6 @@
 import { Runtime } from "./Core/Runtime";
 import { Logger, Level } from "./Util/logger";
-import { Screen } from "./UI/Screen";
+import { Screen } from "./Core/Screen";
 import { PlayScreen } from "./Screen/PlayScreen";
 import { LoadingScreen } from "./Screen/LoadingScreen";
 
@@ -12,6 +12,7 @@ export class Game {
 		Runtime.init();
 		var playscreen: PlayScreen = new PlayScreen();
 		var loadscreen: LoadingScreen = new LoadingScreen();
-		Runtime.nextScreen = playscreen;
+		Screen.debug_showRedraws = true;
+		Runtime.nextScreen = loadscreen;
 	}
 }

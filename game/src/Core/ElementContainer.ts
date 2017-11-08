@@ -3,7 +3,6 @@ import { Rectangle } from "../Shape/Rectangle";
 import { RegionContainer, Region } from "./Region";
 import { Element } from "./Element";
 
-
 export class ElementRegion extends Region {
 	public elements: Element[] = new Array<Element>();
 	public requiresRedraw: boolean = false;
@@ -38,14 +37,18 @@ export class ElementContainer {
 	}
 
 	public register(element: Element): void {
+		if (this.elementsCache.indexOf(element) > -1) {
+			throw "Dup registration";
+		}
 		this.elements.set(element, new Array<ElementRegion>());
 		this.update(element, true);
 		this.insertSorted(element, this.elementsCache);
 	}
 
 	public deregister(element: Element): void {
-		for (var region of this.elements.get(element)) {
-			this.remove(element, region);
+		var regions: ElementRegion[] = this.elements.get(element);
+		for (var i: number = 0; i < regions.length; i++) {
+			this.remove(element, regions[i--]);
 		}
 		this.elementsCache.splice(this.elementsCache.indexOf(element), 1);
 		this.elements.delete(element);

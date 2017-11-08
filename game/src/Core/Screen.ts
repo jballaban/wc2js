@@ -12,23 +12,19 @@ import { Color } from "../Util/Color";
 import { ElementContainer } from "../Core/ElementContainer";
 import { EventHandler } from "../Core/EventHandler";
 import { Viewport } from "../Core/Viewport";
+import { MouseHandler } from "../IO/MouseHandler";
 
 export abstract class Screen {
 
-	public getMouse(): Mouse {
-		return this.mouse;
-	}
-
 	public container: ElementContainer;
-	public mouse: Mouse;
 	public camera: Camera;
-	public viewport: Viewport;
+	private viewport: Viewport;
 	private static _current: Screen;
+	public static debug_showRedraws = false;
 
-	constructor(mouse: Mouse) {
+	constructor() {
 		this.viewport = new Viewport();
 		this.camera = new Camera(this.viewport);
-		this.mouse = mouse;
 	}
 
 	public static get current(): Screen {
@@ -43,13 +39,6 @@ export abstract class Screen {
 
 	public init(regionsize: number, area: Rectangle): void {
 		this.container = new ElementContainer(regionsize, area);
-		if (this.mouse != null) {
-			this.container.register(this.mouse);
-		}
-	}
-
-	public onResize(): void {
-		this.container.recalculateVisibleRegions(this.camera.area);
 	}
 
 	public onActivate(): void {
@@ -60,8 +49,9 @@ export abstract class Screen {
 		// this.moveCamera(this.camera.area.topLeft().x() + 1, null);
 		this.viewport.update();
 		this.camera.update();
-		Logger.log(this.viewport.area.bottomRight().x().toString());
 		this.doUpdates(dt);
+		MouseHandler.postUpdate();
+		this.viewport.onPreRender();
 		this.preRender();
 		this.checkCollisions();
 	}
@@ -133,16 +123,20 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		for (var region of Screen.current.container.visibleRegionCache) {
+		var max: number = 0;
+		for (var region of this.container.visibleRegionCache) {
 			if (!region.requiresRedraw) { continue; }
+			max = Math.max(max, region.elements.length);
 			Runtime.ctx.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			Runtime.ctx.ctx.save();
 			// clip a rectangular area
 			Runtime.ctx.ctx.beginPath();
 			Runtime.ctx.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			Runtime.ctx.ctx.clip();
-			// aRuntime.ctx.ctx.fillStyle = Color.getRandomColor();
-			// aRuntime.ctx.ctx.fillRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+			if (Screen.debug_showRedraws) {
+				Runtime.ctx.ctx.fillStyle = Color.getRandomColor();
+				Runtime.ctx.ctx.fillRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+			}
 			for (var i: number = 0; i < region.elements.length; i++) {
 				region.elements[i].render(Runtime.ctx.ctx);
 			}

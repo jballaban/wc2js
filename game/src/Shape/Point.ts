@@ -50,7 +50,7 @@ export class Point {
 		if (offsetY != null) {
 			this.offsetY = offsetY;
 		}
-		this.dirty = true;
+		this.changed = this.dirty = true;
 	}
 
 	private calculate(field: string): number {
