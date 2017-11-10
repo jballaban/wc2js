@@ -815,7 +815,7 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
             this.state = state;
         }
         static fromTouch(e) {
-            return new Cursor(e.screenX, e.screenY, CursorState.added);
+            return new Cursor(e.clientX, e.clientY, CursorState.added);
         }
     }
     exports.Cursor = Cursor;
@@ -878,7 +878,9 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
             e.preventDefault();
             for (var i = 0; i < e.changedTouches.length; i++) {
                 var cursor = MouseHandler._cursors.get(e.changedTouches[i].identifier);
-                cursor.state = CursorState.moved;
+                if (cursor.state === CursorState.unchanged) {
+                    cursor.state = CursorState.moved;
+                }
                 cursor.x = e.changedTouches[i].clientX;
                 cursor.y = e.changedTouches[i].clientY;
             }

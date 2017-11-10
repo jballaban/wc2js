@@ -2,6 +2,7 @@
 <html>
 
 <head>
+	<title></title>
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-title" content="James" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
@@ -30,7 +31,8 @@
 		require(["Game"], function (start) {
 			start.Game.init(function () {
 				var diff = new Date() - new Date("<%= grunt.template.today() %>");
-				return "<%= pkg.version %> compiled " + Math.floor(diff / 1000) + " seconds ago";
+				document.title = "<%= pkg.version %> compiled " + Math.floor(diff / 1000) + " seconds ago";
+				return document.title;
 			}());
 		});
 	</script>

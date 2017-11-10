@@ -71,8 +71,14 @@ module.exports = function (grunt) {
 			}
 		},
 		watch: {
-			files: ['./src/**/*.ts', './src/**/*.html.ejs'],
-			'tasks': ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup', 'deploy']
+			remote: {
+				files: ['./src/**/*.ts', './src/**/*.html.ejs'],
+				tasks: ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup', 'deploy']
+			},
+			local: {
+				files: ['./src/**/*.ts', './src/**/*.html.ejs'],
+				tasks: ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup'],
+			}
 		},
 		bump: {
 			options: {
@@ -100,5 +106,5 @@ module.exports = function (grunt) {
 	});
 	grunt.registerTask('deploy', ['gitinfo', 's3:dev']);
 	grunt.registerTask('default', ['connect', 'open', 'watch']);
-
+	grunt.registerTask('local', ['connect', 'open', 'watch:local']);
 }

@@ -18,7 +18,7 @@ export class Cursor {
 		public state: CursorState) { }
 
 	public static fromTouch(e: Touch): Cursor {
-		return new Cursor(e.screenX, e.screenY, CursorState.added);
+		return new Cursor(e.clientX, e.clientY, CursorState.added);
 	}
 }
 
@@ -99,7 +99,9 @@ export class MouseHandler {
 		e.preventDefault();
 		for (var i: number = 0; i < e.changedTouches.length; i++) {
 			var cursor: Cursor = MouseHandler._cursors.get(e.changedTouches[i].identifier);
-			cursor.state = CursorState.moved;
+			if (cursor.state === CursorState.unchanged) {
+				cursor.state = CursorState.moved;
+			}
 			cursor.x = e.changedTouches[i].clientX;
 			cursor.y = e.changedTouches[i].clientY;
 		}
