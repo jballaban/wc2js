@@ -76,11 +76,11 @@ module.exports = function (grunt) {
 		watch: {
 			remote: {
 				files: ['./src/**/*.ts', './src/**/*.html.ejs'],
-				tasks: ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup', 'deploy']
+				tasks: ['readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup', 'deploy']
 			},
 			local: {
 				files: ['./src/**/*.ts', './src/**/*.html.ejs'],
-				tasks: ['bump', 'readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup'],
+				tasks: ['readpkg', 'clean:dev', 'ts', 'copy:dev', 'clean:cleanup'],
 			}
 		},
 		bump: {
