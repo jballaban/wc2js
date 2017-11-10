@@ -14,14 +14,14 @@ export class ContextLayer {
 
 	constructor(private viewport: Viewport, private zindex: number) { }
 
-	public init(): void {
+	public activate(): void {
 		var canv: HTMLCanvasElement = document.createElement("canvas");
 		canv.style.setProperty("z-index", this.zindex.toString());
 		document.body.appendChild(canv);
 		this.ctx = canv.getContext("2d");
 	}
 
-	public destroy(): void {
+	public deactivate(): void {
 		document.body.removeChild(this.ctx.canvas);
 	}
 

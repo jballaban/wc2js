@@ -244,9 +244,10 @@ define("Shape/Circle", ["require", "exports", "Shape/IShape", "Util/Collision"],
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Circle {
-        constructor(point, radius) {
+        constructor(center, radius) {
+            this.center = center;
             this.type = IShape_1.ShapeType.Circle;
-            this.center = point;
+            this.origin = center;
             this.r = radius;
         }
         changed() {
@@ -388,29 +389,30 @@ define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point",
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Rectangle extends Polygon_1.Polygon {
-        constructor(topleft, bottomright) {
+        constructor(topLeft, bottomRight) {
             super();
+            this.topLeft = topLeft;
+            this.bottomRight = bottomRight;
             this.type = IShape_3.ShapeType.Rectangle;
-            this.points.set(Polygon_1.Position.TopLeft, topleft);
-            this.points.set(Polygon_1.Position.BottomRight, bottomright);
+            this.origin = topLeft;
         }
         changed() {
-            return this.topLeft().changed || this.bottomRight().changed;
+            return this.topLeft.changed || this.bottomRight.changed;
         }
         clearChanged() {
-            this.topLeft().changed = this.bottomRight().changed = false;
+            this.topLeft.changed = this.bottomRight.changed = false;
         }
         x() {
-            return this.getPoint(Polygon_1.Position.TopLeft).x();
+            return this.topLeft.x();
         }
         y() {
-            return this.getPoint(Polygon_1.Position.TopLeft).y();
+            return this.topLeft.y();
         }
         x2() {
-            return this.getPoint(Polygon_1.Position.BottomRight).x();
+            return this.bottomRight.x();
         }
         y2() {
-            return this.getPoint(Polygon_1.Position.BottomRight).y();
+            return this.bottomRight.y();
         }
         width() {
             return this.x2() - this.x();
@@ -418,46 +420,8 @@ define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point",
         height() {
             return this.y2() - this.y();
         }
-        topLeft() {
-            return this.points.get(Polygon_1.Position.TopLeft);
-        }
-        bottomRight() {
-            return this.points.get(Polygon_1.Position.BottomRight);
-        }
         toString() {
             return "[" + this.x() + "," + this.y() + "] - [" + this.x2() + "," + this.y2() + "]";
-        }
-        getPoint(position) {
-            var result = super.getPoint(position);
-            if (result == null) {
-                switch (position) {
-                    case Polygon_1.Position.TopCenter:
-                        result = new Point_2.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.TopRight));
-                        break;
-                    case Polygon_1.Position.TopRight:
-                        result = new Point_2.DynamicPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight), Point_2.DynamicDimension.x);
-                        break;
-                    case Polygon_1.Position.RightCenter:
-                        result = new Point_2.MidPoint(this.getPoint(Polygon_1.Position.TopRight), this.getPoint(Polygon_1.Position.BottomRight));
-                        break;
-                    case Polygon_1.Position.BottomCenter:
-                        result = new Point_2.MidPoint(this.getPoint(Polygon_1.Position.BottomLeft), this.getPoint(Polygon_1.Position.BottomRight));
-                        break;
-                    case Polygon_1.Position.BottomLeft:
-                        result = new Point_2.DynamicPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight), Point_2.DynamicDimension.y);
-                        break;
-                    case Polygon_1.Position.LeftCenter:
-                        result = new Point_2.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomLeft));
-                        break;
-                    case Polygon_1.Position.Center:
-                        result = new Point_2.MidPoint(this.getPoint(Polygon_1.Position.TopLeft), this.getPoint(Polygon_1.Position.BottomRight));
-                        break;
-                    default:
-                        throw "Rectangle: Unknown position " + position;
-                }
-                this.points.set(position, result);
-            }
-            return result;
         }
         intersects(shape) {
             return Collision_2.Collision.intersects(this, shape);
@@ -545,16 +509,11 @@ define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle"]
         constructor() {
             this.resizeX = null;
             this.resizeY = null;
-            var origin = new Point_4.Point(0, 0);
-            this.area = new Rectangle_2.Rectangle(origin, new Point_4.Point(0, 0, origin));
+            this.area = new Rectangle_2.Rectangle(new Point_4.Point(0, 0), new Point_4.Point(0, 0));
         }
-        static get current() {
-            return Viewport._current;
-        }
-        static set current(viewport) {
-            Viewport._current = viewport;
-            window.onresize = viewport.resize.bind(viewport);
-            viewport.resize();
+        activate() {
+            window.onresize = this.resize.bind(this);
+            this.resize();
         }
         resize() {
             this.resizeX = window.innerWidth;
@@ -565,7 +524,7 @@ define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle"]
         }
         preUpdate() {
             if (this.resizeX != null || this.resizeY != null) {
-                this.area.bottomRight().move(this.resizeX, this.resizeY);
+                this.area.bottomRight.move(this.resizeX, this.resizeY);
                 this.resizeX = this.resizeY = null;
             }
         }
@@ -580,13 +539,13 @@ define("Core/ContextLayer", ["require", "exports"], function (require, exports) 
             this.viewport = viewport;
             this.zindex = zindex;
         }
-        init() {
+        activate() {
             var canv = document.createElement("canvas");
             canv.style.setProperty("z-index", this.zindex.toString());
             document.body.appendChild(canv);
             this.ctx = canv.getContext("2d");
         }
-        destroy() {
+        deactivate() {
             document.body.removeChild(this.ctx.canvas);
         }
         preUpdate() {
@@ -730,50 +689,41 @@ define("Core/ElementType", ["require", "exports"], function (require, exports) {
     Object.defineProperty(exports, "__esModule", { value: true });
     var ElementType;
     (function (ElementType) {
-        ElementType[ElementType["Thing"] = 0] = "Thing";
-        ElementType[ElementType["StaticThing"] = 1] = "StaticThing";
-        ElementType[ElementType["Mouse"] = 2] = "Mouse";
+        ElementType[ElementType["Any"] = 1] = "Any";
+        ElementType[ElementType["None"] = 2] = "None";
+        ElementType[ElementType["Thing"] = 4] = "Thing";
+        ElementType[ElementType["StaticThing"] = 8] = "StaticThing";
+        ElementType[ElementType["Mouse"] = 16] = "Mouse";
     })(ElementType = exports.ElementType || (exports.ElementType = {}));
 });
-define("Core/Element", ["require", "exports", "Core/Screen"], function (require, exports, Screen_1) {
+define("Core/Element", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Element {
-        constructor(type, origin, area, zIndex) {
+        constructor(container, type, area, zIndex, collisionFilter) {
+            this.container = container;
+            this.collisionFilter = collisionFilter;
             this.collisions = new Array();
             this.type = type;
-            this.origin = origin;
             this.area = area;
             this.zIndex = zIndex;
         }
         onCollide(element, on) {
         }
         inc(offsetx, offsety) {
-            this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
+            this.move(this.area.origin.offsetX + offsetx, this.area.origin.offsetY + offsety);
         }
         move(offsetX, offsetY) {
-            if (offsetX === this.origin.offsetX && offsetY === this.origin.offsetY) {
+            if (offsetX === this.area.origin.offsetX && offsetY === this.area.origin.offsetY) {
                 return;
             }
-            this.origin.move(offsetX, offsetY);
-            if (this.origin.x() < 0) {
-                this.origin.move(0, null);
-            }
-            else if (this.origin.x() > Screen_1.Screen.current.container.area.x2()) {
-                this.origin.move(Screen_1.Screen.current.container.area.x2(), null);
-            }
-            if (this.origin.y() < 0) {
-                this.origin.move(null, 0);
-            }
-            else if (this.origin.y() > Screen_1.Screen.current.container.area.y2()) {
-                this.origin.move(null, Screen_1.Screen.current.container.area.y2());
-            }
+            this.area.origin.move(offsetX, offsetY);
         }
         update(step) {
         }
         preRender() {
             if (this.area.changed()) {
-                Screen_1.Screen.current.container.update(this, true);
+                this.container.update(this, true);
                 this.area.clearChanged();
             }
         }
@@ -957,18 +907,12 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
             this.camera = new Camera_1.Camera(this.viewport);
             this.container = new ElementContainer_1.ElementContainer(regionsize, area);
         }
-        static get current() {
-            return Screen._current;
-        }
-        static set current(screen) {
-            Screen._current = screen;
-            Viewport_1.Viewport.current = screen.viewport;
-        }
         activate() {
-            this.layer.init();
+            this.layer.activate();
+            this.viewport.activate();
         }
         deactivate() {
-            this.layer.destroy();
+            this.layer.deactivate();
         }
         preUpdate() {
             this.viewport.preUpdate();
@@ -1005,45 +949,44 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
         }
         checkForNewCollisions(element, elements, startindex) {
             for (var k = startindex + 1; k < elements.length; k++) {
-                if (!element.area.changed && !elements[k].area.changed) {
-                    continue;
-                }
-                if (Array_1.Array.exists(elements[k], element.collisions)) {
-                    continue;
-                }
-                if (element.canCollide(elements[k])
-                    && elements[k].canCollide(element)
+                if ((element.area.changed()
+                    || elements[k].area.changed()) && ((element.collisionFilter & elements[k].type) !== 0
+                    || (elements[k].collisionFilter & element.type) !== 0)
+                    && !Array_1.Array.exists(elements[k], element.collisions)
                     && Collision_3.Collision.intersects(element.area, elements[k].area)) {
-                    element.collisions.push(elements[k]);
-                    elements[k].collisions.push(element);
-                    element.onCollide(elements[k], true);
-                    elements[k].onCollide(element, true);
+                    if ((element.collisionFilter & elements[k].type) !== 0) {
+                        element.collisions.push(elements[k]);
+                        element.onCollide(elements[k], true);
+                    }
+                    if ((elements[k].collisionFilter & element.type) !== 0) {
+                        elements[k].collisions.push(element);
+                        elements[k].onCollide(element, true);
+                    }
                 }
             }
         }
         checkExistingCollisions(element) {
             for (var k = 0; k < element.collisions.length; k++) {
-                if (!element.area.changed && !element.collisions[k].area.changed) {
+                if (!element.area.changed() && !element.collisions[k].area.changed()) {
                     continue;
                 }
-                if (!element.canCollide(element.collisions[k])
-                    || !element.collisions[k].canCollide(element)
-                    || !Collision_3.Collision.intersects(element.area, element.collisions[k].area)) {
+                if (!Collision_3.Collision.intersects(element.area, element.collisions[k].area)) {
                     var other = element.collisions[k];
-                    other.collisions.splice(Array_1.Array.indexOf(element, other.collisions), 1);
-                    other.onCollide(element, false);
+                    var index = Array_1.Array.indexOf(element, other.collisions);
+                    if (index > -1) {
+                        other.collisions.splice(index, 1);
+                        other.onCollide(element, false);
+                    }
                     element.collisions.splice(k--, 1);
                     element.onCollide(other, false);
                 }
             }
         }
         render() {
-            var max = 0;
             for (var region of this.visibleRegionCache) {
                 if (!region.requiresRedraw) {
                     continue;
                 }
-                max = Math.max(max, region.elements.length);
                 this.layer.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
                 this.layer.ctx.save();
                 this.layer.ctx.beginPath();
@@ -1064,25 +1007,23 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
     Screen.debug_showRedraws = false;
     exports.Screen = Screen;
 });
-define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Shape/Point", "Core/Vector", "Shape/Circle", "Core/ElementType", "Core/Screen"], function (require, exports, Element_2, Rectangle_3, Point_5, Vector_2, Circle_1, ElementType_1, Screen_2) {
+define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/ElementType"], function (require, exports, Element_2, Vector_2, ElementType_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class StaticThing extends Element_2.Element {
-        constructor(color, origin, area) {
-            super(ElementType_1.ElementType.StaticThing, origin, area, 4);
+        constructor(container, color, area) {
+            super(container, ElementType_1.ElementType.StaticThing, area, 4, ElementType_1.ElementType.Thing);
+            this.color = color;
             this.color = this._color = color;
-        }
-        canCollide(element) {
-            return element.type === ElementType_1.ElementType.Thing;
         }
         onCollide(element, on) {
             if (on && this.color === this._color) {
                 this.color = "gray";
-                Screen_2.Screen.current.container.update(this, false);
+                this.container.update(this, false);
             }
             else if (!on && this.color !== this._color && this.collisions.length === 0) {
                 this.color = this._color;
-                Screen_2.Screen.current.container.update(this, false);
+                this.container.update(this, false);
             }
         }
         render(ctx) {
@@ -1091,28 +1032,21 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
     }
     exports.StaticThing = StaticThing;
     class Thing extends Element_2.Element {
-        constructor(color) {
-            var origin = new Point_5.Point(Math.random() * 1024, Math.random() * 768, null);
-            var shape = Math.floor(Math.random() * 2) === 1 ?
-                new Rectangle_3.Rectangle(origin, new Point_5.Point(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), origin))
-                : new Circle_1.Circle(origin, Math.floor(Math.random() * 10));
-            super(ElementType_1.ElementType.Thing, origin, shape, 5);
-            this._color = color;
+        constructor(container, color, area) {
+            super(container, ElementType_1.ElementType.Thing, area, 5, ElementType_1.ElementType.StaticThing | ElementType_1.ElementType.Mouse);
             this.color = color;
+            this._color = color;
             this.direction = new Vector_2.Vector(0, 0);
             this.minSpeed = this.speed = 0;
             this.maxSpeed = 20;
-        }
-        canCollide(element) {
-            return element.type === ElementType_1.ElementType.StaticThing || element.type === ElementType_1.ElementType.Mouse;
         }
         update(step) {
             this.speed -= .5;
             this.speed = Math.max(this.minSpeed, this.speed);
             var move = this.direction.clone().multiply(step * this.speed);
             this.inc(move.x, move.y);
-            if (this.origin.x() <= 0 || this.origin.x() >= Screen_2.Screen.current.container.area.width()
-                || this.origin.y() <= 0 || this.origin.y() >= Screen_2.Screen.current.container.area.height()) {
+            if (this.area.origin.x() <= 0 || this.area.origin.x() >= this.container.area.width()
+                || this.area.origin.y() <= 0 || this.area.origin.y() >= this.container.area.height()) {
                 this.direction.multiply(-1);
             }
             super.update(step);
@@ -1120,14 +1054,14 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
         onCollide(element, on) {
             if (this.color === this._color && this.collisions.length > 0) {
                 this.color = "rgba(255,0,0,0.8)";
-                Screen_2.Screen.current.container.update(this, false);
+                this.container.update(this, false);
             }
             else if (this.color !== this._color && this.collisions.length === 0) {
                 this.color = this._color;
-                Screen_2.Screen.current.container.update(this, false);
+                this.container.update(this, false);
             }
             if (on && (element.type === ElementType_1.ElementType.Mouse)) {
-                this.direction = new Vector_2.Vector(this.origin.x() - element.origin.x(), this.origin.y() - element.origin.y());
+                this.direction = new Vector_2.Vector(this.area.origin.x() - element.area.origin.x(), this.area.origin.y() - element.area.origin.y());
                 this.speed = Math.ceil(Math.random() * this.maxSpeed / 2) + this.maxSpeed / 2;
             }
         }
@@ -1137,17 +1071,13 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Shape/Rectangle", "Sh
     }
     exports.Thing = Thing;
 });
-define("IO/BasicMouse", ["require", "exports", "Shape/Point", "Shape/Circle", "Core/ElementType", "IO/Mouse"], function (require, exports, Point_6, Circle_2, ElementType_2, Mouse_1) {
+define("IO/BasicMouse", ["require", "exports", "Shape/Point", "Shape/Circle", "Core/ElementType", "IO/Mouse"], function (require, exports, Point_5, Circle_1, ElementType_2, Mouse_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class BasicMouse extends Mouse_1.Mouse {
-        constructor(x, y) {
-            var origin = new Point_6.Point(x, y);
-            super(ElementType_2.ElementType.Mouse, origin, new Circle_2.Circle(origin, 50), 10);
+        constructor(container, x, y) {
+            super(container, ElementType_2.ElementType.Mouse, new Circle_1.Circle(new Point_5.Point(x, y), 50), 10, null);
             this.color = this._color = "rgba(255,255,255,1)";
-        }
-        canCollide(element) {
-            return true;
         }
         render(ctx) {
             this.area.render(ctx, this.color);
@@ -1155,27 +1085,30 @@ define("IO/BasicMouse", ["require", "exports", "Shape/Point", "Shape/Circle", "C
     }
     exports.BasicMouse = BasicMouse;
 });
-define("Screen/PlayScreen", ["require", "exports", "Core/Screen", "Shape/Rectangle", "Shape/Polygon", "Shape/Point", "UI/Thing", "Util/Color", "Shape/Circle", "IO/BasicMouse", "IO/MouseHandler"], function (require, exports, Screen_3, Rectangle_4, Polygon_2, Point_7, Thing_1, Color_2, Circle_3, BasicMouse_1, MouseHandler_1) {
+define("Screen/PlayScreen", ["require", "exports", "Core/Screen", "Shape/Rectangle", "Shape/Point", "UI/Thing", "Util/Color", "Shape/Circle", "IO/BasicMouse", "IO/MouseHandler"], function (require, exports, Screen_1, Rectangle_3, Point_6, Thing_1, Color_2, Circle_2, BasicMouse_1, MouseHandler_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class PlayScreen extends Screen_3.Screen {
+    class PlayScreen extends Screen_1.Screen {
         constructor() {
-            super(256, new Rectangle_4.Rectangle(new Point_7.Point(0, 0), new Point_7.Point(1024, 768)));
+            super(256, new Rectangle_3.Rectangle(new Point_6.Point(0, 0), new Point_6.Point(1024, 768)));
         }
         activate() {
             super.activate();
             for (var i = 0; i < 1800; i++) {
-                var thing = new Thing_1.Thing(Color_2.Color.makeRGBA(Color_2.Color.getRandomRGB(), 0.8));
+                var position = new Point_6.Point(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
+                var thing = new Thing_1.Thing(this.container, Color_2.Color.makeRGBA(Color_2.Color.getRandomRGB(), 0.8), Math.floor(Math.random() * 2) === 1 ?
+                    new Rectangle_3.Rectangle(position, new Point_6.Point(Math.floor(Math.random() * 10) + 5, Math.floor(Math.random() * 10) + 5, position))
+                    : new Circle_2.Circle(position, Math.floor(Math.random() * 10) + 5));
                 this.container.register(thing);
             }
-            this.container.register(new Thing_1.StaticThing("darkblue", Screen_3.Screen.current.camera.area.getPoint(Polygon_2.Position.Center), new Circle_3.Circle(Screen_3.Screen.current.camera.area.getPoint(Polygon_2.Position.Center), 300)));
+            this.container.register(new Thing_1.StaticThing(this.container, "darkblue", new Circle_2.Circle(new Point_6.MidPoint(this.viewport.area.topLeft, this.viewport.area.bottomRight), 300)));
         }
         update(dt) {
             var cursors = Array.from(MouseHandler_1.MouseHandler.cursors.values());
             for (var i = 0; i < cursors.length; i++) {
                 switch (cursors[i].state) {
                     case MouseHandler_1.CursorState.added:
-                        cursors[i].data = new BasicMouse_1.BasicMouse(cursors[i].x, cursors[i].y);
+                        cursors[i].data = new BasicMouse_1.BasicMouse(this.container, cursors[i].x, cursors[i].y);
                         this.container.register(cursors[i].data);
                         break;
                     case MouseHandler_1.CursorState.moved:
@@ -1191,12 +1124,12 @@ define("Screen/PlayScreen", ["require", "exports", "Core/Screen", "Shape/Rectang
     }
     exports.PlayScreen = PlayScreen;
 });
-define("Screen/LoadingScreen", ["require", "exports", "Core/Screen", "Shape/Rectangle", "Shape/Point"], function (require, exports, Screen_4, Rectangle_5, Point_8) {
+define("Screen/LoadingScreen", ["require", "exports", "Core/Screen", "Shape/Rectangle", "Shape/Point"], function (require, exports, Screen_2, Rectangle_4, Point_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class LoadingScreen extends Screen_4.Screen {
+    class LoadingScreen extends Screen_2.Screen {
         constructor() {
-            super(256, new Rectangle_5.Rectangle(new Point_8.Point(0, 0, null), new Point_8.Point(0, 0, null)));
+            super(256, new Rectangle_4.Rectangle(new Point_7.Point(0, 0, null), new Point_7.Point(0, 0, null)));
         }
         preUpdate() {
             super.preUpdate();
@@ -1207,7 +1140,7 @@ define("Screen/LoadingScreen", ["require", "exports", "Core/Screen", "Shape/Rect
     }
     exports.LoadingScreen = LoadingScreen;
 });
-define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Core/Screen", "Screen/PlayScreen", "Screen/LoadingScreen"], function (require, exports, Runtime_1, logger_1, Screen_5, PlayScreen_1, LoadingScreen_1) {
+define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Screen/PlayScreen", "Screen/LoadingScreen"], function (require, exports, Runtime_1, logger_1, PlayScreen_1, LoadingScreen_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Game {
@@ -1218,13 +1151,12 @@ define("Game", ["require", "exports", "Core/Runtime", "Util/Logger", "Core/Scree
             Runtime_1.Runtime.init();
             var playscreen = new PlayScreen_1.PlayScreen();
             var loadscreen = new LoadingScreen_1.LoadingScreen();
-            Screen_5.Screen.debug_showRedraws = true;
             Runtime_1.Runtime.nextScreen = playscreen;
         }
     }
     exports.Game = Game;
 });
-define("Core/Runtime", ["require", "exports", "Core/Screen", "IO/MouseHandler"], function (require, exports, Screen_6, MouseHandler_2) {
+define("Core/Runtime", ["require", "exports", "IO/MouseHandler"], function (require, exports, MouseHandler_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Runtime {
@@ -1241,22 +1173,22 @@ define("Core/Runtime", ["require", "exports", "Core/Screen", "IO/MouseHandler"],
         static frame(now) {
             try {
                 if (Runtime.nextScreen != null) {
-                    if (Screen_6.Screen.current != null) {
-                        Screen_6.Screen.current.deactivate();
+                    if (Runtime.currentScreen != null) {
+                        Runtime.currentScreen.deactivate();
                     }
-                    Screen_6.Screen.current = Runtime.nextScreen;
-                    Screen_6.Screen.current.activate();
+                    Runtime.currentScreen = Runtime.nextScreen;
+                    Runtime.currentScreen.activate();
                     Runtime.nextScreen = null;
                 }
                 Runtime.fps.tickStart();
-                if (Screen_6.Screen.current != null) {
+                if (Runtime.currentScreen != null) {
                     MouseHandler_2.MouseHandler.preUpdate();
-                    Screen_6.Screen.current.preUpdate();
-                    Screen_6.Screen.current.update(Math.min(1, (now - Runtime.last) / 1000));
+                    Runtime.currentScreen.preUpdate();
+                    Runtime.currentScreen.update(Math.min(1, (now - Runtime.last) / 1000));
                     Runtime.last = now;
                     MouseHandler_2.MouseHandler.preRender();
-                    Screen_6.Screen.current.preRender();
-                    Screen_6.Screen.current.render();
+                    Runtime.currentScreen.preRender();
+                    Runtime.currentScreen.render();
                 }
                 Runtime.fps.tick();
                 requestAnimationFrame(Runtime.frame);
@@ -1268,18 +1200,18 @@ define("Core/Runtime", ["require", "exports", "Core/Screen", "IO/MouseHandler"],
     }
     exports.Runtime = Runtime;
 });
-define("Core/Camera", ["require", "exports", "Shape/Point", "Shape/Rectangle"], function (require, exports, Point_9, Rectangle_6) {
+define("Core/Camera", ["require", "exports", "Shape/Point", "Shape/Rectangle"], function (require, exports, Point_8, Rectangle_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Camera {
         constructor(viewport) {
             this.viewport = viewport;
-            var origin = new Point_9.Point(0, 0);
-            this.area = new Rectangle_6.Rectangle(origin, new Point_9.Point(viewport.area.width(), viewport.area.height(), origin));
+            var origin = new Point_8.Point(0, 0);
+            this.area = new Rectangle_5.Rectangle(origin, new Point_8.Point(viewport.area.width(), viewport.area.height(), origin));
         }
         preUpdate() {
             if (this.viewport.area.changed()) {
-                this.area.bottomRight().move(this.viewport.area.width(), this.viewport.area.height());
+                this.area.bottomRight.move(this.viewport.area.width(), this.viewport.area.height());
             }
         }
         preRender() {

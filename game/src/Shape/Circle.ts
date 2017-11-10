@@ -5,14 +5,13 @@ import { Collision } from "../Util/Collision";
 
 export class Circle implements IShape {
 	public r: number;
-	public center: Point;
+	public origin: Point;
+	public type: ShapeType = ShapeType.Circle;
 
-	constructor(point: Point, radius: number) {
-		this.center = point;
+	constructor(public center: Point, radius: number) {
+		this.origin = center;
 		this.r = radius;
 	}
-
-	public type: ShapeType = ShapeType.Circle;
 
 	public changed(): boolean {
 		return this.center.changed;

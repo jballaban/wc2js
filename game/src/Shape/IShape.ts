@@ -11,4 +11,5 @@ export interface IShape {
 	render(ctx: CanvasRenderingContext2D, color: string): void;
 	changed(): boolean;
 	clearChanged(): void;
+	origin: Point;
 }

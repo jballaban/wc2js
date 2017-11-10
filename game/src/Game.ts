@@ -12,7 +12,7 @@ export class Game {
 		Runtime.init();
 		var playscreen: PlayScreen = new PlayScreen();
 		var loadscreen: LoadingScreen = new LoadingScreen();
-		Screen.debug_showRedraws = true;
+		// Screen.debug_showRedraws = true;
 		Runtime.nextScreen = playscreen;
 	}
 }

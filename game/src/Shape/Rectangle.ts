@@ -5,36 +5,36 @@ import { Collision } from "../Util/Collision";
 import { Logger } from "../Util/Logger";
 
 export class Rectangle extends Polygon implements IShape {
-	public constructor(topleft: Point, bottomright: Point) {
-		super();
-		this.points.set(Position.TopLeft, topleft);
-		this.points.set(Position.BottomRight, bottomright);
-	}
-
+	public origin: Point;
 	public type: ShapeType = ShapeType.Rectangle;
 
+	public constructor(public topLeft: Point, public bottomRight: Point) {
+		super();
+		this.origin = topLeft;
+	}
+
 	public changed(): boolean {
-		return this.topLeft().changed || this.bottomRight().changed;
+		return this.topLeft.changed || this.bottomRight.changed;
 	}
 
 	public clearChanged(): void {
-		this.topLeft().changed = this.bottomRight().changed = false;
+		this.topLeft.changed = this.bottomRight.changed = false;
 	}
 
 	public x(): number {
-		return this.getPoint(Position.TopLeft).x();
+		return this.topLeft.x();
 	}
 
 	public y(): number {
-		return this.getPoint(Position.TopLeft).y();
+		return this.topLeft.y();
 	}
 
 	public x2(): number {
-		return this.getPoint(Position.BottomRight).x();
+		return this.bottomRight.x();
 	}
 
 	public y2(): number {
-		return this.getPoint(Position.BottomRight).y();
+		return this.bottomRight.y();
 	}
 
 	public width(): number {
@@ -45,49 +45,8 @@ export class Rectangle extends Polygon implements IShape {
 		return this.y2() - this.y();
 	}
 
-	public topLeft(): Point {
-		return this.points.get(Position.TopLeft);
-	}
-
-	public bottomRight(): Point {
-		return this.points.get(Position.BottomRight);
-	}
-
 	public toString(): string {
 		return "[" + this.x() + "," + this.y() + "] - [" + this.x2() + "," + this.y2() + "]";
-	}
-
-	public getPoint(position: Position): Point {
-		var result: Point = super.getPoint(position);
-		if (result == null) {
-			switch (position) {
-				case Position.TopCenter:
-					result = new MidPoint(this.getPoint(Position.TopLeft), this.getPoint(Position.TopRight));
-					break;
-				case Position.TopRight:
-					result = new DynamicPoint(this.getPoint(Position.TopLeft), this.getPoint(Position.BottomRight), DynamicDimension.x);
-					break;
-				case Position.RightCenter:
-					result = new MidPoint(this.getPoint(Position.TopRight), this.getPoint(Position.BottomRight));
-					break;
-				case Position.BottomCenter:
-					result = new MidPoint(this.getPoint(Position.BottomLeft), this.getPoint(Position.BottomRight));
-					break;
-				case Position.BottomLeft:
-					result = new DynamicPoint(this.getPoint(Position.TopLeft), this.getPoint(Position.BottomRight), DynamicDimension.y);
-					break;
-				case Position.LeftCenter:
-					result = new MidPoint(this.getPoint(Position.TopLeft), this.getPoint(Position.BottomLeft));
-					break;
-				case Position.Center:
-					result = new MidPoint(this.getPoint(Position.TopLeft), this.getPoint(Position.BottomRight));
-					break;
-				default:
-					throw "Rectangle: Unknown position " + position;
-			}
-			this.points.set(position, result);
-		}
-		return result;
 	}
 
 	public intersects(shape: IShape): boolean {

@@ -9,6 +9,7 @@ import { Mouse } from "../IO/Mouse";
 export class Runtime {
 
 	public static nextScreen: Screen;
+	private static currentScreen: Screen;
 	private static last: number;
 	private static fps: FPSMeter;
 
@@ -26,22 +27,22 @@ export class Runtime {
 	private static frame(now: number): void {
 		try {
 			if (Runtime.nextScreen != null) {
-				if (Screen.current != null) {
-					Screen.current.deactivate();
+				if (Runtime.currentScreen != null) {
+					Runtime.currentScreen.deactivate();
 				}
-				Screen.current = Runtime.nextScreen;
-				Screen.current.activate();
+				Runtime.currentScreen = Runtime.nextScreen;
+				Runtime.currentScreen.activate();
 				Runtime.nextScreen = null;
 			}
 			Runtime.fps.tickStart();
-			if (Screen.current != null) {
+			if (Runtime.currentScreen != null) {
 				MouseHandler.preUpdate();
-				Screen.current.preUpdate();
-				Screen.current.update(Math.min(1, (now - Runtime.last) / 1000));
+				Runtime.currentScreen.preUpdate();
+				Runtime.currentScreen.update(Math.min(1, (now - Runtime.last) / 1000));
 				Runtime.last = now;
 				MouseHandler.preRender();
-				Screen.current.preRender();
-				Screen.current.render();
+				Runtime.currentScreen.preRender();
+				Runtime.currentScreen.render();
 			}
 			Runtime.fps.tick();
 			requestAnimationFrame(Runtime.frame);

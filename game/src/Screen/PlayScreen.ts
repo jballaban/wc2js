@@ -24,15 +24,23 @@ export class PlayScreen extends Screen {
 	public activate(): void {
 		super.activate();
 		for (var i: number = 0; i < 1800; i++) {
-			var thing: Thing = new Thing(Color.makeRGBA(Color.getRandomRGB(), 0.8));
+			var position: Point = new Point(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
+			var thing: Thing = new Thing(
+				this.container,
+				Color.makeRGBA(Color.getRandomRGB(), 0.8),
+				Math.floor(Math.random() * 2) === 1 ?
+					new Rectangle(position, new Point(Math.floor(Math.random() * 10) + 5, Math.floor(Math.random() * 10) + 5, position), )
+					// tslint:disable-next-line:no-bitwise
+					: new Circle(position, Math.floor(Math.random() * 10) + 5));
 			this.container.register(thing);
 		}
 		this.container.register(new StaticThing(
+			this.container,
 			"darkblue",
-			Screen.current.camera.area.getPoint(Position.Center),
-			new Circle(
-				Screen.current.camera.area.getPoint(Position.Center), 300
-			)
+			new Circle(new MidPoint(
+				this.viewport.area.topLeft,
+				this.viewport.area.bottomRight
+			), 300)
 		));
 	}
 
@@ -41,7 +49,7 @@ export class PlayScreen extends Screen {
 		for (var i: number = 0; i < cursors.length; i++) {
 			switch (cursors[i].state) {
 				case CursorState.added:
-					cursors[i].data = new BasicMouse(cursors[i].x, cursors[i].y);
+					cursors[i].data = new BasicMouse(this.container, cursors[i].x, cursors[i].y);
 					this.container.register(cursors[i].data);
 					break;
 				case CursorState.moved:

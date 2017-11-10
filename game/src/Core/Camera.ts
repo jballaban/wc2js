@@ -18,7 +18,7 @@ export class Camera {
 
 	public preUpdate(): void {
 		if (this.viewport.area.changed()) {
-			this.area.bottomRight().move(this.viewport.area.width(), this.viewport.area.height());
+			this.area.bottomRight.move(this.viewport.area.width(), this.viewport.area.height());
 		}
 	}
 

@@ -8,45 +8,35 @@ import { Array as ArrayUtil } from "../Util/Array";
 import { ElementContainer } from "./ElementContainer";
 import { ElementType } from "./ElementType";
 import { Screen } from "../Core/Screen";
+import { Circle } from "../Shape/Circle";
 
 export abstract class Element {
-
-	public origin: Point;
 	public area: IShape;
 	public collisions: Element[] = new Array<Element>();
 	public zIndex: number;
 	public type: ElementType;
 
-	constructor(type: ElementType, origin: Point, area: IShape, zIndex: number) {
+	constructor(
+		protected container: ElementContainer,
+		type: ElementType,
+		area: IShape, zIndex: number,
+		public collisionFilter: ElementType) {
 		this.type = type;
-		this.origin = origin;
 		this.area = area;
 		this.zIndex = zIndex;
 	}
-
-	public abstract canCollide(element: Element): boolean;
 
 	public onCollide(element: Element, on: boolean): void {
 		// to implement
 	}
 
 	public inc(offsetx: number, offsety: number): void {
-		this.move(this.origin.offsetX + offsetx, this.origin.offsetY + offsety);
+		this.move(this.area.origin.offsetX + offsetx, this.area.origin.offsetY + offsety);
 	}
 
 	public move(offsetX: number, offsetY: number): void {
-		if (offsetX === this.origin.offsetX && offsetY === this.origin.offsetY) { return; }
-		this.origin.move(offsetX, offsetY);
-		if (this.origin.x() < 0) {
-			this.origin.move(0, null);
-		} else if (this.origin.x() > Screen.current.container.area.x2()) {
-			this.origin.move(Screen.current.container.area.x2(), null);
-		}
-		if (this.origin.y() < 0) {
-			this.origin.move(null, 0);
-		} else if (this.origin.y() > Screen.current.container.area.y2()) {
-			this.origin.move(null, Screen.current.container.area.y2());
-		}
+		if (offsetX === this.area.origin.offsetX && offsetY === this.area.origin.offsetY) { return; }
+		this.area.origin.move(offsetX, offsetY);
 	}
 
 	public update(step: number): void {
@@ -55,7 +45,7 @@ export abstract class Element {
 
 	public preRender(): void {
 		if (this.area.changed()) {
-			Screen.current.container.update(this, true);
+			this.container.update(this, true);
 			this.area.clearChanged();
 		}
 	}

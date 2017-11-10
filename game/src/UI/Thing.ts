@@ -12,26 +12,22 @@ import { Color } from "../Util/Color";
 import { Runtime } from "../Core/Runtime";
 import { ElementType } from "../Core/ElementType";
 import { Screen } from "../Core/Screen";
+import { ElementContainer } from "../Core/ElementContainer";
 
 export class StaticThing extends Element {
 	private _color: string;
-	private color: string;
-	constructor(color: string, origin: Point, area: Circle) {
-		super(ElementType.StaticThing, origin, area, 4);
+	constructor(container: ElementContainer, private color: string, area: Circle) {
+		super(container, ElementType.StaticThing, area, 4, ElementType.Thing);
 		this.color = this._color = color;
-	}
-
-	public canCollide(element: Element): boolean {
-		return element.type === ElementType.Thing;
 	}
 
 	public onCollide(element: Element, on: boolean): void {
 		if (on && this.color === this._color) {
 			this.color = "gray";
-			Screen.current.container.update(this, false);
+			this.container.update(this, false);
 		} else if (!on && this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
-			Screen.current.container.update(this, false);
+			this.container.update(this, false);
 		}
 	}
 
@@ -42,27 +38,18 @@ export class StaticThing extends Element {
 
 export class Thing extends Element {
 	private _color: string;
-	private color: string;
 	public direction: Vector;
 	public speed: number;
 	public minSpeed: number;
 	public maxSpeed: number;
 
-	constructor(color: string) {
-		var origin: Point = new Point(Math.random() * 1024, Math.random() * 768, null);
-		var shape: IShape = Math.floor(Math.random() * 2) === 1 ?
-			new Rectangle(origin, new Point(Math.floor(Math.random() * 10), Math.floor(Math.random() * 10), origin))
-			: new Circle(origin, Math.floor(Math.random() * 10));
-		super(ElementType.Thing, origin, shape, 5);
+	constructor(container: ElementContainer, private color: string, area: IShape) {
+		// tslint:disable-next-line:no-bitwise
+		super(container, ElementType.Thing, area, 5, ElementType.StaticThing | ElementType.Mouse);
 		this._color = color;
-		this.color = color;
 		this.direction = new Vector(0, 0);
 		this.minSpeed = this.speed = 0;
 		this.maxSpeed = 20;
-	}
-
-	public canCollide(element: Element): boolean {
-		return element.type === ElementType.StaticThing || element.type === ElementType.Mouse;
 	}
 
 	public update(step: number): void {
@@ -70,8 +57,8 @@ export class Thing extends Element {
 		this.speed = Math.max(this.minSpeed, this.speed);
 		var move: Vector = this.direction.clone().multiply(step * this.speed);
 		this.inc(move.x, move.y);
-		if (this.origin.x() <= 0 || this.origin.x() >= Screen.current.container.area.width()
-			|| this.origin.y() <= 0 || this.origin.y() >= Screen.current.container.area.height()) {
+		if (this.area.origin.x() <= 0 || this.area.origin.x() >= this.container.area.width()
+			|| this.area.origin.y() <= 0 || this.area.origin.y() >= this.container.area.height()) {
 			this.direction.multiply(-1);
 		}
 		super.update(step);
@@ -80,17 +67,17 @@ export class Thing extends Element {
 	public onCollide(element: Element, on: boolean): void {
 		if (this.color === this._color && this.collisions.length > 0) {
 			this.color = "rgba(255,0,0,0.8)";
-			Screen.current.container.update(this, false);
+			this.container.update(this, false);
 		} else if (this.color !== this._color && this.collisions.length === 0) {
 			this.color = this._color;
-			Screen.current.container.update(this, false);
+			this.container.update(this, false);
 		}
 		if (on && (
 			element.type === ElementType.Mouse
 		)) {
 			this.direction = new Vector(
-				this.origin.x() - element.origin.x(),
-				this.origin.y() - element.origin.y()
+				this.area.origin.x() - element.area.origin.x(),
+				this.area.origin.y() - element.area.origin.y()
 			);
 			this.speed = Math.ceil(Math.random() * this.maxSpeed / 2) + this.maxSpeed / 2;
 		}

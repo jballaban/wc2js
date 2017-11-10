@@ -10,19 +10,15 @@ import { Camera } from "../Core/Camera";
 import { ElementType } from "../Core/ElementType";
 import { Vector } from "../Core/Vector";
 import { Mouse } from "./Mouse";
+import { ElementContainer } from "../Core/ElementContainer";
 
 export class BasicMouse extends Mouse {
 	private _color: string;
 	private color: string;
 
-	public constructor(x: number, y: number) {
-		var origin: Point = new Point(x, y);
-		super(ElementType.Mouse, origin, new Circle(origin, 50), 10);
+	public constructor(container: ElementContainer, x: number, y: number) {
+		super(container, ElementType.Mouse, new Circle(new Point(x, y), 50), 10, null);
 		this.color = this._color = "rgba(255,255,255,1)";
-	}
-
-	public canCollide(element: Element): boolean {
-		return true;
 	}
 
 	public render(ctx: CanvasRenderingContext2D): void {

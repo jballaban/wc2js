@@ -13,6 +13,7 @@ import { ElementContainer, ElementRegion } from "../Core/ElementContainer";
 import { EventHandler } from "../Core/EventHandler";
 import { Viewport } from "../Core/Viewport";
 import { MouseHandler } from "../IO/MouseHandler";
+import { ElementType } from "./ElementType";
 
 export abstract class Screen {
 
@@ -32,21 +33,13 @@ export abstract class Screen {
 		this.container = new ElementContainer(regionsize, area);
 	}
 
-	public static get current(): Screen {
-		return Screen._current;
-	}
-
-	public static set current(screen: Screen) {
-		Screen._current = screen;
-		Viewport.current = screen.viewport; // todo: remove
-	}
-
 	public activate(): void {
-		this.layer.init();
+		this.layer.activate();
+		this.viewport.activate();
 	}
 
 	public deactivate(): void {
-		this.layer.destroy();
+		this.layer.deactivate();
 	}
 
 	public preUpdate(): void {
@@ -89,40 +82,48 @@ export abstract class Screen {
 	}
 
 	private checkForNewCollisions(element: Element, elements: Element[], startindex: number): void {
-		// tslint:disable-next-line:no-duplicate-variable
 		for (var k: number = startindex + 1; k < elements.length; k++) {
-			if (!element.area.changed && !elements[k].area.changed) {
-				continue; // if neither object moved they are still NOT colliding
-			}
-			if (ArrayUtil.exists<Element>(elements[k], element.collisions)) {
-				continue; // skip if we've already collided
-			}
 			if (
-				element.canCollide(elements[k])
-				&& elements[k].canCollide(element)
+				(
+					element.area.changed()
+					|| elements[k].area.changed()
+				) && (
+					// tslint:disable-next-line:no-bitwise
+					(element.collisionFilter & elements[k].type) !== 0
+					// tslint:disable-next-line:no-bitwise
+					|| (elements[k].collisionFilter & element.type) !== 0
+				)
+				&& !ArrayUtil.exists<Element>(elements[k], element.collisions)
 				&& Collision.intersects(element.area, elements[k].area)
 			) {
-				element.collisions.push(elements[k]);
-				elements[k].collisions.push(element);
-				element.onCollide(elements[k], true);
-				elements[k].onCollide(element, true);
+				// tslint:disable-next-line:no-bitwise
+				if ((element.collisionFilter & elements[k].type) !== 0) {
+					element.collisions.push(elements[k]);
+					element.onCollide(elements[k], true);
+				}
+				// tslint:disable-next-line:no-bitwise
+				if ((elements[k].collisionFilter & element.type) !== 0) {
+					elements[k].collisions.push(element);
+					elements[k].onCollide(element, true);
+				}
 			}
 		}
 	}
 
 	private checkExistingCollisions(element: Element): void {
 		for (var k: number = 0; k < element.collisions.length; k++) {
-			if (!element.area.changed && !element.collisions[k].area.changed) {
+			if (!element.area.changed() && !element.collisions[k].area.changed()) {
 				continue; // if neither object moved they are still colliding!
 			}
 			if (
-				!element.canCollide(element.collisions[k])
-				|| !element.collisions[k].canCollide(element)
-				|| !Collision.intersects(element.area, element.collisions[k].area)
+				!Collision.intersects(element.area, element.collisions[k].area)
 			) {
 				var other: Element = element.collisions[k];
-				other.collisions.splice(ArrayUtil.indexOf<Element>(element, other.collisions), 1);
-				other.onCollide(element, false);
+				var index: number = ArrayUtil.indexOf<Element>(element, other.collisions);
+				if (index > -1) {
+					other.collisions.splice(index, 1);
+					other.onCollide(element, false);
+				}
 				element.collisions.splice(k--, 1);
 				element.onCollide(other, false);
 			}
@@ -130,10 +131,8 @@ export abstract class Screen {
 	}
 
 	public render(): void {
-		var max: number = 0;
 		for (var region of this.visibleRegionCache) {
 			if (!region.requiresRedraw) { continue; }
-			max = Math.max(max, region.elements.length);
 			this.layer.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			this.layer.ctx.save();
 			// clip a rectangular area

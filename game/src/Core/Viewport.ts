@@ -9,18 +9,12 @@ export class Viewport {
 	private resizeY: number = null;
 
 	public constructor() {
-		var origin: Point = new Point(0, 0);
-		this.area = new Rectangle(origin, new Point(0, 0, origin));
+		this.area = new Rectangle(new Point(0, 0), new Point(0, 0));
 	}
 
-	public static get current(): Viewport {
-		return Viewport._current;
-	}
-
-	public static set current(viewport: Viewport) {
-		Viewport._current = viewport;
-		window.onresize = viewport.resize.bind(viewport);
-		viewport.resize();
+	public activate(): void {
+		window.onresize = this.resize.bind(this);
+		this.resize();
 	}
 
 	public resize(): void {
@@ -34,7 +28,7 @@ export class Viewport {
 
 	public preUpdate(): void {
 		if (this.resizeX != null || this.resizeY != null) {
-			this.area.bottomRight().move(this.resizeX, this.resizeY);
+			this.area.bottomRight.move(this.resizeX, this.resizeY);
 			this.resizeX = this.resizeY = null;
 		}
 	}
