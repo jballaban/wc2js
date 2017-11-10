@@ -711,38 +711,6 @@ define("Core/Element", ["require", "exports"], function (require, exports) {
     }
     exports.Element = Element;
 });
-define("IO/Mouse", ["require", "exports", "Core/Element"], function (require, exports, Element_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Mouse extends Element_1.Element {
-    }
-    exports.Mouse = Mouse;
-});
-define("Core/EventHandler", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class EventHandler {
-        constructor() {
-            this._mappings = new Map();
-        }
-        fire(name, data) {
-            var values = this._mappings.get(name);
-            if (values == null) {
-                return;
-            }
-            for (var i = 0; i < values.length; i++) {
-                values[i](data);
-            }
-        }
-        listen(name, fn) {
-            if (this._mappings.get(name) == null) {
-                this._mappings.set(name, new Array());
-            }
-            this._mappings.get(name).push(fn);
-        }
-    }
-    exports.EventHandler = EventHandler;
-});
 define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -754,13 +722,14 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
         CursorState[CursorState["unchanged"] = 3] = "unchanged";
     })(CursorState = exports.CursorState || (exports.CursorState = {}));
     class Cursor {
-        constructor(x, y, state) {
+        constructor(id, x, y, state) {
+            this.id = id;
             this.x = x;
             this.y = y;
             this.state = state;
         }
         static fromTouch(e) {
-            return new Cursor(e.clientX, e.clientY, CursorState.added);
+            return new Cursor(e.identifier, e.clientX, e.clientY, CursorState.added);
         }
     }
     exports.Cursor = Cursor;
@@ -774,13 +743,21 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
             document.addEventListener("touchmove", MouseHandler.onTouchMove);
             document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
         }
+        static inc(id, diffx, diffy) {
+            var cursor = MouseHandler._cursors.get(id);
+            if (cursor.state === CursorState.unchanged) {
+                cursor.state = CursorState.moved;
+            }
+            cursor.x += diffx;
+            cursor.y += diffy;
+        }
         static preUpdate() {
             var keys = Array.from(MouseHandler._cursors.keys());
             for (var i = 0; i < keys.length; i++) {
                 var cursor = MouseHandler._cursors.get(keys[i]);
                 switch (cursor.state) {
                     case CursorState.added:
-                        MouseHandler.cursors.set(keys[i], new Cursor(cursor.x, cursor.y, CursorState.added));
+                        MouseHandler.cursors.set(keys[i], new Cursor(keys[i], cursor.x, cursor.y, CursorState.added));
                         break;
                     case CursorState.moved:
                         MouseHandler.cursors.get(keys[i]).x = cursor.x;
@@ -841,12 +818,7 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
         static onMouseMove(e) {
             e.preventDefault();
             if (MouseHandler.locked) {
-                var mouse = MouseHandler._cursors.get(0);
-                if (mouse.state === CursorState.unchanged) {
-                    mouse.state = CursorState.moved;
-                }
-                mouse.x += e.movementX;
-                mouse.y += e.movementY;
+                MouseHandler.inc(0, e.movementX, e.movementY);
             }
             else {
                 MouseHandler.mouseX = e.clientX;
@@ -861,7 +833,7 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
         }
         static lockChanged() {
             if (document.pointerLockElement != null) {
-                MouseHandler._cursors.set(0, new Cursor(MouseHandler.mouseX, MouseHandler.mouseY, CursorState.added));
+                MouseHandler._cursors.set(0, new Cursor(0, MouseHandler.mouseX, MouseHandler.mouseY, CursorState.added));
                 MouseHandler.locked = true;
             }
             else {
@@ -876,6 +848,41 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
     MouseHandler.mouseY = 0;
     MouseHandler.cursors = new Map();
     exports.MouseHandler = MouseHandler;
+});
+define("IO/Mouse", ["require", "exports", "Core/Element", "Core/ElementType"], function (require, exports, Element_1, ElementType_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Mouse extends Element_1.Element {
+        constructor(container, area, zindex) {
+            super(container, ElementType_1.ElementType.Mouse, area, zindex, null);
+        }
+    }
+    exports.Mouse = Mouse;
+});
+define("Core/EventHandler", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class EventHandler {
+        constructor() {
+            this._mappings = new Map();
+        }
+        fire(name, data) {
+            var values = this._mappings.get(name);
+            if (values == null) {
+                return;
+            }
+            for (var i = 0; i < values.length; i++) {
+                values[i](data);
+            }
+        }
+        listen(name, fn) {
+            if (this._mappings.get(name) == null) {
+                this._mappings.set(name, new Array());
+            }
+            this._mappings.get(name).push(fn);
+        }
+    }
+    exports.EventHandler = EventHandler;
 });
 define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/Collision", "Core/ContextLayer", "Util/Color", "Core/ElementContainer", "Core/Viewport"], function (require, exports, Camera_1, Array_1, Collision_3, ContextLayer_1, Color_1, ElementContainer_1, Viewport_1) {
     "use strict";
@@ -995,12 +1002,12 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
     Screen.debug_showRedraws = false;
     exports.Screen = Screen;
 });
-define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/ElementType"], function (require, exports, Element_2, Vector_2, ElementType_1) {
+define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/ElementType"], function (require, exports, Element_2, Vector_2, ElementType_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class StaticThing extends Element_2.Element {
         constructor(container, color, area) {
-            super(container, ElementType_1.ElementType.StaticThing, area, 4, ElementType_1.ElementType.Thing);
+            super(container, ElementType_2.ElementType.StaticThing, area, 4, ElementType_2.ElementType.Thing);
             this.color = color;
             this.color = this._color = color;
         }
@@ -1021,7 +1028,7 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/E
     exports.StaticThing = StaticThing;
     class Thing extends Element_2.Element {
         constructor(container, color, area) {
-            super(container, ElementType_1.ElementType.Thing, area, 5, ElementType_1.ElementType.StaticThing | ElementType_1.ElementType.Mouse);
+            super(container, ElementType_2.ElementType.Thing, area, 5, ElementType_2.ElementType.StaticThing | ElementType_2.ElementType.Mouse);
             this.color = color;
             this._color = color;
             this.direction = new Vector_2.Vector(0, 0);
@@ -1048,7 +1055,7 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/E
                 this.color = this._color;
                 this.container.update(this, false);
             }
-            if (on && (element.type === ElementType_1.ElementType.Mouse)) {
+            if (on && (element.type === ElementType_2.ElementType.Mouse)) {
                 this.direction = new Vector_2.Vector(this.area.origin.x() - element.area.origin.x(), this.area.origin.y() - element.area.origin.y());
                 this.speed = Math.ceil(Math.random() * this.maxSpeed / 2) + this.maxSpeed / 2;
             }
@@ -1059,12 +1066,12 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/E
     }
     exports.Thing = Thing;
 });
-define("IO/BasicMouse", ["require", "exports", "Shape/Point", "Shape/Circle", "Core/ElementType", "IO/Mouse"], function (require, exports, Point_5, Circle_1, ElementType_2, Mouse_1) {
+define("IO/BasicMouse", ["require", "exports", "Shape/Point", "Shape/Circle", "IO/Mouse"], function (require, exports, Point_5, Circle_1, Mouse_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class BasicMouse extends Mouse_1.Mouse {
         constructor(container, x, y) {
-            super(container, ElementType_2.ElementType.Mouse, new Circle_1.Circle(new Point_5.Point(x, y), 50), 10, null);
+            super(container, new Circle_1.Circle(new Point_5.Point(x, y), 50), 10);
             this.color = this._color = "rgba(255,255,255,1)";
         }
         render(ctx) {
@@ -1100,7 +1107,12 @@ define("Screen/PlayScreen", ["require", "exports", "Core/Screen", "Shape/Rectang
                         this.container.register(cursors[i].data);
                         break;
                     case MouseHandler_1.CursorState.moved:
-                        cursors[i].data.move(cursors[i].x, cursors[i].y);
+                        var x = Math.max(0, Math.min(this.camera.area.x2(), this.container.area.x2(), cursors[i].x));
+                        var y = Math.max(0, Math.min(this.camera.area.y2(), this.container.area.y2(), cursors[i].y));
+                        if (x !== cursors[i].x || y !== cursors[i].y) {
+                            MouseHandler_1.MouseHandler.inc(cursors[i].id, x - cursors[i].x, y - cursors[i].y);
+                        }
+                        cursors[i].data.move(x, y);
                         break;
                     case MouseHandler_1.CursorState.remove:
                         this.container.deregister(cursors[i].data);

@@ -13,12 +13,13 @@ export class Cursor {
 	public data: any;
 
 	public constructor(
+		public id: number,
 		public x: number,
 		public y: number,
 		public state: CursorState) { }
 
 	public static fromTouch(e: Touch): Cursor {
-		return new Cursor(e.clientX, e.clientY, CursorState.added);
+		return new Cursor(e.identifier, e.clientX, e.clientY, CursorState.added);
 	}
 }
 
@@ -39,6 +40,15 @@ export class MouseHandler {
 		document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
 	}
 
+	public static inc(id: number, diffx: number, diffy: number): void {
+		var cursor: Cursor = MouseHandler._cursors.get(id);
+		if (cursor.state === CursorState.unchanged) {
+			cursor.state = CursorState.moved;
+		}
+		cursor.x += diffx;
+		cursor.y += diffy;
+	}
+
 	public static preUpdate(): void {
 		// sync _cursors to cursors
 		var keys: number[] = Array.from(MouseHandler._cursors.keys());
@@ -48,6 +58,7 @@ export class MouseHandler {
 				case CursorState.added:
 					MouseHandler.cursors.set(keys[i],
 						new Cursor(
+							keys[i],
 							cursor.x,
 							cursor.y,
 							CursorState.added
@@ -117,12 +128,7 @@ export class MouseHandler {
 	public static onMouseMove(e: MouseEvent): void {
 		e.preventDefault();
 		if (MouseHandler.locked) {
-			var mouse: Cursor = MouseHandler._cursors.get(0);
-			if (mouse.state === CursorState.unchanged) {
-				mouse.state = CursorState.moved;
-			}
-			mouse.x += e.movementX;
-			mouse.y += e.movementY;
+			MouseHandler.inc(0, e.movementX, e.movementY);
 		} else {
 			MouseHandler.mouseX = e.clientX;
 			MouseHandler.mouseY = e.clientY;
@@ -138,7 +144,7 @@ export class MouseHandler {
 
 	public static lockChanged(): void {
 		if (document.pointerLockElement != null) {
-			MouseHandler._cursors.set(0, new Cursor(MouseHandler.mouseX, MouseHandler.mouseY, CursorState.added));
+			MouseHandler._cursors.set(0, new Cursor(0, MouseHandler.mouseX, MouseHandler.mouseY, CursorState.added));
 			MouseHandler.locked = true;
 		} else {
 			MouseHandler.locked = false;

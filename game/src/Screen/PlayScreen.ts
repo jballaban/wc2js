@@ -52,7 +52,12 @@ export class PlayScreen extends Screen {
 					this.container.register(cursors[i].data);
 					break;
 				case CursorState.moved:
-					cursors[i].data.move(cursors[i].x, cursors[i].y);
+					var x: number = Math.max(0, Math.min(this.camera.area.x2(), this.container.area.x2(), cursors[i].x));
+					var y: number = Math.max(0, Math.min(this.camera.area.y2(), this.container.area.y2(), cursors[i].y));
+					if (x !== cursors[i].x || y !== cursors[i].y) {
+						MouseHandler.inc(cursors[i].id, x - cursors[i].x, y - cursors[i].y);
+					}
+					cursors[i].data.move(x, y);
 					break;
 				case CursorState.remove:
 					this.container.deregister(cursors[i].data);
