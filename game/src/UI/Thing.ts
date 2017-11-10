@@ -15,24 +15,28 @@ import { Screen } from "../Core/Screen";
 import { ElementContainer } from "../Core/ElementContainer";
 
 export class StaticThing extends Element {
-	private _color: string;
+	private win: boolean = false;
+
 	constructor(container: ElementContainer, private color: string, area: Circle) {
 		super(container, ElementType.StaticThing, area, 4, ElementType.Thing);
-		this.color = this._color = color;
 	}
 
 	public onCollide(element: Element, on: boolean): void {
-		if (on && this.color === this._color) {
-			this.color = "gray";
+		if (on && this.win) {
+			this.win = false;
 			this.container.update(this, false);
-		} else if (!on && this.color !== this._color && this.collisions.length === 0) {
-			this.color = this._color;
+		} else if (!on && !this.win && this.collisions.length === 0) {
+			this.win = true;
 			this.container.update(this, false);
 		}
 	}
 
 	public render(ctx: CanvasRenderingContext2D): void {
-		this.area.render(ctx, this.color);
+		if (this.win) {
+			// todo
+		} else {
+			this.area.render(ctx, this.color);
+		}
 	}
 }
 

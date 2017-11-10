@@ -30,6 +30,14 @@ module.exports = function (grunt) {
 			cleanup: ['./.tscache', './src/bin', './*.tmp.txt']
 		},
 		copy: {
+			options: {
+				process: function (content, srcpath) {
+					if (srcpath.endsWith(".ejs")) {
+						return grunt.template.process(content);
+					}
+					return content;
+				}
+			},
 			dev: {
 				files: [
 					{
@@ -37,10 +45,10 @@ module.exports = function (grunt) {
 						dest: './dist/index.html',
 					},
 					{
-						src: './src/Asset/**.*',
+						src: './src/Asset/**',
 						dest: './dist/asset/',
-						flatten: true,
-						expand: true
+						expand: true,
+						flatten: true
 					},
 					{
 						expand: true,
@@ -52,12 +60,7 @@ module.exports = function (grunt) {
 						dest: './dist',
 						flatten: true
 					}
-				],
-				options: {
-					process: function (content, srcpath) {
-						return grunt.template.process(content);
-					}
-				}
+				]
 			}
 		},
 		ts: {
