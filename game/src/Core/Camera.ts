@@ -10,11 +10,9 @@ import { Screen } from "../Core/Screen";
 
 export class Camera {
 	public area: Rectangle;
-	private viewport: Viewport;
 
-	public constructor(viewport: Viewport) {
+	public constructor(private viewport: Viewport) {
 		var origin: Point = new Point(0, 0);
-		this.viewport = viewport;
 		this.area = new Rectangle(origin, new Point(viewport.area.width(), viewport.area.height(), origin));
 	}
 
@@ -22,6 +20,10 @@ export class Camera {
 		if (this.viewport.area.changed()) {
 			this.area.bottomRight().move(this.viewport.area.width(), this.viewport.area.height());
 		}
+	}
+
+	public preRender(): void {
+		this.area.clearChanged();
 	}
 
 }

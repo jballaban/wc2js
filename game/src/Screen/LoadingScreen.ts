@@ -19,8 +19,14 @@ import { Element } from "../Core/Element";
 export class LoadingScreen extends Screen {
 
 	public constructor() {
-		super();
-		this.init(256, new Rectangle(new Point(0, 0, null), new Point(1024, 768, null)));
+		super(256, new Rectangle(new Point(0, 0, null), new Point(0, 0, null)));
+	}
+
+	public preUpdate(): void {
+		super.preUpdate();
+		if (this.camera.area.changed()) {
+			this.container.resize(this.camera.area);
+		}
 	}
 
 }

@@ -11,10 +11,8 @@ export class Runtime {
 	public static nextScreen: Screen;
 	private static last: number;
 	private static fps: FPSMeter;
-	private static ctx: ContextLayer;
 
 	public static init(): void {
-		Runtime.ctx = new ContextLayer(1);
 		Runtime.fps = new FPSMeter(null, {
 			decimals: 0,
 			graph: 1,
@@ -28,7 +26,11 @@ export class Runtime {
 	private static frame(now: number): void {
 		try {
 			if (Runtime.nextScreen != null) {
+				if (Screen.current != null) {
+					Screen.current.deactivate();
+				}
 				Screen.current = Runtime.nextScreen;
+				Screen.current.activate();
 				Runtime.nextScreen = null;
 			}
 			Runtime.fps.tickStart();
@@ -39,7 +41,7 @@ export class Runtime {
 				Runtime.last = now;
 				MouseHandler.preRender();
 				Screen.current.preRender();
-				Screen.current.render(Runtime.ctx.ctx);
+				Screen.current.render();
 			}
 			Runtime.fps.tick();
 			requestAnimationFrame(Runtime.frame);

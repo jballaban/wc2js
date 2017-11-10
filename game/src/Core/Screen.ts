@@ -18,15 +18,18 @@ export abstract class Screen {
 
 	public container: ElementContainer;
 	public camera: Camera;
-	private viewport: Viewport;
+	protected viewport: Viewport;
+	private layer: ContextLayer;
 	private static _current: Screen;
 	public visibleRegionCache: ElementRegion[];
 	public static debug_showRedraws = false;
 
-	constructor() {
+	constructor(regionsize: number, area: Rectangle) {
 		this.visibleRegionCache = new Array<ElementRegion>();
 		this.viewport = new Viewport();
+		this.layer = new ContextLayer(this.viewport, 1);
 		this.camera = new Camera(this.viewport);
+		this.container = new ElementContainer(regionsize, area);
 	}
 
 	public static get current(): Screen {
@@ -35,27 +38,21 @@ export abstract class Screen {
 
 	public static set current(screen: Screen) {
 		Screen._current = screen;
-		Viewport.current = screen.viewport;
-		screen.onActivate();
+		Viewport.current = screen.viewport; // todo: remove
 	}
 
-	public init(regionsize: number, area: Rectangle): void {
-		this.container = new ElementContainer(regionsize, area);
+	public activate(): void {
+		this.layer.init();
 	}
 
-	public onActivate(): void {
-		// to implement
+	public deactivate(): void {
+		this.layer.destroy();
 	}
 
 	public preUpdate(): void {
 		this.viewport.preUpdate();
 		this.camera.preUpdate();
-		if (this.viewport.area.changed()) {
-			this.visibleRegionCache = this.container.getRegions(this.camera.area);
-			for (var i: number = 0; i < this.visibleRegionCache.length; i++) {
-				this.visibleRegionCache[i].requiresRedraw = true;
-			}
-		}
+		this.layer.preUpdate();
 	}
 
 	public update(dt: number): void {
@@ -65,7 +62,14 @@ export abstract class Screen {
 	}
 
 	public preRender(): void {
+		if (this.camera.area.changed()) {
+			this.visibleRegionCache = this.container.getRegions(this.camera.area);
+			for (var i: number = 0; i < this.visibleRegionCache.length; i++) {
+				this.visibleRegionCache[i].requiresRedraw = true;
+			}
+		}
 		this.viewport.preRender();
+		this.camera.preRender();
 		this.checkCollisions();
 		for (var i: number = 0; i < this.container.elementsCache.length; i++) {
 			this.container.elementsCache[i].preRender();
@@ -125,25 +129,25 @@ export abstract class Screen {
 		}
 	}
 
-	public render(ctx: CanvasRenderingContext2D): void {
+	public render(): void {
 		var max: number = 0;
 		for (var region of this.visibleRegionCache) {
 			if (!region.requiresRedraw) { continue; }
 			max = Math.max(max, region.elements.length);
-			ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
-			ctx.save();
+			this.layer.ctx.clearRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+			this.layer.ctx.save();
 			// clip a rectangular area
-			ctx.beginPath();
-			ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
-			ctx.clip();
+			this.layer.ctx.beginPath();
+			this.layer.ctx.rect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+			this.layer.ctx.clip();
 			if (Screen.debug_showRedraws) {
-				ctx.fillStyle = Color.getRandomColor();
-				ctx.fillRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
+				this.layer.ctx.fillStyle = Color.getRandomColor();
+				this.layer.ctx.fillRect(region.area.x(), region.area.y(), region.area.width(), region.area.height());
 			}
 			for (var i: number = 0; i < region.elements.length; i++) {
-				region.elements[i].render(ctx);
+				region.elements[i].render(this.layer.ctx);
 			}
-			ctx.restore();
+			this.layer.ctx.restore();
 			region.requiresRedraw = false;
 		}
 	}

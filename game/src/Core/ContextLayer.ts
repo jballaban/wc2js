@@ -6,25 +6,30 @@ import { Logger } from "../Util/Logger";
 import { IShape } from "../Shape/IShape";
 import { Color } from "../Util/Color";
 import { RegionContainer } from "./Region";
+import { Viewport } from "./Viewport";
 
 export class ContextLayer {
 
 	public ctx: CanvasRenderingContext2D;
 
-	constructor(zindex: number) {
+	constructor(private viewport: Viewport, private zindex: number) { }
+
+	public init(): void {
 		var canv: HTMLCanvasElement = document.createElement("canvas");
-		canv.style.setProperty("z-index", zindex.toString());
+		canv.style.setProperty("z-index", this.zindex.toString());
 		document.body.appendChild(canv);
 		this.ctx = canv.getContext("2d");
-		this.resize();
 	}
 
 	public destroy(): void {
 		document.body.removeChild(this.ctx.canvas);
 	}
 
-	public resize(): void {
-		this.ctx.canvas.width = window.innerWidth;
-		this.ctx.canvas.height = window.innerHeight;
+	public preUpdate(): void {
+		if (this.viewport.area.changed()) {
+			this.ctx.canvas.width = this.viewport.area.width();
+			this.ctx.canvas.height = this.viewport.area.height();
+		}
 	}
+
 }

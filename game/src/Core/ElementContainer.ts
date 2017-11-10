@@ -14,13 +14,12 @@ export class ElementContainer {
 	public elements: Map<Element, ElementRegion[]> = new Map<Element, ElementRegion[]>();
 	public regionsCache: ElementRegion[];
 	public areasCache: Rectangle[];
-	public elementsCache: Element[];
+	public elementsCache: Element[] = new Array<Element>();
 
 	public constructor(regionsize: number, area: Rectangle) {
 		this.regions = new RegionContainer(regionsize, area, ElementRegion);
 		this.regionsCache = Array.from(this.regions.regions.values());
 		this.areasCache = Array.from(this.regions.regions.keys());
-		this.elementsCache = new Array<Element>();
 	}
 
 	public resize(area: Rectangle): void {
