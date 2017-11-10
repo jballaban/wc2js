@@ -53,7 +53,7 @@ export abstract class Element {
 		// update overrides
 	}
 
-	public onPreRender(): void {
+	public preRender(): void {
 		if (this.area.changed()) {
 			Screen.current.container.update(this, true);
 			this.area.clearChanged();

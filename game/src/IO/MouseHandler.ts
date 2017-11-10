@@ -39,7 +39,7 @@ export class MouseHandler {
 		document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
 	}
 
-	public static update(): void {
+	public static preUpdate(): void {
 		// sync _cursors to cursors
 		var keys: number[] = Array.from(MouseHandler._cursors.keys());
 		for (var i: number = 0; i < keys.length; i++) {
@@ -67,7 +67,7 @@ export class MouseHandler {
 		}
 	}
 
-	public static postUpdate(): void {
+	public static preRender(): void {
 		var keys: number[] = Array.from(MouseHandler.cursors.keys());
 		for (var i: number = 0; i < keys.length; i++) {
 			var cursor: Cursor = MouseHandler.cursors.get(keys[i]);

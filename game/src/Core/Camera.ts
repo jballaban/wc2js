@@ -18,10 +18,9 @@ export class Camera {
 		this.area = new Rectangle(origin, new Point(viewport.area.width(), viewport.area.height(), origin));
 	}
 
-	public update(): void {
+	public preUpdate(): void {
 		if (this.viewport.area.changed()) {
 			this.area.bottomRight().move(this.viewport.area.width(), this.viewport.area.height());
-			Screen.current.container.recalculateVisibleRegions(this.area);
 		}
 	}
 

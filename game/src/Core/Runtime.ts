@@ -6,10 +6,12 @@ import { ContextLayer } from "./ContextLayer";
 import { MouseHandler } from "../IO/MouseHandler";
 import { Mouse } from "../IO/Mouse";
 
-
 export class Runtime {
 
 	public static nextScreen: Screen;
+	private static last: number;
+	private static fps: FPSMeter;
+	private static ctx: ContextLayer;
 
 	public static init(): void {
 		Runtime.ctx = new ContextLayer(1);
@@ -23,21 +25,6 @@ export class Runtime {
 		requestAnimationFrame(Runtime.frame);
 	}
 
-
-	public static onWindowResize(): void {
-		Runtime.ctx.resize();
-	}
-
-
-
-
-	private static last: number;
-
-	private static fps: FPSMeter;
-	public static ctx: ContextLayer;
-
-
-
 	private static frame(now: number): void {
 		try {
 			if (Runtime.nextScreen != null) {
@@ -46,16 +33,14 @@ export class Runtime {
 			}
 			Runtime.fps.tickStart();
 			if (Screen.current != null) {
-				// runtime.dt += Math.min(1, (now - Runtime.last) / 1000);
-				MouseHandler.update();
+				MouseHandler.preUpdate();
+				Screen.current.preUpdate();
 				Screen.current.update(Math.min(1, (now - Runtime.last) / 1000));
-				/* while (Runtime.dt > Runtime.step) {
-					Runtime.dt = Runtime.dt - Runtime.step;
-					Runtime.update(Runtime.step);
-				} */
-				Screen.current.render();
+				Runtime.last = now;
+				MouseHandler.preRender();
+				Screen.current.preRender();
+				Screen.current.render(Runtime.ctx.ctx);
 			}
-			Runtime.last = now;
 			Runtime.fps.tick();
 			requestAnimationFrame(Runtime.frame);
 		} catch (e) {

@@ -28,11 +28,11 @@ export class Viewport {
 		this.resizeY = window.innerHeight;
 	}
 
-	public onPreRender(): void {
+	public preRender(): void {
 		this.area.clearChanged();
 	}
 
-	public update(): void {
+	public preUpdate(): void {
 		if (this.resizeX != null || this.resizeY != null) {
 			this.area.bottomRight().move(this.resizeX, this.resizeY);
 			this.resizeX = this.resizeY = null;

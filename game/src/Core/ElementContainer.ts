@@ -15,20 +15,26 @@ export class ElementContainer {
 	public regionsCache: ElementRegion[];
 	public areasCache: Rectangle[];
 	public elementsCache: Element[];
-	public visibleRegionCache: ElementRegion[];
 
 	public constructor(regionsize: number, area: Rectangle) {
 		this.regions = new RegionContainer(regionsize, area, ElementRegion);
 		this.regionsCache = Array.from(this.regions.regions.values());
 		this.areasCache = Array.from(this.regions.regions.keys());
 		this.elementsCache = new Array<Element>();
-		this.visibleRegionCache = new Array<ElementRegion>();
 	}
 
-	public recalculateVisibleRegions(area: Rectangle): void {
-		this.visibleRegionCache = this.getRegions(area);
-		for (var i: number = 0; i < this.visibleRegionCache.length; i++) {
-			this.visibleRegionCache[i].requiresRedraw = true;
+	public resize(area: Rectangle): void {
+		var elements: Element[] = new Array<Element>();
+		for (var i = 0; i < this.elementsCache.length; i++) {
+			elements.push(this.elementsCache[i]);
+			this.deregister(this.elementsCache[i]);
+		}
+		this.regions = new RegionContainer(this.regions.len, area, ElementRegion);
+		this.regionsCache = Array.from(this.regions.regions.values());
+		this.areasCache = Array.from(this.regions.regions.keys());
+		this.elementsCache = new Array<Element>();
+		for (var i = 0; i < elements.length; i++) {
+			this.register(elements[i]);
 		}
 	}
 

@@ -8,8 +8,8 @@ export abstract class Region {
 
 export class RegionContainer<T extends Region> {
 	public regions: Map<Rectangle, T> = new Map<Rectangle, T>();
-	public area: Rectangle;
-	public constructor(len: number, area: Rectangle, private regionType: new () => T) {
+
+	public constructor(public len: number, public area: Rectangle, private regionType: new () => T) {
 		this.area = area;
 		var nx: number = Math.ceil(this.area.width() / len);
 		var ny: number = Math.ceil(this.area.height() / len);
