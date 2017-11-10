@@ -23,11 +23,10 @@ export class Cursor {
 }
 
 export class MouseHandler {
-	public static locked: boolean = false;
+	private static locked: boolean = false;
 	private static _cursors: Map<number, Cursor> = new Map<number, Cursor>();
 	private static mouseX: number = 0;
 	private static mouseY: number = 0;
-
 	public static cursors: Map<number, Cursor> = new Map<number, Cursor>();
 
 	public static init(): void {
@@ -60,8 +59,8 @@ export class MouseHandler {
 					MouseHandler.cursors.get(keys[i]).y = cursor.y;
 					MouseHandler.cursors.get(keys[i]).state = CursorState.moved;
 					break;
-				default:
-					MouseHandler.cursors.get(keys[i]).state = cursor.state;
+				case CursorState.remove:
+					MouseHandler.cursors.get(keys[i]).state = CursorState.remove;
 					break;
 			}
 			cursor.state = CursorState.unchanged;
@@ -69,7 +68,7 @@ export class MouseHandler {
 	}
 
 	public static postUpdate(): void {
-		var keys: number[] = Array.from(MouseHandler._cursors.keys());
+		var keys: number[] = Array.from(MouseHandler.cursors.keys());
 		for (var i: number = 0; i < keys.length; i++) {
 			var cursor: Cursor = MouseHandler.cursors.get(keys[i]);
 			if (cursor.state === CursorState.remove) {
@@ -84,6 +83,9 @@ export class MouseHandler {
 	public static onTouchStart(e: TouchEvent): void {
 		e.preventDefault();
 		for (var i: number = 0; i < e.changedTouches.length; i++) {
+			if (MouseHandler._cursors.get(e.changedTouches[i].identifier) != null) {
+				alert(e.changedTouches[i].identifier + " already exists");
+			}
 			MouseHandler._cursors.set(e.changedTouches[i].identifier, Cursor.fromTouch(e.changedTouches[i]));
 		}
 	}
@@ -91,7 +93,12 @@ export class MouseHandler {
 	public static onTouchEnd(e: TouchEvent): void {
 		e.preventDefault();
 		for (var i: number = 0; i < e.changedTouches.length; i++) {
-			MouseHandler._cursors.get(e.changedTouches[i].identifier).state = CursorState.remove;
+			// check if we've acked this event, if not we can just kill it before anyone notices
+			if (MouseHandler.cursors.get(e.changedTouches[i].identifier) == null) {
+				MouseHandler._cursors.delete(e.changedTouches[i].identifier);
+			} else {
+				MouseHandler._cursors.get(e.changedTouches[i].identifier).state = CursorState.remove;
+			}
 		}
 	}
 

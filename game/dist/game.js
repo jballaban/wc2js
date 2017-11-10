@@ -842,15 +842,15 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
                         MouseHandler.cursors.get(keys[i]).y = cursor.y;
                         MouseHandler.cursors.get(keys[i]).state = CursorState.moved;
                         break;
-                    default:
-                        MouseHandler.cursors.get(keys[i]).state = cursor.state;
+                    case CursorState.remove:
+                        MouseHandler.cursors.get(keys[i]).state = CursorState.remove;
                         break;
                 }
                 cursor.state = CursorState.unchanged;
             }
         }
         static postUpdate() {
-            var keys = Array.from(MouseHandler._cursors.keys());
+            var keys = Array.from(MouseHandler.cursors.keys());
             for (var i = 0; i < keys.length; i++) {
                 var cursor = MouseHandler.cursors.get(keys[i]);
                 if (cursor.state === CursorState.remove) {
@@ -865,13 +865,21 @@ define("IO/MouseHandler", ["require", "exports"], function (require, exports) {
         static onTouchStart(e) {
             e.preventDefault();
             for (var i = 0; i < e.changedTouches.length; i++) {
+                if (MouseHandler._cursors.get(e.changedTouches[i].identifier) != null) {
+                    alert(e.changedTouches[i].identifier + " already exists");
+                }
                 MouseHandler._cursors.set(e.changedTouches[i].identifier, Cursor.fromTouch(e.changedTouches[i]));
             }
         }
         static onTouchEnd(e) {
             e.preventDefault();
             for (var i = 0; i < e.changedTouches.length; i++) {
-                MouseHandler._cursors.get(e.changedTouches[i].identifier).state = CursorState.remove;
+                if (MouseHandler.cursors.get(e.changedTouches[i].identifier) == null) {
+                    MouseHandler._cursors.delete(e.changedTouches[i].identifier);
+                }
+                else {
+                    MouseHandler._cursors.get(e.changedTouches[i].identifier).state = CursorState.remove;
+                }
             }
         }
         static onTouchMove(e) {
@@ -1228,19 +1236,24 @@ define("Core/Runtime", ["require", "exports", "Core/Screen", "Core/ContextLayer"
             Runtime.ctx.resize();
         }
         static frame(now) {
-            if (Runtime.nextScreen != null) {
-                Screen_6.Screen.current = Runtime.nextScreen;
-                Runtime.nextScreen = null;
+            try {
+                if (Runtime.nextScreen != null) {
+                    Screen_6.Screen.current = Runtime.nextScreen;
+                    Runtime.nextScreen = null;
+                }
+                Runtime.fps.tickStart();
+                if (Screen_6.Screen.current != null) {
+                    MouseHandler_3.MouseHandler.update();
+                    Screen_6.Screen.current.update(Math.min(1, (now - Runtime.last) / 1000));
+                    Screen_6.Screen.current.render();
+                }
+                Runtime.last = now;
+                Runtime.fps.tick();
+                requestAnimationFrame(Runtime.frame);
             }
-            Runtime.fps.tickStart();
-            if (Screen_6.Screen.current != null) {
-                MouseHandler_3.MouseHandler.update();
-                Screen_6.Screen.current.update(Math.min(1, (now - Runtime.last) / 1000));
-                Screen_6.Screen.current.render();
+            catch (e) {
+                alert(e.message + "\n" + e.stack);
             }
-            Runtime.last = now;
-            Runtime.fps.tick();
-            requestAnimationFrame(Runtime.frame);
         }
     }
     exports.Runtime = Runtime;
