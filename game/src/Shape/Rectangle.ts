@@ -1,5 +1,5 @@
 import { Polygon, Position } from "./Polygon";
-import { Point, MidPoint, DynamicPoint, DynamicDimension } from "./Point";
+import { Point, MidPoint, DynamicDimension } from "./Point";
 import { IShape, ShapeType } from "./IShape";
 import { Collision } from "../Util/Collision";
 import { Logger } from "../Util/Logger";
@@ -14,6 +14,8 @@ export class Rectangle extends Polygon implements IShape {
 	}
 
 	public changed(): boolean {
+		this.topLeft.recalculate();
+		this.bottomRight.recalculate();
 		return this.topLeft.changed || this.bottomRight.changed;
 	}
 

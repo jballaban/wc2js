@@ -22,7 +22,7 @@ export class Camera {
 		}
 	}
 
-	public preRender(): void {
+	public postRender(): void {
 		this.area.clearChanged();
 	}
 

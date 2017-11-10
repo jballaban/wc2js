@@ -29,8 +29,7 @@ export class PlayScreen extends Screen {
 				this.container,
 				Color.makeRGBA(Color.getRandomRGB(), 0.8),
 				Math.floor(Math.random() * 2) === 1 ?
-					new Rectangle(position, new Point(Math.floor(Math.random() * 10) + 5, Math.floor(Math.random() * 10) + 5, position), )
-					// tslint:disable-next-line:no-bitwise
+					new Rectangle(position, new Point(Math.floor(Math.random() * 10) + 5, Math.floor(Math.random() * 10) + 5, position))
 					: new Circle(position, Math.floor(Math.random() * 10) + 5));
 			this.container.register(thing);
 		}

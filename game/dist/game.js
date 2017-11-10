@@ -17,122 +17,6 @@ define("Core/Vector", ["require", "exports"], function (require, exports) {
     }
     exports.Vector = Vector;
 });
-define("Shape/Point", ["require", "exports", "Core/Vector"], function (require, exports, Vector_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Point {
-        constructor(offsetX, offsetY, parent) {
-            this.offsetX = null;
-            this.offsetY = null;
-            this.children = new Array();
-            this.parent = null;
-            this.dirty = true;
-            this.changed = true;
-            this.vector = new Vector_1.Vector(0, 0);
-            this.parent = parent;
-            if (this.parent != null) {
-                this.parent.children.push(this);
-            }
-            this.move(offsetX, offsetY);
-        }
-        x() {
-            this.recalculate();
-            return this.vector.x;
-        }
-        y() {
-            this.recalculate();
-            return this.vector.y;
-        }
-        recalculate() {
-            if (!this.dirty) {
-                return;
-            }
-            this.dirty = false;
-            var x = this.calculate("x");
-            var y = this.calculate("y");
-            if (x === this.vector.x && y === this.vector.y) {
-                return;
-            }
-            this.vector.x = x;
-            this.vector.y = y;
-            this.changed = true;
-            for (var child of this.children) {
-                child.dirty = true;
-            }
-        }
-        move(offsetX, offsetY) {
-            if (offsetX != null) {
-                this.offsetX = offsetX;
-            }
-            if (offsetY != null) {
-                this.offsetY = offsetY;
-            }
-            this.changed = this.dirty = true;
-        }
-        calculate(field) {
-            var result = 0;
-            if (this.parent != null) {
-                result = this.parent[field]();
-            }
-            result += this["offset" + field.toUpperCase()];
-            return result;
-        }
-    }
-    exports.Point = Point;
-    var DynamicDimension;
-    (function (DynamicDimension) {
-        DynamicDimension[DynamicDimension["x"] = 0] = "x";
-        DynamicDimension[DynamicDimension["y"] = 1] = "y";
-    })(DynamicDimension = exports.DynamicDimension || (exports.DynamicDimension = {}));
-    class DynamicPoint extends Point {
-        constructor(parent, p2, dimension) {
-            super(null, null, parent);
-            this.p2 = p2;
-            this.dimension = dimension;
-            this.p2.children.push(this);
-            this.recalculate();
-        }
-        recalculate() {
-            if (!this.dirty) {
-                return;
-            }
-            switch (this.dimension) {
-                case DynamicDimension.x:
-                    this.offsetX = this.p2.x() - this.parent.x();
-                    break;
-                case DynamicDimension.y:
-                    this.offsetY = this.p2.y() - this.parent.y();
-                    break;
-            }
-            super.recalculate();
-        }
-    }
-    exports.DynamicPoint = DynamicPoint;
-    class RatioPoint extends Point {
-        constructor(ratio, parent, p2) {
-            super(null, null, parent);
-            this.p2 = p2;
-            this.ratio = ratio;
-            this.p2.children.push(this);
-            this.recalculate();
-        }
-        recalculate() {
-            if (!this.dirty) {
-                return;
-            }
-            this.offsetX = Math.floor((this.p2.x() - this.parent.x()) * this.ratio);
-            this.offsetY = Math.floor((this.p2.y() - this.parent.y()) * this.ratio);
-            super.recalculate();
-        }
-    }
-    exports.RatioPoint = RatioPoint;
-    class MidPoint extends RatioPoint {
-        constructor(parent, p2) {
-            super(1 / 2, parent, p2);
-        }
-    }
-    exports.MidPoint = MidPoint;
-});
 define("Util/Logger", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -205,6 +89,99 @@ define("Util/Logger", ["require", "exports"], function (require, exports) {
     Logger._messagesSkipped = 0;
     exports.Logger = Logger;
 });
+define("Shape/Point", ["require", "exports", "Core/Vector"], function (require, exports, Vector_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Point {
+        constructor(offsetX, offsetY, parent) {
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.parent = parent;
+            this.children = new Array();
+            this.dirty = true;
+            this.changed = true;
+            this.vector = new Vector_1.Vector(0, 0);
+            this.parent = parent;
+            if (this.parent != null) {
+                this.parent.children.push(this);
+            }
+        }
+        x() {
+            this.recalculate();
+            return this.vector.x;
+        }
+        y() {
+            this.recalculate();
+            return this.vector.y;
+        }
+        recalculate() {
+            if (!this.dirty) {
+                return;
+            }
+            this.dirty = false;
+            var x = this.calculate("x");
+            var y = this.calculate("y");
+            if (x === this.vector.x && y === this.vector.y) {
+                return;
+            }
+            this.vector.x = x;
+            this.vector.y = y;
+            this.changed = true;
+            for (var child of this.children) {
+                child.dirty = true;
+            }
+        }
+        move(offsetX, offsetY) {
+            if (offsetX != null) {
+                this.offsetX = offsetX;
+            }
+            if (offsetY != null) {
+                this.offsetY = offsetY;
+            }
+            if (!this.changed) {
+                for (var child of this.children) {
+                    child.dirty = true;
+                }
+                this.changed = true;
+            }
+            this.dirty = true;
+        }
+        calculate(field) {
+            var result = 0;
+            if (this.parent != null) {
+                result = this.parent[field]();
+            }
+            result += this["offset" + field.toUpperCase()];
+            return result;
+        }
+    }
+    exports.Point = Point;
+    var DynamicDimension;
+    (function (DynamicDimension) {
+        DynamicDimension[DynamicDimension["x"] = 0] = "x";
+        DynamicDimension[DynamicDimension["y"] = 1] = "y";
+    })(DynamicDimension = exports.DynamicDimension || (exports.DynamicDimension = {}));
+    class RatioPoint extends Point {
+        constructor(ratio, p1, p2) {
+            super(null, null);
+            this.ratio = ratio;
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p1.children.push(this);
+            this.p2.children.push(this);
+        }
+        calculate(field) {
+            return (this.p2[field]() - this.p1[field]()) * this.ratio;
+        }
+    }
+    exports.RatioPoint = RatioPoint;
+    class MidPoint extends RatioPoint {
+        constructor(p1, p2) {
+            super(1 / 2, p1, p2);
+        }
+    }
+    exports.MidPoint = MidPoint;
+});
 define("Shape/Polygon", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -244,23 +221,23 @@ define("Shape/Circle", ["require", "exports", "Shape/IShape", "Util/Collision"],
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class Circle {
-        constructor(center, radius) {
-            this.center = center;
+        constructor(origin, radius) {
+            this.origin = origin;
             this.type = IShape_1.ShapeType.Circle;
-            this.origin = center;
             this.r = radius;
         }
         changed() {
-            return this.center.changed;
+            this.origin.recalculate();
+            return this.origin.changed;
         }
         clearChanged() {
-            this.center.changed = false;
+            this.origin.changed = false;
         }
         x() {
-            return this.center.x();
+            return this.origin.x();
         }
         y() {
-            return this.center.y();
+            return this.origin.y();
         }
         intersects(shape) {
             return Collision_1.Collision.intersects(this, shape);
@@ -268,7 +245,7 @@ define("Shape/Circle", ["require", "exports", "Shape/IShape", "Util/Collision"],
         render(ctx, colour) {
             ctx.fillStyle = colour;
             ctx.beginPath();
-            ctx.arc(this.center.x(), this.center.y(), this.r, 0, 2 * Math.PI);
+            ctx.arc(this.origin.x(), this.origin.y(), this.r, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -324,7 +301,7 @@ define("Util/Collision", ["require", "exports", "Shape/IShape", "Shape/Point"], 
         static getIntersectionLineCircle(line, circle) {
             var len = this.getDistance(line.p1, line.p2);
             var d = new Point_1.Point((line.p2.x() - line.p1.x()) / len, (line.p2.y() - line.p1.y()) / len, null);
-            var t = d.x() * (circle.center.x() - line.p1.x()) + d.y() * (circle.center.y() - line.p1.y());
+            var t = d.x() * (circle.origin.x() - line.p1.x()) + d.y() * (circle.origin.y() - line.p1.y());
             var e = new Point_1.Point(t * d.x() + line.p1.x(), t * d.y() + line.p1.y(), null);
             var dist = Math.sqrt(Math.pow(e.x() - circle.x(), 2) + Math.pow(e.y() - circle.y(), 2));
             if (dist < circle.r) {
@@ -397,6 +374,8 @@ define("Shape/Rectangle", ["require", "exports", "Shape/Polygon", "Shape/Point",
             this.origin = topLeft;
         }
         changed() {
+            this.topLeft.recalculate();
+            this.bottomRight.recalculate();
             return this.topLeft.changed || this.bottomRight.changed;
         }
         clearChanged() {
@@ -519,7 +498,7 @@ define("Core/Viewport", ["require", "exports", "Shape/Point", "Shape/Rectangle"]
             this.resizeX = window.innerWidth;
             this.resizeY = window.innerHeight;
         }
-        preRender() {
+        postRender() {
             this.area.clearChanged();
         }
         preUpdate() {
@@ -721,11 +700,13 @@ define("Core/Element", ["require", "exports"], function (require, exports) {
         }
         update(step) {
         }
-        preRender() {
+        postUpdate() {
             if (this.area.changed()) {
                 this.container.update(this, true);
-                this.area.clearChanged();
             }
+        }
+        postRender() {
+            this.area.clearChanged();
         }
     }
     exports.Element = Element;
@@ -908,8 +889,8 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
             this.container = new ElementContainer_1.ElementContainer(regionsize, area);
         }
         activate() {
-            this.layer.activate();
             this.viewport.activate();
+            this.layer.activate();
         }
         deactivate() {
             this.layer.deactivate();
@@ -924,6 +905,12 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
                 this.container.elementsCache[i].update(dt);
             }
         }
+        postUpdate() {
+            for (var i = 0; i < this.container.elementsCache.length; i++) {
+                this.container.elementsCache[i].postUpdate();
+            }
+            this.checkCollisions();
+        }
         preRender() {
             if (this.camera.area.changed()) {
                 this.visibleRegionCache = this.container.getRegions(this.camera.area);
@@ -931,11 +918,12 @@ define("Core/Screen", ["require", "exports", "Core/Camera", "Util/Array", "Util/
                     this.visibleRegionCache[i].requiresRedraw = true;
                 }
             }
-            this.viewport.preRender();
-            this.camera.preRender();
-            this.checkCollisions();
+        }
+        postRender() {
+            this.viewport.postRender();
+            this.camera.postRender();
             for (var i = 0; i < this.container.elementsCache.length; i++) {
-                this.container.elementsCache[i].preRender();
+                this.container.elementsCache[i].postRender();
             }
         }
         checkCollisions() {
@@ -1185,10 +1173,12 @@ define("Core/Runtime", ["require", "exports", "IO/MouseHandler"], function (requ
                     MouseHandler_2.MouseHandler.preUpdate();
                     Runtime.currentScreen.preUpdate();
                     Runtime.currentScreen.update(Math.min(1, (now - Runtime.last) / 1000));
+                    Runtime.currentScreen.postUpdate();
                     Runtime.last = now;
                     MouseHandler_2.MouseHandler.preRender();
                     Runtime.currentScreen.preRender();
                     Runtime.currentScreen.render();
+                    Runtime.currentScreen.postRender();
                 }
                 Runtime.fps.tick();
                 requestAnimationFrame(Runtime.frame);
@@ -1214,7 +1204,7 @@ define("Core/Camera", ["require", "exports", "Shape/Point", "Shape/Rectangle"], 
                 this.area.bottomRight.move(this.viewport.area.width(), this.viewport.area.height());
             }
         }
-        preRender() {
+        postRender() {
             this.area.clearChanged();
         }
     }

@@ -108,13 +108,13 @@ export class Collision {
 
 	public static getIntersectionLineCircle(line: Line, circle: Circle): Point {
 		// https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
-		var len = this.getDistance(line.p1, line.p2);
+		var len: number = this.getDistance(line.p1, line.p2);
 		var d: Point = new Point(
 			(line.p2.x() - line.p1.x()) / len,
 			(line.p2.y() - line.p1.y()) / len,
 			null
 		);
-		var t: number = d.x() * (circle.center.x() - line.p1.x()) + d.y() * (circle.center.y() - line.p1.y());
+		var t: number = d.x() * (circle.origin.x() - line.p1.x()) + d.y() * (circle.origin.y() - line.p1.y());
 		var e: Point = new Point(
 			t * d.x() + line.p1.x(),
 			t * d.y() + line.p1.y(),

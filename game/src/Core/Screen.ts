@@ -34,8 +34,8 @@ export abstract class Screen {
 	}
 
 	public activate(): void {
-		this.layer.activate();
 		this.viewport.activate();
+		this.layer.activate();
 	}
 
 	public deactivate(): void {
@@ -54,6 +54,13 @@ export abstract class Screen {
 		}
 	}
 
+	public postUpdate(): void {
+		for (var i: number = 0; i < this.container.elementsCache.length; i++) {
+			this.container.elementsCache[i].postUpdate();
+		}
+		this.checkCollisions();
+	}
+
 	public preRender(): void {
 		if (this.camera.area.changed()) {
 			this.visibleRegionCache = this.container.getRegions(this.camera.area);
@@ -61,11 +68,13 @@ export abstract class Screen {
 				this.visibleRegionCache[i].requiresRedraw = true;
 			}
 		}
-		this.viewport.preRender();
-		this.camera.preRender();
-		this.checkCollisions();
+	}
+
+	public postRender(): void {
+		this.viewport.postRender();
+		this.camera.postRender();
 		for (var i: number = 0; i < this.container.elementsCache.length; i++) {
-			this.container.elementsCache[i].preRender();
+			this.container.elementsCache[i].postRender();
 		}
 	}
 

@@ -39,10 +39,12 @@ export class Runtime {
 				MouseHandler.preUpdate();
 				Runtime.currentScreen.preUpdate();
 				Runtime.currentScreen.update(Math.min(1, (now - Runtime.last) / 1000));
+				Runtime.currentScreen.postUpdate();
 				Runtime.last = now;
 				MouseHandler.preRender();
 				Runtime.currentScreen.preRender();
 				Runtime.currentScreen.render();
+				Runtime.currentScreen.postRender();
 			}
 			Runtime.fps.tick();
 			requestAnimationFrame(Runtime.frame);

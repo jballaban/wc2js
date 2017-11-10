@@ -1,22 +1,19 @@
 import { Vector } from "../Core/Vector";
+import { Logger } from "../Util/Logger";
 
 
 export class Point {
 	public vector: Vector;
-	public offsetX: number = null;
-	public offsetY: number = null;
 	public children: Point[] = new Array<Point>();
-	public parent: Point = null;
 	protected dirty: boolean = true;
 	public changed: boolean = true;
 
-	constructor(offsetX: number, offsetY: number, parent?: Point) {
+	constructor(public offsetX: number, public offsetY: number, public parent?: Point) {
 		this.vector = new Vector(0, 0);
 		this.parent = parent;
 		if (this.parent != null) {
 			this.parent.children.push(this); // self register
 		}
-		this.move(offsetX, offsetY);
 	}
 
 	public x(): number {
@@ -50,10 +47,16 @@ export class Point {
 		if (offsetY != null) {
 			this.offsetY = offsetY;
 		}
-		this.changed = this.dirty = true;
+		if (!this.changed) {
+			for (var child of this.children) { // tell children they may need to reposition themselves since we changed something
+				child.dirty = true;
+			}
+			this.changed = true;
+		}
+		this.dirty = true;
 	}
 
-	private calculate(field: string): number {
+	protected calculate(field: string): number {
 		var result: number = 0;
 		if (this.parent != null) {
 			result = this.parent[field]();
@@ -68,7 +71,7 @@ export enum DynamicDimension {
 	y
 }
 
-export class DynamicPoint extends Point {
+/* export class DynamicPoint extends Point {
 	public p2: Point;
 	public dimension: DynamicDimension;
 
@@ -92,31 +95,25 @@ export class DynamicPoint extends Point {
 		}
 		super.recalculate();
 	}
-}
+} */
 
 export class RatioPoint extends Point {
-	public p2: Point;
-	private ratio: number;
 
-	constructor(ratio: number, parent: Point, p2: Point) {
-		super(null, null, parent);
-		this.p2 = p2;
-		this.ratio = ratio;
+	constructor(private ratio: number, public p1: Point, public p2: Point) {
+		super(null, null);
+		this.p1.children.push(this);
 		this.p2.children.push(this);
-		this.recalculate();
 	}
 
-	public recalculate(): void {
-		if (!this.dirty) { return; }
-		this.offsetX = Math.floor((this.p2.x() - this.parent.x()) * this.ratio);
-		this.offsetY = Math.floor((this.p2.y() - this.parent.y()) * this.ratio);
-		super.recalculate();
+	protected calculate(field: string): number {
+		return (this.p2[field]() - this.p1[field]()) * this.ratio;
 	}
 }
 
 export class MidPoint extends RatioPoint {
 
-	constructor(parent: Point, p2: Point) {
-		super(1 / 2, parent, p2);
+	constructor(p1: Point, p2: Point) {
+		super(1 / 2, p1, p2);
 	}
+
 }

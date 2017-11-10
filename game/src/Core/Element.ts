@@ -40,14 +40,17 @@ export abstract class Element {
 	}
 
 	public update(step: number): void {
-		// update overrides
+		// to override
 	}
 
-	public preRender(): void {
+	public postUpdate(): void {
 		if (this.area.changed()) {
 			this.container.update(this, true);
-			this.area.clearChanged();
 		}
+	}
+
+	public postRender(): void {
+		this.area.clearChanged();
 	}
 
 	public abstract render(ctx: CanvasRenderingContext2D): void;

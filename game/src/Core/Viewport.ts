@@ -22,7 +22,7 @@ export class Viewport {
 		this.resizeY = window.innerHeight;
 	}
 
-	public preRender(): void {
+	public postRender(): void {
 		this.area.clearChanged();
 	}
 
