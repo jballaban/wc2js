@@ -523,6 +523,7 @@ define("Core/ContextLayer", ["require", "exports"], function (require, exports) 
             canv.style.setProperty("z-index", this.zindex.toString());
             document.body.appendChild(canv);
             this.ctx = canv.getContext("2d");
+            this.ctx.webkitImageSmoothingEnabled = true;
         }
         deactivate() {
             document.body.removeChild(this.ctx.canvas);
@@ -1036,13 +1037,15 @@ define("UI/Thing", ["require", "exports", "Core/Element", "Core/Vector", "Core/E
             this.maxSpeed = 20;
         }
         update(step) {
-            this.speed -= .5;
+            this.speed -= .3;
             this.speed = Math.max(this.minSpeed, this.speed);
             var move = this.direction.clone().multiply(step * this.speed);
             this.inc(move.x, move.y);
-            if (this.area.origin.x() <= 0 || this.area.origin.x() >= this.container.area.width()
-                || this.area.origin.y() <= 0 || this.area.origin.y() >= this.container.area.height()) {
-                this.direction.multiply(-1);
+            if (this.area.origin.x() <= 0 || this.area.origin.x() >= this.container.area.width()) {
+                this.direction.x *= -1;
+            }
+            if (this.area.origin.y() <= 0 || this.area.origin.y() >= this.container.area.height()) {
+                this.direction.y *= -1;
             }
             super.update(step);
         }
@@ -1089,7 +1092,7 @@ define("Screen/PlayScreen", ["require", "exports", "Core/Screen", "Shape/Rectang
         }
         activate() {
             super.activate();
-            for (var i = 0; i < 1800; i++) {
+            for (var i = 0; i < 2000; i++) {
                 var position = new Point_6.Point(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
                 var thing = new Thing_1.Thing(this.container, Color_2.Color.makeRGBA(Color_2.Color.getRandomRGB(), 0.8), Math.floor(Math.random() * 2) === 1 ?
                     new Rectangle_3.Rectangle(position, new Point_6.Point(Math.floor(Math.random() * 10) + 5, Math.floor(Math.random() * 10) + 5, position))

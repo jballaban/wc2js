@@ -19,6 +19,7 @@ export class ContextLayer {
 		canv.style.setProperty("z-index", this.zindex.toString());
 		document.body.appendChild(canv);
 		this.ctx = canv.getContext("2d");
+		this.ctx.webkitImageSmoothingEnabled = true;
 	}
 
 	public deactivate(): void {

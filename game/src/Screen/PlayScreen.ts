@@ -23,7 +23,7 @@ export class PlayScreen extends Screen {
 
 	public activate(): void {
 		super.activate();
-		for (var i: number = 0; i < 1800; i++) {
+		for (var i: number = 0; i < 2000; i++) {
 			var position: Point = new Point(Math.random() * this.container.area.width(), Math.random() * this.container.area.height());
 			var thing: Thing = new Thing(
 				this.container,

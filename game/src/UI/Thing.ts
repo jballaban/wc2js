@@ -53,13 +53,15 @@ export class Thing extends Element {
 	}
 
 	public update(step: number): void {
-		this.speed -= .5;
+		this.speed -= .3;
 		this.speed = Math.max(this.minSpeed, this.speed);
 		var move: Vector = this.direction.clone().multiply(step * this.speed);
 		this.inc(move.x, move.y);
-		if (this.area.origin.x() <= 0 || this.area.origin.x() >= this.container.area.width()
-			|| this.area.origin.y() <= 0 || this.area.origin.y() >= this.container.area.height()) {
-			this.direction.multiply(-1);
+		if (this.area.origin.x() <= 0 || this.area.origin.x() >= this.container.area.width()) {
+			this.direction.x *= -1;
+		}
+		if (this.area.origin.y() <= 0 || this.area.origin.y() >= this.container.area.height()) {
+			this.direction.y *= -1;
 		}
 		super.update(step);
 	}
