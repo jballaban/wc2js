@@ -23,7 +23,6 @@ export abstract class Screen {
 	public camera: Camera;
 	protected viewport: Viewport;
 	private layer: ContextLayer;
-	private static _current: Screen;
 	public visibleRegionCache: ElementRegion[];
 	public static debug_showRedraws = false;
 
