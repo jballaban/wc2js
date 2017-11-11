@@ -31,7 +31,9 @@ module.exports = function (grunt) {
 		},
 		copy: {
 			options: {
+				noProcess: ['**/*.{png,gif,jpg,ico,psd,ttf,otf,woff,svg}'],
 				process: function (content, srcpath) {
+					console.log(srcpath);
 					if (srcpath.endsWith(".ejs")) {
 						return grunt.template.process(content);
 					}
@@ -45,7 +47,8 @@ module.exports = function (grunt) {
 						dest: './dist/index.html',
 					},
 					{
-						src: './src/Asset/**',
+						cwd: './src/Asset/',
+						src: '**',
 						dest: './dist/asset/',
 						expand: true,
 						flatten: true

@@ -3,5 +3,6 @@ export enum ElementType {
 	None = 2,
 	Thing = 4,
 	StaticThing = 8,
-	Mouse = 16
+	Mouse = 16,
+	backgroundImage = 32
 }

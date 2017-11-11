@@ -14,10 +14,12 @@ import { EventHandler } from "../Core/EventHandler";
 import { Viewport } from "../Core/Viewport";
 import { MouseHandler } from "../IO/MouseHandler";
 import { ElementType } from "./ElementType";
+import { Action } from "../Util/Action";
 
 export abstract class Screen {
 
 	public container: ElementContainer;
+	public actions: Action[] = new Array<Action>();
 	public camera: Camera;
 	protected viewport: Viewport;
 	private layer: ContextLayer;
@@ -49,6 +51,13 @@ export abstract class Screen {
 	}
 
 	public update(dt: number): void {
+		for (var i: number = 0; i < this.actions.length; i++) {
+			this.actions[i].update(dt);
+			if (this.actions[i].completed()) {
+				this.actions[i].what();
+				this.actions.splice(i--, 1);
+			}
+		}
 		for (var i: number = 0; i < this.container.elementsCache.length; i++) {
 			this.container.elementsCache[i].update(dt);
 		}

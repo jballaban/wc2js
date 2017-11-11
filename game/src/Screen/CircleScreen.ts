@@ -15,7 +15,7 @@ import { Circle } from "../Shape/Circle";
 import { BasicMouse } from "../IO/BasicMouse";
 import { Cursor, MouseHandler, CursorState } from "../IO/MouseHandler";
 
-export class PlayScreen extends Screen {
+export class CircleScreen extends Screen {
 
 	public constructor() {
 		super(256, new Rectangle(new Point(0, 0), new Point(1024, 768)));

@@ -26,6 +26,10 @@ export abstract class Element {
 		this.zIndex = zIndex;
 	}
 
+	public ready(): boolean {
+		return true;
+	}
+
 	public onCollide(element: Element, on: boolean): void {
 		// to implement
 	}

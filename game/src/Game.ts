@@ -1,7 +1,7 @@
 import { Runtime } from "./Core/Runtime";
 import { Logger, Level } from "./Util/logger";
 import { Screen } from "./Core/Screen";
-import { PlayScreen } from "./Screen/PlayScreen";
+import { CircleScreen } from "./Screen/CircleScreen";
 import { LoadingScreen } from "./Screen/LoadingScreen";
 
 export class Game {
@@ -10,9 +10,9 @@ export class Game {
 		Logger.log("Game: Version " + ver);
 		Logger.log("Game: Log " + Level[Logger.level]);
 		Runtime.init();
-		var playscreen: PlayScreen = new PlayScreen();
-		var loadscreen: LoadingScreen = new LoadingScreen();
+		var circlescreen: CircleScreen = new CircleScreen();
+		var loadscreen: LoadingScreen = new LoadingScreen(circlescreen);
 		// Screen.debug_showRedraws = true;
-		Runtime.nextScreen = playscreen;
+		Runtime.nextScreen = loadscreen;
 	}
 }
