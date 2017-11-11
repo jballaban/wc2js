@@ -31,6 +31,7 @@ export class Runtime {
 					Runtime.currentScreen.deactivate();
 				}
 				Runtime.currentScreen = Runtime.nextScreen;
+				MouseHandler.reset();
 				Runtime.currentScreen.activate();
 				Runtime.nextScreen = null;
 			}
@@ -50,6 +51,7 @@ export class Runtime {
 			requestAnimationFrame(Runtime.frame);
 		} catch (e) {
 			alert(e.message + "\n" + e.stack);
+			throw e;
 		}
 	}
 

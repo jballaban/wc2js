@@ -40,6 +40,12 @@ export class MouseHandler {
 		document.addEventListener("pointerlockchange", MouseHandler.lockChanged);
 	}
 
+	public static reset(): void {
+		this._cursors = new Map<number, Cursor>();
+		this.cursors = new Map<number, Cursor>();
+		MouseHandler.lockChanged();
+	}
+
 	public static inc(id: number, diffx: number, diffy: number): void {
 		var cursor: Cursor = MouseHandler._cursors.get(id);
 		if (cursor.state === CursorState.unchanged) {
@@ -94,9 +100,6 @@ export class MouseHandler {
 	public static onTouchStart(e: TouchEvent): void {
 		e.preventDefault();
 		for (var i: number = 0; i < e.changedTouches.length; i++) {
-			if (MouseHandler._cursors.get(e.changedTouches[i].identifier) != null) {
-				alert(e.changedTouches[i].identifier + " already exists");
-			}
 			MouseHandler._cursors.set(e.changedTouches[i].identifier, Cursor.fromTouch(e.changedTouches[i]));
 		}
 	}
@@ -146,7 +149,7 @@ export class MouseHandler {
 		if (document.pointerLockElement != null) {
 			MouseHandler._cursors.set(0, new Cursor(0, MouseHandler.mouseX, MouseHandler.mouseY, CursorState.added));
 			MouseHandler.locked = true;
-		} else {
+		} else if (MouseHandler.locked) {
 			MouseHandler.locked = false;
 			MouseHandler._cursors.get(0).state = CursorState.remove;
 		}
